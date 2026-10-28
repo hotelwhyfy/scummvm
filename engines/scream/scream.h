@@ -22,33 +22,53 @@
 #ifndef SCREAM_H
 #define SCREAM_H
 
-#include "common/scummsys.h"
-#include "common/system.h"
 #include "common/error.h"
 #include "common/fs.h"
 #include "common/hash-str.h"
 #include "common/random.h"
+#include "common/scummsys.h"
 #include "common/serializer.h"
+#include "common/system.h"
 #include "common/util.h"
 #include "engines/engine.h"
 #include "engines/savestate.h"
 #include "graphics/screen.h"
 
+#include "scream/cursor.h"
 #include "scream/detection.h"
+#include "scream/font.h"
+#include "scream/hints.h"
+#include "scream/journal.h"
+#include "scream/menu.h"
+#include "scream/settings.h"
+#include "scream/world.h"
 
 namespace Scream {
 
 struct ScreamGameDescription;
 
+class Script;
+
 class ScreamEngine : public Engine {
 private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
+	Script *_script = nullptr;
+
 protected:
 	// Engine APIs
 	Common::Error run() override;
+
 public:
 	Graphics::Screen *_screen = nullptr;
+	Settings _settings;
+	Cursor _cursor;
+	Font _font;
+	Menu _menu;
+	Hints _hints;
+	World _world;
+	Journal _journal;
+
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);
 	~ScreamEngine() override;
@@ -68,10 +88,9 @@ public:
 	}
 
 	bool hasFeature(EngineFeature f) const override {
-		return
-		    (f == kSupportsLoadingDuringRuntime) ||
-		    (f == kSupportsSavingDuringRuntime) ||
-		    (f == kSupportsReturnToLauncher);
+		return (f == kSupportsLoadingDuringRuntime) ||
+			   (f == kSupportsSavingDuringRuntime) ||
+			   (f == kSupportsReturnToLauncher);
 	};
 
 	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override {

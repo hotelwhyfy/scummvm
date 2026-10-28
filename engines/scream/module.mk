@@ -4,7 +4,22 @@ MODULE_OBJS = \
 	scream.o \
 	console.o \
 	metaengine.o \
-	resources.o
+	resources.o \
+	script.o \
+	settings.o \
+	cursor.o \
+	font.o \
+	menu.o \
+	hints.o \
+	world.o \
+	track.o \
+	dialogue.o \
+	choice.o \
+	item.o \
+	journal.o \
+	node.o \
+	object.o \
+	zoom.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_SCREAM), DYNAMIC_PLUGIN)

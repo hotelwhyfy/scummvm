@@ -31,6 +31,8 @@
 #include "scream/console.h"
 #include "scream/detection.h"
 
+#include "scream/script.h"
+
 namespace Scream {
 
 ScreamEngine *g_engine;
@@ -42,6 +44,7 @@ ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : E
 
 ScreamEngine::~ScreamEngine() {
 	delete _screen;
+	delete _script;
 }
 
 uint32 ScreamEngine::getFeatures() const {
@@ -53,6 +56,10 @@ Common::String ScreamEngine::getGameId() const {
 }
 
 Common::Error ScreamEngine::run() {
+	_script = new Script();
+	_script->runFile("scream.sc");
+	_script->runFile("scratches.sc");
+
 	// Initialize 320x200 paletted graphics mode
 	initGraphics(320, 200);
 	_screen = new Graphics::Screen();
