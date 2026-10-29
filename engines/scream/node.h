@@ -35,9 +35,10 @@ class Node {
 public:
 	Node(const char *name) : _name(name) {}
 	void setParentRoom(Room *room) { _parentRoom = room; }
-	void setFace(int faceIndex, const char *file);
+	void setFace(int face, const char *file);
 	void setFootstepFile(const char *file) { _footstepFile = file; }
 	void addObject(Object *object) { _objects.push_back(object); }
+	const Common::String &getFace(int face) const;
 
 private:
 	Common::String _name;

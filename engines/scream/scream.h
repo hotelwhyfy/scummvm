@@ -32,6 +32,7 @@
 #include "common/util.h"
 #include "engines/engine.h"
 #include "engines/savestate.h"
+#include "graphics/opengl/system_headers.h"
 
 #include "scream/cursor.h"
 #include "scream/detection.h"
@@ -54,6 +55,8 @@ private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
 	Script *_script = nullptr;
+	void loadNode(Node *node);
+	GLuint _faceTextures[kNumFaces] = {};
 
 protected:
 	// Engine APIs

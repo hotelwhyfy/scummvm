@@ -57,6 +57,9 @@ public:
 	void scPlace(int x, int y, int w, int h, int face);
 	void setEnabled(int key, bool enabled);
 
+	// TEMP:
+	Node *getNode(int index);
+
 private:
 	Room *_currentRoom = nullptr;
 	Track *_currentTrack = nullptr;

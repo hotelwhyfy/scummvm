@@ -33,7 +33,7 @@ class Gfx {
 public:
 	Gfx();
 	GLuint createTexture(const Graphics::Surface *surface);
-	void deleteTexture(const GLuint texture);
+	void deleteTexture(GLuint texture);
 	void clear();
 	void setupCamera(float heading, float pitch, float fov);
 	void drawCube(const GLuint textures[kNumFaces]);

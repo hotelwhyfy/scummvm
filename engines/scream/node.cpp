@@ -19,14 +19,45 @@
  *
  */
 
+#include "common/textconsole.h"
+
 #include "scream/node.h"
 
 namespace Scream {
 
-void Node::setFace(int faceIndex, const char *file) {
-	if (faceIndex >= kScFront && faceIndex <= kScDown) {
-		_faces[faceIndex - kScFront] = file;
+static int faceIndex(int face) {
+	switch (face) {
+	case kScFront:
+		return 0;
+	case kScBack:
+		return 1;
+	case kScLeft:
+		return 2;
+	case kScRight:
+		return 3;
+	case kScUp:
+		return 4;
+	case kScDown:
+		return 5;
+	default:
+		return -1;
 	}
+}
+
+void Node::setFace(int face, const char *file) {
+	int index = faceIndex(face);
+	if (index >= 0)
+		_faces[index] = file;
+}
+
+const Common::String &Node::getFace(int face) const {
+	int index = faceIndex(face);
+	if (index >= 0)
+		return _faces[index];
+
+	warning("Node::getFace: unknown face provided %d", face);
+	static const Common::String emptyString;
+	return emptyString;
 }
 
 } // end of namespace Scream

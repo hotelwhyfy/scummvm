@@ -99,7 +99,7 @@ GLuint Gfx::createTexture(const Graphics::Surface *surface) {
 	return textureId;
 }
 
-void Gfx::deleteTexture(const GLuint texture) {
+void Gfx::deleteTexture(GLuint texture) {
 	glDeleteTextures(1, &texture);
 }
 

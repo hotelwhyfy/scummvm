@@ -69,6 +69,26 @@ static GLuint loadTexture(Gfx *gfx, const char *fileName, const Graphics::PixelF
 	return gfx->createTexture(surface);
 }
 
+void ScreamEngine::loadNode(Node *node) {
+	if (!node)
+		error("ScreamEngine::loadNode: node not provided");
+
+	for (GLuint faceTexture : _faceTextures)
+		_gfx->deleteTexture(faceTexture);
+
+	const char *faceFiles[kNumFaces] = {
+		node->getFace(kScFront).c_str(),
+		node->getFace(kScBack).c_str(),
+		node->getFace(kScLeft).c_str(),
+		node->getFace(kScRight).c_str(),
+		node->getFace(kScUp).c_str(),
+		node->getFace(kScDown).c_str(),
+	};
+
+	for (uint i = 0; i < kNumFaces; ++i)
+		_faceTextures[i] = loadTexture(_gfx, faceFiles[i], _pixelFormat);
+}
+
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 																			   _gameDescription(gameDesc), _randomSource("Scream") {
 	g_engine = this;
@@ -109,18 +129,9 @@ Common::Error ScreamEngine::run() {
 
 	Common::Event e;
 
-	const char *faceFiles[kNumFaces] = {
-		"hs-lobby_dc_n1f.jpg",
-		"hs-lobby_dc_n1b.jpg",
-		"hs-lobby_dc_n1l.jpg",
-		"hs-lobby_dc_n1r.jpg",
-		"hs-lobby_dc_n1u.jpg",
-		"hs-lobby_dc_n1d.jpg",
-	};
-	GLuint faceTextures[kNumFaces];
-	for (uint i = 0; i < kNumFaces; ++i) {
-		faceTextures[i] = loadTexture(_gfx, faceFiles[i], _pixelFormat);
-	}
+	uint nodeIndex = 0;
+	Node *node = _world.getNode(nodeIndex);
+	loadNode(node);
 
 	debug(1, "openGL error: %d", glGetError());
 
@@ -131,10 +142,22 @@ Common::Error ScreamEngine::run() {
 	Graphics::FrameLimiter limiter(g_system, 60);
 
 	while (!shouldQuit()) {
+		debug(1, "node=%d", nodeIndex);
 		while (g_system->getEventManager()->pollEvent(e)) {
 			switch (e.type) {
 			case Common::EVENT_MOUSEMOVE:
 				mouse = e.mouse;
+				break;
+			case Common::EVENT_KEYDOWN:
+				if (e.kbd.keycode == Common::KEYCODE_SPACE) {
+					nodeIndex += 1;
+					node = _world.getNode(nodeIndex);
+					if (!node) {
+						nodeIndex = 0;
+						node = _world.getNode(nodeIndex);
+					}
+					loadNode(node);
+				}
 				break;
 			default:
 				break;
@@ -160,7 +183,7 @@ Common::Error ScreamEngine::run() {
 
 		_gfx->clear();
 		_gfx->setupCamera(heading, pitch, kCamFov);
-		_gfx->drawCube(faceTextures);
+		_gfx->drawCube(_faceTextures);
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded
@@ -169,7 +192,7 @@ Common::Error ScreamEngine::run() {
 		limiter.startFrame();
 	}
 
-	for (GLuint texture : faceTextures)
+	for (GLuint texture : _faceTextures)
 		_gfx->deleteTexture(texture);
 
 	return Common::kNoError;

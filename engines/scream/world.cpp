@@ -38,6 +38,13 @@ static int parentLevel(int level) {
 	}
 }
 
+// TEMP:
+Node *World::getNode(int index) {
+	if ((uint)index < _nodes.size())
+		return _nodes[index];
+	return nullptr;
+}
+
 World::~World() {
 	for (Track *track : _tracks)
 		delete track;
