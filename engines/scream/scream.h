@@ -46,6 +46,7 @@ namespace Scream {
 
 struct ScreamGameDescription;
 
+class Gfx;
 class Script;
 
 class ScreamEngine : public Engine {
@@ -67,7 +68,7 @@ public:
 	World _world;
 	Journal _journal;
 	Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();
-
+	Gfx *_gfx = nullptr;
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);

@@ -19,7 +19,8 @@ MODULE_OBJS = \
 	journal.o \
 	node.o \
 	object.o \
-	zoom.o
+	zoom.o \
+	gfx.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_SCREAM), DYNAMIC_PLUGIN)

@@ -20,89 +20,30 @@
  */
 
 #include "scream/scream.h"
+
 #include "common/config-manager.h"
 #include "common/debug-channels.h"
 #include "common/events.h"
 #include "common/file.h"
 #include "common/scummsys.h"
 #include "common/system.h"
-#include "engines/util.h"
-// #include "graphics/cursorman.h"
 #include "graphics/framelimiter.h"
 #include "graphics/opengl/system_headers.h"
-#include "graphics/paletteman.h"
 #include "image/jpeg.h"
-// #include "image/tga.h"
 #include "math/utils.h"
-#include "scream/console.h"
-#include "scream/detection.h"
 
+#include "scream/console.h"
+#include "scream/constants.h"
+#include "scream/detection.h"
+#include "scream/gfx.h"
 #include "scream/script.h"
 
 namespace Scream {
 
 ScreamEngine *g_engine;
 
-static const float kCubeVertices[kNumFaces][4][3] = {
-	// front
-	{
-		{-1.0f, -1.0f, -1.0f},
-		{1.0f, -1.0f, -1.0f},
-		{-1.0f, 1.0f, -1.0f},
-		{1.0f, 1.0f, -1.0f},
-	},
-	// back
-	{
-		{1.0f, -1.0f, 1.0f},
-		{-1.0f, -1.0f, 1.0f},
-		{1.0f, 1.0f, 1.0f},
-		{-1.0f, 1.0f, 1.0f},
-	},
-	// left
-	{
-		{-1.0f, -1.0f, 1.0f},
-		{-1.0f, -1.0f, -1.0f},
-		{-1.0f, 1.0f, 1.0f},
-		{-1.0f, 1.0f, -1.0f},
-	},
-	// right
-	{
-		{1.0f, -1.0f, -1.0f},
-		{1.0f, -1.0f, 1.0f},
-		{1.0f, 1.0f, -1.0f},
-		{1.0f, 1.0f, 1.0f},
-	},
-	// up
-	{
-		{-1.0f, 1.0f, -1.0f},
-		{1.0f, 1.0f, -1.0f},
-		{-1.0f, 1.0f, 1.0f},
-		{1.0f, 1.0f, 1.0f},
-	},
-	// down
-	{
-		{-1.0f, -1.0f, 1.0f},
-		{1.0f, -1.0f, 1.0f},
-		{-1.0f, -1.0f, -1.0f},
-		{1.0f, -1.0f, -1.0f},
-	},
-};
-static const float kFaceTexCoords[4][2] = {
-	{0.0f, 1.0f},
-	{1.0f, 1.0f},
-	{0.0f, 0.0f},
-	{1.0f, 0.0f},
-};
-
-static const int kScreenWidth = 1024;
-static const int kScreenHeight = 768;
 static const int kCameraSpeed = 50;
-static const float kScreenAspect = (float)kScreenWidth / (float)kScreenHeight;
-
 static const float kCamFov = 45.0f;
-static const float kScreenNear = 0.1f;
-static const float kScreenFar = 100.0f;
-
 static const float kLookYLimit = 1.75f;
 static const int kTurnZonePercent = 15;
 static const int kMouseLeftZoneEdge = kScreenWidth * kTurnZonePercent / 100;
@@ -114,7 +55,7 @@ static const float kTurnPixelFactor = 0.005f;
 static const float kTurnSpeedRad = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale); // radians per pixel-past-zone-edge per frame
 static const float kTurnSpeedDeg = kTurnSpeedRad * (180.0f / (float)M_PI);             // degrees per pixel-past-zone-edge per frame
 
-static GLuint loadTexture(const char *fileName, const Graphics::PixelFormat &format) {
+static GLuint loadTexture(Gfx *gfx, const char *fileName, const Graphics::PixelFormat &format) {
 	Common::File file;
 	if (!file.open(fileName))
 		error("Could not open file: %s", fileName);
@@ -125,15 +66,7 @@ static GLuint loadTexture(const char *fileName, const Graphics::PixelFormat &for
 		error("could not load image stream: %s", fileName);
 
 	const Graphics::Surface *surface = decoder.getSurface();
-	GLuint textureId;
-	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->getPixels());
-	return textureId;
+	return gfx->createTexture(surface);
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
@@ -143,6 +76,7 @@ ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : E
 
 ScreamEngine::~ScreamEngine() {
 	delete _script;
+	delete _gfx;
 }
 
 uint32 ScreamEngine::getFeatures() const {
@@ -158,8 +92,7 @@ Common::Error ScreamEngine::run() {
 	_script->runFile("scream.sc");
 	_script->runFile("scratches.sc");
 
-	// Initialize graphics mode
-	initGraphics3d(kScreenWidth, kScreenHeight);
+	_gfx = new Gfx();
 
 	// set the cursor
 	g_system->warpMouse(kScreenWidth / 2, kScreenHeight / 2);
@@ -186,7 +119,7 @@ Common::Error ScreamEngine::run() {
 	};
 	GLuint faceTextures[kNumFaces];
 	for (uint i = 0; i < kNumFaces; ++i) {
-		faceTextures[i] = loadTexture(faceFiles[i], _pixelFormat);
+		faceTextures[i] = loadTexture(_gfx, faceFiles[i], _pixelFormat);
 	}
 
 	debug(1, "openGL error: %d", glGetError());
@@ -196,11 +129,6 @@ Common::Error ScreamEngine::run() {
 	float lookY = 0.0f;
 
 	Graphics::FrameLimiter limiter(g_system, 60);
-
-	const float frustumTop = kScreenNear * tan(Math::deg2rad(kCamFov) / 2);
-	const float frustumRight = frustumTop * kScreenAspect;
-	const float frustumBottom = -frustumTop;
-	const float frustumLeft = -frustumRight;
 
 	while (!shouldQuit()) {
 		while (g_system->getEventManager()->pollEvent(e)) {
@@ -230,30 +158,9 @@ Common::Error ScreamEngine::run() {
 
 		pitch = Math::rad2deg(atan(lookY));
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glEnable(GL_TEXTURE_2D);
-		glColor3f(1.0f, 1.0f, 1.0f);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glFrustum(frustumLeft, frustumRight, frustumBottom, frustumTop, kScreenNear, kScreenFar);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glRotatef(-pitch, 1.0f, 0.0f, 0.0f);
-		glRotatef(heading, 0.0f, 1.0f, 0.0f);
-
-		for (uint face = 0; face < kNumFaces; ++face) {
-			glBindTexture(GL_TEXTURE_2D, faceTextures[face]);
-			glBegin(GL_TRIANGLE_STRIP);
-			for (uint corner = 0; corner < 4; ++corner) {
-				glTexCoord2f(kFaceTexCoords[corner][0], kFaceTexCoords[corner][1]);
-				glVertex3f(kCubeVertices[face][corner][0], kCubeVertices[face][corner][1], kCubeVertices[face][corner][2]);
-			}
-			glEnd();
-		}
+		_gfx->clear();
+		_gfx->setupCamera(heading, pitch, kCamFov);
+		_gfx->drawCube(faceTextures);
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded
@@ -262,7 +169,8 @@ Common::Error ScreamEngine::run() {
 		limiter.startFrame();
 	}
 
-	glDeleteTextures(kNumFaces, faceTextures);
+	for (GLuint texture : faceTextures)
+		_gfx->deleteTexture(texture);
 
 	return Common::kNoError;
 }
