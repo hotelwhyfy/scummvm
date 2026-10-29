@@ -28,6 +28,7 @@ namespace Scream {
 
 const uint kScMaxReactions = 63;
 const uint kNumFaces = 6;
+const uint kCursorSize = 64;
 
 enum FaceKey {
 	kScFront = 1,

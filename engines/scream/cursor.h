@@ -23,13 +23,18 @@
 #define SCREAM_CURSOR_H
 
 #include "common/hashmap.h"
+#include "common/rect.h"
 #include "common/str.h"
 
 namespace Scream {
 
 class Cursor {
 public:
+	Cursor();
 	void scCursor(int kind, const char *file);
+	void setCursor(int kind);
+	Common::String getFileName(int kind);
+	Common::Point getHotSpot(int kind);
 
 private:
 	Common::HashMap<int, Common::String> _cursorMap;

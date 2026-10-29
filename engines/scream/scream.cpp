@@ -27,10 +27,12 @@
 #include "common/scummsys.h"
 #include "common/system.h"
 #include "engines/util.h"
+// #include "graphics/cursorman.h"
 #include "graphics/framelimiter.h"
 #include "graphics/opengl/system_headers.h"
 #include "graphics/paletteman.h"
 #include "image/jpeg.h"
+// #include "image/tga.h"
 #include "math/utils.h"
 #include "scream/console.h"
 #include "scream/detection.h"
@@ -101,23 +103,27 @@ static const float kCamFov = 45.0f;
 static const float kScreenNear = 0.1f;
 static const float kScreenFar = 100.0f;
 
+static const float kLookYLimit = 1.75f;
 static const int kTurnZonePercent = 15;
 static const int kMouseLeftZoneEdge = kScreenWidth * kTurnZonePercent / 100;
 static const int kMouseRightZoneEdge = kScreenWidth - kMouseLeftZoneEdge;
+static const int kMouseUpZoneEdge = 64 + (kScreenHeight - 192) * kTurnZonePercent / 100;
+static const int kMouseDownZoneEdge = (kScreenHeight - 128) - (kScreenHeight - 192) * kTurnZonePercent / 100;
 static const float kCamSpeedScale = 0.001f;
 static const float kTurnPixelFactor = 0.005f;
-static const float kTurnSpeed = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale) * (180.0f / (float)M_PI); // degrees per pixel-past-zone-edge per frame
+static const float kTurnSpeedRad = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale); // radians per pixel-past-zone-edge per frame
+static const float kTurnSpeedDeg = kTurnSpeedRad * (180.0f / (float)M_PI);             // degrees per pixel-past-zone-edge per frame
 
 static GLuint loadTexture(const char *fileName, const Graphics::PixelFormat &format) {
 	Common::File file;
-	if (!file.open(fileName)) {
+	if (!file.open(fileName))
 		error("Could not open file: %s", fileName);
-	}
+
 	Image::JPEGDecoder decoder; // pick decoder based on file ext (tga, jpeg)
 	decoder.setOutputPixelFormat(format);
-	if (!decoder.loadStream(file)) {
+	if (!decoder.loadStream(file))
 		error("could not load image stream: %s", fileName);
-	}
+
 	const Graphics::Surface *surface = decoder.getSurface();
 	GLuint textureId;
 	glGenTextures(1, &textureId);
@@ -153,7 +159,12 @@ Common::Error ScreamEngine::run() {
 	_script->runFile("scratches.sc");
 
 	// Initialize graphics mode
-	initGraphics3d(1024, 768);
+	initGraphics3d(kScreenWidth, kScreenHeight);
+
+	// set the cursor
+	g_system->warpMouse(kScreenWidth / 2, kScreenHeight / 2);
+	_cursor.setCursor(kScNormal);
+	Common::Point mouse(kScreenWidth / 2, kScreenHeight / 2);
 
 	// Set the engine's debugger console
 	setDebugger(new Console());
@@ -182,14 +193,14 @@ Common::Error ScreamEngine::run() {
 
 	float heading = 0.0f;
 	float pitch = 0.0f;
-	Common::Point mouse;
+	float lookY = 0.0f;
 
 	Graphics::FrameLimiter limiter(g_system, 60);
 
-	const float kFrustumTop = kScreenNear * tan(Math::deg2rad(kCamFov) / 2);
-	const float kFrustumRight = kFrustumTop * kScreenAspect;
-	const float kFrustumBottom = -kFrustumTop;
-	const float kFrustumLeft = -kFrustumRight;
+	const float frustumTop = kScreenNear * tan(Math::deg2rad(kCamFov) / 2);
+	const float frustumRight = frustumTop * kScreenAspect;
+	const float frustumBottom = -frustumTop;
+	const float frustumLeft = -frustumRight;
 
 	while (!shouldQuit()) {
 		while (g_system->getEventManager()->pollEvent(e)) {
@@ -202,14 +213,22 @@ Common::Error ScreamEngine::run() {
 			}
 		}
 		if (mouse.x < kMouseLeftZoneEdge) {
-			heading -= (kMouseLeftZoneEdge - mouse.x) * kTurnSpeed;
+			heading -= (kMouseLeftZoneEdge - mouse.x) * kTurnSpeedDeg;
+			if (heading < 0)
+				heading += 360;
 		} else if (mouse.x > kMouseRightZoneEdge) {
-			heading += (mouse.x - kMouseRightZoneEdge) * kTurnSpeed;
+			heading += (mouse.x - kMouseRightZoneEdge) * kTurnSpeedDeg;
+			if (heading >= 360)
+				heading -= 360;
 		}
-		if (heading < 0)
-			heading += 360;
-		if (heading >= 360)
-			heading -= 360;
+
+		if (mouse.y < kMouseUpZoneEdge && lookY <= kLookYLimit) {
+			lookY += (kMouseUpZoneEdge - mouse.y) * kTurnSpeedRad;
+		} else if (mouse.y > kMouseDownZoneEdge && lookY >= -kLookYLimit) {
+			lookY -= (mouse.y - kMouseDownZoneEdge) * kTurnSpeedRad;
+		}
+
+		pitch = Math::rad2deg(atan(lookY));
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -219,11 +238,11 @@ Common::Error ScreamEngine::run() {
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glFrustum(kFrustumLeft, kFrustumRight, kFrustumBottom, kFrustumTop, kScreenNear, kScreenFar);
+		glFrustum(frustumLeft, frustumRight, frustumBottom, frustumTop, kScreenNear, kScreenFar);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glRotatef(pitch, 1.0f, 0.0f, 0.0f);
+		glRotatef(-pitch, 1.0f, 0.0f, 0.0f);
 		glRotatef(heading, 0.0f, 1.0f, 0.0f);
 
 		for (uint face = 0; face < kNumFaces; ++face) {
