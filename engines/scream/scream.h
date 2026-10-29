@@ -32,7 +32,6 @@
 #include "common/util.h"
 #include "engines/engine.h"
 #include "engines/savestate.h"
-#include "graphics/screen.h"
 
 #include "scream/cursor.h"
 #include "scream/detection.h"
@@ -60,7 +59,6 @@ protected:
 	Common::Error run() override;
 
 public:
-	Graphics::Screen *_screen = nullptr;
 	Settings _settings;
 	Cursor _cursor;
 	Font _font;
@@ -68,6 +66,8 @@ public:
 	Hints _hints;
 	World _world;
 	Journal _journal;
+	Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();
+
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);
