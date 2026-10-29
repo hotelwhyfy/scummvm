@@ -36,6 +36,7 @@
 #include "scream/constants.h"
 #include "scream/detection.h"
 #include "scream/gfx.h"
+#include "scream/resources.h"
 #include "scream/script.h"
 
 namespace Scream {
@@ -108,6 +109,14 @@ Common::String ScreamEngine::getGameId() const {
 }
 
 Common::Error ScreamEngine::run() {
+	// load update.res if it exists
+	if (Common::File::exists("update.res")) {
+		Res *updateRes = new Res();
+		if (!updateRes->open("update.res"))
+			error("Unable to load update.res");
+		SearchMan.add("update.res", updateRes, 1);
+	}
+
 	_script = new Script();
 	_script->runFile("scream.sc");
 	_script->runFile("scratches.sc");
