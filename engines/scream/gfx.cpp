@@ -78,7 +78,9 @@ static const float kFaceTexCoords[4][2] = {
 	{1.0f, 0.0f},
 };
 
-static const float kScreenAspect = (float)kScreenWidth / kScreenHeight;
+static const int kViewportY = 64;
+static const int kViewportHeight = kScreenHeight - (2 * kViewportY);
+static const float kViewportAspect = (float)kScreenWidth / kViewportHeight;
 static const float kNearPlane = 0.1f;
 static const float kFarPlane = 1000.0f;
 
@@ -110,9 +112,11 @@ void Gfx::clear() {
 
 void Gfx::setupCamera(float heading, float pitch, float fov) {
 	const float frustumTop = kNearPlane * tan(Math::deg2rad(fov) / 2);
-	const float frustumRight = frustumTop * kScreenAspect;
+	const float frustumRight = frustumTop * kViewportAspect;
 	const float frustumBottom = -frustumTop;
 	const float frustumLeft = -frustumRight;
+
+	glViewport(0, kViewportY, kScreenWidth, kViewportHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

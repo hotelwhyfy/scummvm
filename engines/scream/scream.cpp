@@ -109,7 +109,7 @@ Common::String ScreamEngine::getGameId() const {
 }
 
 Common::Error ScreamEngine::run() {
-	// load update.res if it exists
+	// the original expects update.res to be merged into resources.res
 	if (Common::File::exists("update.res")) {
 		Res *updateRes = new Res();
 		if (!updateRes->open("update.res"))
