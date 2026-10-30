@@ -70,7 +70,6 @@ public:
 	Hints _hints;
 	World _world;
 	Journal _journal;
-	Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();
 	Gfx *_gfx = nullptr;
 
 public:

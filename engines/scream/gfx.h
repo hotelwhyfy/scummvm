@@ -23,6 +23,7 @@
 #define SCREAM_GFX_H
 
 #include "graphics/opengl/system_headers.h"
+#include "graphics/pixelformat.h"
 #include "graphics/surface.h"
 
 #include "scream/constants.h"
@@ -37,8 +38,12 @@ public:
 	void clear();
 	void setupCamera(float heading, float pitch, float fov);
 	void drawCube(const GLuint textures[kNumFaces]);
+	void setup2D();
+	void drawTexture2D(GLuint texture, int x, int y, int w, int h);
+	const Graphics::PixelFormat &getPixelFormat() const { return _pixelFormat; }
 
 private:
+	const Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();
 };
 
 } // end of namespace Scream

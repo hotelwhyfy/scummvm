@@ -29,13 +29,13 @@
 #include "common/system.h"
 #include "graphics/framelimiter.h"
 #include "graphics/opengl/system_headers.h"
-#include "image/jpeg.h"
 #include "math/utils.h"
 
 #include "scream/console.h"
 #include "scream/constants.h"
 #include "scream/detection.h"
 #include "scream/gfx.h"
+#include "scream/image.h"
 #include "scream/resources.h"
 #include "scream/script.h"
 
@@ -56,20 +56,6 @@ static const float kTurnPixelFactor = 0.005f;
 static const float kTurnSpeedRad = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale); // radians per pixel-past-zone-edge per frame
 static const float kTurnSpeedDeg = kTurnSpeedRad * (180.0f / (float)M_PI);             // degrees per pixel-past-zone-edge per frame
 
-static GLuint loadTexture(Gfx *gfx, const char *fileName, const Graphics::PixelFormat &format) {
-	Common::File file;
-	if (!file.open(fileName))
-		error("Could not open file: %s", fileName);
-
-	Image::JPEGDecoder decoder; // pick decoder based on file ext (tga, jpeg)
-	decoder.setOutputPixelFormat(format);
-	if (!decoder.loadStream(file))
-		error("could not load image stream: %s", fileName);
-
-	const Graphics::Surface *surface = decoder.getSurface();
-	return gfx->createTexture(surface);
-}
-
 void ScreamEngine::loadNode(Node *node) {
 	if (!node)
 		error("ScreamEngine::loadNode: node not provided");
@@ -87,7 +73,7 @@ void ScreamEngine::loadNode(Node *node) {
 	};
 
 	for (uint i = 0; i < kNumFaces; ++i)
-		_faceTextures[i] = loadTexture(_gfx, faceFiles[i], _pixelFormat);
+		_faceTextures[i] = loadTexture(_gfx, faceFiles[i]);
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
@@ -123,10 +109,12 @@ Common::Error ScreamEngine::run() {
 
 	_gfx = new Gfx();
 
+	_cursor.setCursor(_gfx, kScNormal);
+
 	// set the cursor
 	g_system->warpMouse(kScreenWidth / 2, kScreenHeight / 2);
-	_cursor.setCursor(kScNormal);
 	Common::Point mouse(kScreenWidth / 2, kScreenHeight / 2);
+	Common::Point hotspot = _cursor.getHotSpot(kScNormal);
 
 	// Set the engine's debugger console
 	setDebugger(new Console());
@@ -151,7 +139,6 @@ Common::Error ScreamEngine::run() {
 	Graphics::FrameLimiter limiter(g_system, 60);
 
 	while (!shouldQuit()) {
-		debug(1, "node=%d", nodeIndex);
 		while (g_system->getEventManager()->pollEvent(e)) {
 			switch (e.type) {
 			case Common::EVENT_MOUSEMOVE:
@@ -193,6 +180,9 @@ Common::Error ScreamEngine::run() {
 		_gfx->clear();
 		_gfx->setupCamera(heading, pitch, kCamFov);
 		_gfx->drawCube(_faceTextures);
+		_gfx->setup2D();
+
+		_gfx->drawTexture2D(_cursor.getTexture(), mouse.x - hotspot.x, kScreenHeight - (mouse.y - hotspot.y) - kCursorSize, kCursorSize, kCursorSize);
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded
@@ -203,6 +193,7 @@ Common::Error ScreamEngine::run() {
 
 	for (GLuint texture : _faceTextures)
 		_gfx->deleteTexture(texture);
+	_gfx->deleteTexture(_cursor.getTexture());
 
 	return Common::kNoError;
 }

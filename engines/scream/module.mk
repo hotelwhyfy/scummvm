@@ -20,7 +20,8 @@ MODULE_OBJS = \
 	node.o \
 	object.o \
 	zoom.o \
-	gfx.o
+	gfx.o \
+	image.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_SCREAM), DYNAMIC_PLUGIN)

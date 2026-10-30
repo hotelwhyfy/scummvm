@@ -85,8 +85,9 @@ static const float kNearPlane = 0.1f;
 static const float kFarPlane = 1000.0f;
 
 Gfx::Gfx() {
-	// Initialize graphics mode
 	initGraphics3d(kScreenWidth, kScreenHeight);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 GLuint Gfx::createTexture(const Graphics::Surface *surface) {
@@ -101,6 +102,22 @@ GLuint Gfx::createTexture(const Graphics::Surface *surface) {
 	return textureId;
 }
 
+void Gfx::drawTexture2D(GLuint texture, int x, int y, int w, int h) {
+	glEnable(GL_TEXTURE_2D);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_TRIANGLE_STRIP);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2f(x, y);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex2f(x + w, y);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2f(x, y + h);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2f(x + w, y + h);
+	glEnd();
+}
+
 void Gfx::deleteTexture(GLuint texture) {
 	glDeleteTextures(1, &texture);
 }
@@ -108,6 +125,15 @@ void Gfx::deleteTexture(GLuint texture) {
 void Gfx::clear() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Gfx::setup2D() {
+	glViewport(0, 0, kScreenWidth, kScreenHeight);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, kScreenWidth, 0, kScreenHeight, -1, 1);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 void Gfx::setupCamera(float heading, float pitch, float fov) {

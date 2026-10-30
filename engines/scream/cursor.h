@@ -25,19 +25,25 @@
 #include "common/hashmap.h"
 #include "common/rect.h"
 #include "common/str.h"
+#include "graphics/opengl/system_headers.h"
 
 namespace Scream {
+
+class Gfx;
 
 class Cursor {
 public:
 	Cursor();
-	void scCursor(int kind, const char *file);
-	void setCursor(int kind);
-	Common::String getFileName(int kind);
-	Common::Point getHotSpot(int kind);
+	void scCursor(int cursorType, const char *file);
+	void setCursor(Gfx *gfx, int cursorType);
+	Common::String getFileName(int cursorType) const;
+	Common::Point getHotSpot(int cursorType) const;
+	GLuint getTexture() const;
 
 private:
 	Common::HashMap<int, Common::String> _cursorMap;
+	int _currentType = 0;
+	GLuint _currentTexture = 0;
 };
 
 } // end of namespace Scream

@@ -19,17 +19,14 @@
  *
  */
 
-#include "common/file.h"
-#include "graphics/cursorman.h"
-#include "image/tga.h"
-
-#include "scream/constants.h"
 #include "scream/cursor.h"
+#include "scream/constants.h"
+#include "scream/gfx.h"
+#include "scream/image.h"
 
 namespace Scream {
 
 Cursor::Cursor() {
-	// populate defaults
 	_cursorMap[kScNormal] = "cursor_def.tga";
 	_cursorMap[kScForward] = "cursor_def.tga";
 	_cursorMap[kScLook] = "cursor_def.tga";
@@ -38,46 +35,44 @@ Cursor::Cursor() {
 	_cursorMap[kScWait] = "wait_def.tga";
 }
 
-void Cursor::setCursor(int kind) {
-	Common::String fileName = getFileName(kind);
+GLuint Cursor::getTexture() const {
+	return _currentTexture;
+}
+
+void Cursor::setCursor(Gfx *gfx, int cursorType) {
+	if (cursorType == _currentType)
+		return;
+
+	Common::String fileName = getFileName(cursorType);
 	if (fileName.empty())
 		return;
 
-	Common::File file;
-	if (!file.open(Common::Path(fileName)))
-		error("Could not open file: %s", fileName.c_str());
-
-	Image::TGADecoder decoder;
-	if (!decoder.loadStream(file))
-		error("could not load image stream: %s", fileName.c_str());
-
-	const Graphics::Surface *surface = decoder.getSurface();
-	debug(1, "cursor %d: %s (%d x %d)", kind, fileName.c_str(), surface->w, surface->h);
-	const Common::Point hotspot = getHotSpot(kind);
-	CursorMan.replaceCursor(*surface, hotspot.x, hotspot.y, 0);
-	CursorMan.showMouse(true);
+	gfx->deleteTexture(_currentTexture);
+	GLuint cursorTexture = loadTexture(gfx, fileName);
+	_currentType = cursorType;
+	_currentTexture = cursorTexture;
 }
 
-void Cursor::scCursor(int kind, const char *file) {
-	if (kind == kScZoomBack)
-		kind = kScZoomOut;
+void Cursor::scCursor(int cursorType, const char *file) {
+	if (cursorType == kScZoomBack)
+		cursorType = kScZoomOut;
 
-	_cursorMap[kind] = file;
+	_cursorMap[cursorType] = file;
 }
 
-Common::String Cursor::getFileName(int kind) {
-	if (kind == kScZoomBack)
-		kind = kScZoomOut;
+Common::String Cursor::getFileName(int cursorType) const {
+	if (cursorType == kScZoomBack)
+		cursorType = kScZoomOut;
 
-	if (_cursorMap.contains(kind))
-		return _cursorMap[kind];
+	if (_cursorMap.contains(cursorType))
+		return _cursorMap[cursorType];
 
-	warning("Cursor type not found: %d", kind);
+	warning("Cursor type not found: %d", cursorType);
 	return "";
 }
 
-Common::Point Cursor::getHotSpot(int kind) {
-	switch (kind) {
+Common::Point Cursor::getHotSpot(int cursorType) const {
+	switch (cursorType) {
 	case kScMenuCursor:
 	case kScForward:
 	case kScLook:
