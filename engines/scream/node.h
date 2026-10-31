@@ -39,6 +39,7 @@ public:
 	void setFootstepFile(const char *file) { _footstepFile = file; }
 	void addObject(Object *object) { _objects.push_back(object); }
 	const Common::String &getFace(int face) const;
+	const Object *findObjectAt(int face, const Common::Point &p) const;
 
 private:
 	Common::String _name;

@@ -23,6 +23,7 @@
 #define SCREAM_OBJECT_H
 
 #include "common/array.h"
+#include "common/rect.h"
 #include "common/str.h"
 
 #include "scream/action.h"
@@ -38,6 +39,9 @@ public:
 	void setClickAction(const Action &action) { _clickAction = action; }
 	void setEnabled(bool enabled) { _enabled = enabled; }
 	void addReaction(Item *item, const Action &action);
+	bool containsPoint(int face, const Common::Point &p) const;
+	const Common::String &getName() const { return _name; }
+	bool isEnabled() const { return _enabled; }
 
 private:
 	Common::String _name;

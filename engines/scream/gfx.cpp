@@ -78,9 +78,6 @@ static const float kFaceTexCoords[4][2] = {
 	{1.0f, 0.0f},
 };
 
-static const int kViewportY = 64;
-static const int kViewportHeight = kScreenHeight - (2 * kViewportY);
-static const float kViewportAspect = (float)kScreenWidth / kViewportHeight;
 static const float kNearPlane = 0.1f;
 static const float kFarPlane = 1000.0f;
 

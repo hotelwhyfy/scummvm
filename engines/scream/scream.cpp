@@ -27,8 +27,10 @@
 #include "common/file.h"
 #include "common/scummsys.h"
 #include "common/system.h"
+#include "common/util.h"
 #include "graphics/framelimiter.h"
 #include "graphics/opengl/system_headers.h"
+#include "math/matrix3.h"
 #include "math/utils.h"
 
 #include "scream/console.h"
@@ -55,6 +57,7 @@ static const float kCamSpeedScale = 0.001f;
 static const float kTurnPixelFactor = 0.005f;
 static const float kTurnSpeedRad = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale); // radians per pixel-past-zone-edge per frame
 static const float kTurnSpeedDeg = kTurnSpeedRad * (180.0f / (float)M_PI);             // degrees per pixel-past-zone-edge per frame
+static const int kFaceImageSize = 1024;
 
 void ScreamEngine::loadNode(Node *node) {
 	if (!node)
@@ -92,6 +95,88 @@ uint32 ScreamEngine::getFeatures() const {
 
 Common::String ScreamEngine::getGameId() const {
 	return _gameDescription->gameId;
+}
+
+static Math::Vector3d mouseToDirection(const Common::Point &mouse, float fov, float heading, float pitch) {
+	float fovRatio = tan(Math::deg2rad(fov / 2));
+	float nx = 2 * ((float)mouse.x / kScreenWidth) - 1;
+	float ny = 1 - 2 * (((float)mouse.y - kViewportY) / kViewportHeight);
+	float x = nx * fovRatio * kViewportAspect;
+	float y = ny * fovRatio;
+	float z = -1;
+
+	Math::Vector3d v(x, y, z);
+
+	Math::Matrix3 rotationX;
+	rotationX.buildAroundX(pitch);
+	rotationX.transformVector(&v);
+
+	Math::Matrix3 rotationY;
+	rotationY.buildAroundY(-heading);
+	rotationY.transformVector(&v);
+
+	return v;
+}
+
+static Math::Vector3d directionToHitPoint(const Math::Vector3d &direction) {
+	float x = direction.x();
+	float y = direction.y();
+	float z = direction.z();
+	float max = MAX(fabs(x), MAX(fabs(y), fabs(z)));
+	return direction / max;
+}
+
+static int directionToFace(const Math::Vector3d &direction) {
+	float x = direction.x();
+	float y = direction.y();
+	float z = direction.z();
+	float xAbs = fabs(x);
+	float yAbs = fabs(y);
+	float zAbs = fabs(z);
+	if (xAbs > yAbs && xAbs > zAbs) {
+		return (x > 0) ? kScRight : kScLeft;
+	} else if (yAbs > xAbs && yAbs > zAbs) {
+		return (y > 0) ? kScUp : kScDown;
+	} else {
+		return (z > 0) ? kScBack : kScFront;
+	}
+}
+
+static Common::Point hitPointToFacePixels(const Math::Vector3d &hit, int face) {
+	switch (face) {
+	case kScFront: {
+		float px = kFaceImageSize * (hit.x() + 1) / 2;
+		float py = kFaceImageSize * (1 - hit.y()) / 2;
+		return Common::Point(px, py);
+	}
+	case kScBack: {
+		float px = kFaceImageSize * (1 - hit.x()) / 2;
+		float py = kFaceImageSize * (1 - hit.y()) / 2;
+		return Common::Point(px, py);
+	}
+	case kScLeft: {
+		float px = kFaceImageSize * (1 - hit.z()) / 2;
+		float py = kFaceImageSize * (1 - hit.y()) / 2;
+		return Common::Point(px, py);
+	}
+	case kScRight: {
+		float px = kFaceImageSize * (hit.z() + 1) / 2;
+		float py = kFaceImageSize * (1 - hit.y()) / 2;
+		return Common::Point(px, py);
+	}
+	case kScUp: {
+		float px = kFaceImageSize * (hit.x() + 1) / 2;
+		float py = kFaceImageSize * (1 - hit.z()) / 2;
+		return Common::Point(px, py);
+	}
+	case kScDown: {
+		float px = kFaceImageSize * (hit.x() + 1) / 2;
+		float py = kFaceImageSize * (hit.z() + 1) / 2;
+		return Common::Point(px, py);
+	}
+	default:
+		return Common::Point(-1, -1);
+	}
 }
 
 Common::Error ScreamEngine::run() {
@@ -183,6 +268,17 @@ Common::Error ScreamEngine::run() {
 		_gfx->setup2D();
 
 		_gfx->drawTexture2D(_cursor.getTexture(), mouse.x - hotspot.x, kScreenHeight - (mouse.y - hotspot.y) - kCursorSize, kCursorSize, kCursorSize);
+
+		Math::Vector3d v = mouseToDirection(mouse, kCamFov, heading, pitch);
+		int face = directionToFace(v);
+		Math::Vector3d hp = directionToHitPoint(v);
+		Common::Point fp = hitPointToFacePixels(hp, face);
+		bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
+		if (inBand) {
+			const Object *obj = node->findObjectAt(face, fp);
+			if (obj)
+				debug(1, "object=%s", obj->getName().c_str());
+		}
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded

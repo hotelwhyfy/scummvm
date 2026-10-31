@@ -24,6 +24,12 @@
 
 namespace Scream {
 
+bool Object::containsPoint(int face, const Common::Point &p) const {
+	if (face != _face)
+		return false;
+	return p.x >= _x && p.x <= (_x + _w) && p.y >= _y && p.y <= (_y + _h);
+}
+
 void Object::addReaction(Item *item, const Action &action) {
 	if (_reactions.size() >= kScMaxReactions)
 		error("Too may reactions on %s", _name.c_str());

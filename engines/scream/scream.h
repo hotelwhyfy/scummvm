@@ -33,6 +33,7 @@
 #include "engines/engine.h"
 #include "engines/savestate.h"
 #include "graphics/opengl/system_headers.h"
+#include "math/vector3d.h"
 
 #include "scream/cursor.h"
 #include "scream/detection.h"

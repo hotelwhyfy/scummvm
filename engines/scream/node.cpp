@@ -44,6 +44,13 @@ static int faceIndex(int face) {
 	}
 }
 
+const Object *Node::findObjectAt(int face, const Common::Point &p) const {
+	for (Object *object : _objects)
+		if (object->isEnabled() && object->containsPoint(face, p))
+			return object;
+	return nullptr;
+}
+
 void Node::setFace(int face, const char *file) {
 	int index = faceIndex(face);
 	if (index >= 0)
