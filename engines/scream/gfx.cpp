@@ -133,7 +133,7 @@ void Gfx::setup2D() {
 	glLoadIdentity();
 }
 
-void Gfx::setupCamera(float heading, float pitch, float fov) {
+void Gfx::setup3D(float heading, float pitch, float fov) {
 	const float frustumTop = kNearPlane * tan(Math::deg2rad(fov) / 2);
 	const float frustumRight = frustumTop * kViewportAspect;
 	const float frustumBottom = -frustumTop;

@@ -21,7 +21,8 @@ MODULE_OBJS = \
 	object.o \
 	zoom.o \
 	gfx.o \
-	image.o
+	image.o \
+	camera.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_SCREAM), DYNAMIC_PLUGIN)

@@ -43,6 +43,7 @@ public:
 	const Common::String &getName() const { return _name; }
 	bool isEnabled() const { return _enabled; }
 	int getHoverCursor() const { return _hoverCursor; }
+	const Action &getClickAction() const { return _clickAction; }
 
 private:
 	Common::String _name;

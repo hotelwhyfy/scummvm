@@ -35,6 +35,7 @@
 #include "graphics/opengl/system_headers.h"
 #include "math/vector3d.h"
 
+#include "scream/camera.h"
 #include "scream/cursor.h"
 #include "scream/detection.h"
 #include "scream/font.h"
@@ -71,6 +72,7 @@ public:
 	Hints _hints;
 	World _world;
 	Journal _journal;
+	Camera _camera;
 	Gfx *_gfx = nullptr;
 
 public:

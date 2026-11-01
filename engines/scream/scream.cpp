@@ -27,11 +27,8 @@
 #include "common/file.h"
 #include "common/scummsys.h"
 #include "common/system.h"
-#include "common/util.h"
 #include "graphics/framelimiter.h"
 #include "graphics/opengl/system_headers.h"
-#include "math/matrix3.h"
-#include "math/utils.h"
 
 #include "scream/console.h"
 #include "scream/constants.h"
@@ -44,20 +41,6 @@
 namespace Scream {
 
 ScreamEngine *g_engine;
-
-static const int kCameraSpeed = 50;
-static const float kCamFov = 45.0f;
-static const float kLookYLimit = 1.75f;
-static const int kTurnZonePercent = 15;
-static const int kMouseLeftZoneEdge = kScreenWidth * kTurnZonePercent / 100;
-static const int kMouseRightZoneEdge = kScreenWidth - kMouseLeftZoneEdge;
-static const int kMouseUpZoneEdge = 64 + (kScreenHeight - 192) * kTurnZonePercent / 100;
-static const int kMouseDownZoneEdge = (kScreenHeight - 128) - (kScreenHeight - 192) * kTurnZonePercent / 100;
-static const float kCamSpeedScale = 0.001f;
-static const float kTurnPixelFactor = 0.005f;
-static const float kTurnSpeedRad = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale); // radians per pixel-past-zone-edge per frame
-static const float kTurnSpeedDeg = kTurnSpeedRad * (180.0f / (float)M_PI);             // degrees per pixel-past-zone-edge per frame
-static const int kFaceImageSize = 1024;
 
 void ScreamEngine::loadNode(Node *node) {
 	if (!node)
@@ -97,88 +80,6 @@ Common::String ScreamEngine::getGameId() const {
 	return _gameDescription->gameId;
 }
 
-static Math::Vector3d mouseToDirection(const Common::Point &mouse, float fov, float heading, float pitch) {
-	float fovRatio = tan(Math::deg2rad(fov / 2));
-	float nx = 2 * ((float)mouse.x / kScreenWidth) - 1;
-	float ny = 1 - 2 * (((float)mouse.y - kViewportY) / kViewportHeight);
-	float x = nx * fovRatio * kViewportAspect;
-	float y = ny * fovRatio;
-	float z = -1;
-
-	Math::Vector3d v(x, y, z);
-
-	Math::Matrix3 rotationX;
-	rotationX.buildAroundX(pitch);
-	rotationX.transformVector(&v);
-
-	Math::Matrix3 rotationY;
-	rotationY.buildAroundY(-heading);
-	rotationY.transformVector(&v);
-
-	return v;
-}
-
-static Math::Vector3d directionToHitPoint(const Math::Vector3d &direction) {
-	float x = direction.x();
-	float y = direction.y();
-	float z = direction.z();
-	float max = MAX(fabs(x), MAX(fabs(y), fabs(z)));
-	return direction / max;
-}
-
-static int directionToFace(const Math::Vector3d &direction) {
-	float x = direction.x();
-	float y = direction.y();
-	float z = direction.z();
-	float xAbs = fabs(x);
-	float yAbs = fabs(y);
-	float zAbs = fabs(z);
-	if (xAbs > yAbs && xAbs > zAbs) {
-		return (x > 0) ? kScRight : kScLeft;
-	} else if (yAbs > xAbs && yAbs > zAbs) {
-		return (y > 0) ? kScUp : kScDown;
-	} else {
-		return (z > 0) ? kScBack : kScFront;
-	}
-}
-
-static Common::Point hitPointToFacePixels(const Math::Vector3d &hit, int face) {
-	switch (face) {
-	case kScFront: {
-		float px = kFaceImageSize * (hit.x() + 1) / 2;
-		float py = kFaceImageSize * (1 - hit.y()) / 2;
-		return Common::Point(px, py);
-	}
-	case kScBack: {
-		float px = kFaceImageSize * (1 - hit.x()) / 2;
-		float py = kFaceImageSize * (1 - hit.y()) / 2;
-		return Common::Point(px, py);
-	}
-	case kScLeft: {
-		float px = kFaceImageSize * (1 - hit.z()) / 2;
-		float py = kFaceImageSize * (1 - hit.y()) / 2;
-		return Common::Point(px, py);
-	}
-	case kScRight: {
-		float px = kFaceImageSize * (hit.z() + 1) / 2;
-		float py = kFaceImageSize * (1 - hit.y()) / 2;
-		return Common::Point(px, py);
-	}
-	case kScUp: {
-		float px = kFaceImageSize * (hit.x() + 1) / 2;
-		float py = kFaceImageSize * (1 - hit.z()) / 2;
-		return Common::Point(px, py);
-	}
-	case kScDown: {
-		float px = kFaceImageSize * (hit.x() + 1) / 2;
-		float py = kFaceImageSize * (hit.z() + 1) / 2;
-		return Common::Point(px, py);
-	}
-	default:
-		return Common::Point(-1, -1);
-	}
-}
-
 Common::Error ScreamEngine::run() {
 	// the original expects update.res to be merged into resources.res
 	if (Common::File::exists("update.res")) {
@@ -216,10 +117,6 @@ Common::Error ScreamEngine::run() {
 
 	debug(1, "openGL error: %d", glGetError());
 
-	float heading = 0.0f;
-	float pitch = 0.0f;
-	float lookY = 0.0f;
-
 	Graphics::FrameLimiter limiter(g_system, 60);
 
 	while (!shouldQuit()) {
@@ -239,42 +136,27 @@ Common::Error ScreamEngine::run() {
 					loadNode(node);
 				}
 				break;
+			case Common::EVENT_LBUTTONUP:
+				break;
 			default:
 				break;
 			}
 		}
-		if (mouse.x < kMouseLeftZoneEdge) {
-			heading -= (kMouseLeftZoneEdge - mouse.x) * kTurnSpeedDeg;
-			if (heading < 0)
-				heading += 360;
-		} else if (mouse.x > kMouseRightZoneEdge) {
-			heading += (mouse.x - kMouseRightZoneEdge) * kTurnSpeedDeg;
-			if (heading >= 360)
-				heading -= 360;
-		}
 
-		if (mouse.y < kMouseUpZoneEdge && lookY <= kLookYLimit) {
-			lookY += (kMouseUpZoneEdge - mouse.y) * kTurnSpeedRad;
-		} else if (mouse.y > kMouseDownZoneEdge && lookY >= -kLookYLimit) {
-			lookY -= (mouse.y - kMouseDownZoneEdge) * kTurnSpeedRad;
-		}
+		_camera.update(mouse);
 
-		pitch = Math::rad2deg(atan(lookY));
+		FaceHit fh = _camera.pick(mouse);
 
-		Math::Vector3d v = mouseToDirection(mouse, kCamFov, heading, pitch);
-		int face = directionToFace(v);
-		Math::Vector3d hp = directionToHitPoint(v);
-		Common::Point fp = hitPointToFacePixels(hp, face);
-		bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
 		const Object *hoverObject = nullptr;
-		if (inBand)
-			hoverObject = node->findObjectAt(face, fp);
+		if (fh.isValid())
+			hoverObject = node->findObjectAt(fh.face, fh.pixel);
 		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
 
 		_gfx->clear();
-		_gfx->setupCamera(heading, pitch, kCamFov);
+		_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
 		_gfx->drawCube(_faceTextures);
 		_gfx->setup2D();
+
 		_cursor.draw(_gfx, mouse);
 
 		// Delay for a bit. All events loops should have a delay

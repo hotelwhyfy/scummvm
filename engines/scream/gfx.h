@@ -36,7 +36,7 @@ public:
 	GLuint createTexture(const Graphics::Surface *surface);
 	void deleteTexture(GLuint texture);
 	void clear();
-	void setupCamera(float heading, float pitch, float fov);
+	void setup3D(float heading, float pitch, float fov);
 	void drawCube(const GLuint textures[kNumFaces]);
 	void setup2D();
 	void drawTexture2D(GLuint texture, int x, int y, int w, int h);
