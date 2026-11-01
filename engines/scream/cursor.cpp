@@ -35,8 +35,17 @@ Cursor::Cursor() {
 	_cursorMap[kScWait] = "wait_def.tga";
 }
 
-GLuint Cursor::getTexture() const {
-	return _currentTexture;
+void Cursor::draw(Gfx *gfx, const Common::Point &mouse) const {
+	gfx->drawTexture2D(_currentTexture,
+					   mouse.x - _currentHotspot.x,
+					   kScreenHeight - (mouse.y - _currentHotspot.y) - kCursorSize,
+					   kCursorSize, kCursorSize);
+}
+
+void Cursor::freeTexture(Gfx *gfx) {
+	gfx->deleteTexture(_currentTexture);
+	_currentTexture = 0;
+	_currentType = 0;
 }
 
 void Cursor::setCursor(Gfx *gfx, int cursorType) {
@@ -51,6 +60,7 @@ void Cursor::setCursor(Gfx *gfx, int cursorType) {
 	GLuint cursorTexture = loadTexture(gfx, fileName);
 	_currentType = cursorType;
 	_currentTexture = cursorTexture;
+	_currentHotspot = getHotSpot(_currentType);
 }
 
 void Cursor::scCursor(int cursorType, const char *file) {

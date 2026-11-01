@@ -199,7 +199,6 @@ Common::Error ScreamEngine::run() {
 	// set the cursor
 	g_system->warpMouse(kScreenWidth / 2, kScreenHeight / 2);
 	Common::Point mouse(kScreenWidth / 2, kScreenHeight / 2);
-	Common::Point hotspot = _cursor.getHotSpot(kScNormal);
 
 	// Set the engine's debugger console
 	setDebugger(new Console());
@@ -262,23 +261,21 @@ Common::Error ScreamEngine::run() {
 
 		pitch = Math::rad2deg(atan(lookY));
 
-		_gfx->clear();
-		_gfx->setupCamera(heading, pitch, kCamFov);
-		_gfx->drawCube(_faceTextures);
-		_gfx->setup2D();
-
-		_gfx->drawTexture2D(_cursor.getTexture(), mouse.x - hotspot.x, kScreenHeight - (mouse.y - hotspot.y) - kCursorSize, kCursorSize, kCursorSize);
-
 		Math::Vector3d v = mouseToDirection(mouse, kCamFov, heading, pitch);
 		int face = directionToFace(v);
 		Math::Vector3d hp = directionToHitPoint(v);
 		Common::Point fp = hitPointToFacePixels(hp, face);
 		bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
-		if (inBand) {
-			const Object *obj = node->findObjectAt(face, fp);
-			if (obj)
-				debug(1, "object=%s", obj->getName().c_str());
-		}
+		const Object *hoverObject = nullptr;
+		if (inBand)
+			hoverObject = node->findObjectAt(face, fp);
+		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
+
+		_gfx->clear();
+		_gfx->setupCamera(heading, pitch, kCamFov);
+		_gfx->drawCube(_faceTextures);
+		_gfx->setup2D();
+		_cursor.draw(_gfx, mouse);
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded
@@ -289,7 +286,7 @@ Common::Error ScreamEngine::run() {
 
 	for (GLuint texture : _faceTextures)
 		_gfx->deleteTexture(texture);
-	_gfx->deleteTexture(_cursor.getTexture());
+	_cursor.freeTexture(_gfx);
 
 	return Common::kNoError;
 }

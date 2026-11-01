@@ -38,12 +38,14 @@ public:
 	void setCursor(Gfx *gfx, int cursorType);
 	Common::String getFileName(int cursorType) const;
 	Common::Point getHotSpot(int cursorType) const;
-	GLuint getTexture() const;
+	void draw(Gfx *gfx, const Common::Point &mouse) const;
+	void freeTexture(Gfx *gfx);
 
 private:
 	Common::HashMap<int, Common::String> _cursorMap;
 	int _currentType = 0;
 	GLuint _currentTexture = 0;
+	Common::Point _currentHotspot;
 };
 
 } // end of namespace Scream

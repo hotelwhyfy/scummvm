@@ -42,6 +42,7 @@ public:
 	bool containsPoint(int face, const Common::Point &p) const;
 	const Common::String &getName() const { return _name; }
 	bool isEnabled() const { return _enabled; }
+	int getHoverCursor() const { return _hoverCursor; }
 
 private:
 	Common::String _name;
