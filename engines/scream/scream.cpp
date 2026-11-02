@@ -88,7 +88,7 @@ void ScreamEngine::performAction(const Action &action) {
 
 int ScreamEngine::chooseCursor(const Object *hoverObject) const {
 	if (_script->isWaiting())
-			return kScWait;
+		return kScWait;
 	if (hoverObject)
 		return hoverObject->getHoverCursor();
 	return kScNormal;
@@ -167,7 +167,9 @@ Common::Error ScreamEngine::run() {
 
 		_script->update();
 
-		_camera.update(mouse);
+		if (!_script->isSleeping())
+			_camera.update(mouse);
+
 		FaceHit fh = _camera.pick(mouse);
 
 		const Object *hoverObject = nullptr;

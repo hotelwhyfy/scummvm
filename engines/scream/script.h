@@ -39,6 +39,7 @@ public:
 	void callFunction(const Common::String &name) { _thread.start(_state, name); }
 	void update();
 	bool isWaiting() const { return _waitEnabled && _thread.isSleeping(); }
+	bool isSleeping() const { return _thread.isSleeping(); }
 
 private:
 	lua_State *_state = nullptr;
