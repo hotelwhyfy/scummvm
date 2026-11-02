@@ -33,7 +33,7 @@ public:
 	bool isRunning() const { return _thread != nullptr; }
 	void resume();
 	void sleepFor(int seconds);
-	bool isReadyToResume();
+	bool isReadyToResume() const;
 	bool isSleeping() const;
 
 private:

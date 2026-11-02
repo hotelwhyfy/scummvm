@@ -74,7 +74,7 @@ bool ScriptThread::isSleeping() const {
 	return isRunning() && g_system->getMillis() < _wakeTime;
 }
 
-bool ScriptThread::isReadyToResume() {
+bool ScriptThread::isReadyToResume() const {
 	if (isRunning() && !isSleeping())
 		return true;
 	return false;
