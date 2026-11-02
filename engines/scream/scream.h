@@ -57,8 +57,9 @@ private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
 	Script *_script = nullptr;
-	void loadNode(Node *node);
+	void loadNode(const Node *node);
 	GLuint _faceTextures[kNumFaces] = {};
+	const Node *_loadedNode = nullptr;
 
 protected:
 	// Engine APIs
@@ -74,8 +75,6 @@ public:
 	Journal _journal;
 	Camera _camera;
 	Gfx *_gfx = nullptr;
-	void switchNode(const Common::String &name);
-	void switchRoom(const Common::String &name);
 	void performAction(const Action &action);
 
 public:

@@ -42,7 +42,7 @@ namespace Scream {
 
 ScreamEngine *g_engine;
 
-void ScreamEngine::loadNode(Node *node) {
+void ScreamEngine::loadNode(const Node *node) {
 	if (!node)
 		error("ScreamEngine::loadNode: node not provided");
 
@@ -60,33 +60,17 @@ void ScreamEngine::loadNode(Node *node) {
 
 	for (uint i = 0; i < kNumFaces; ++i)
 		_faceTextures[i] = loadTexture(_gfx, faceFiles[i]);
-}
 
-void ScreamEngine::switchNode(const Common::String &name) {
-	Node *node = _world.findNode(_world.getCurrentNode()->getParentRoom(), name);
-	if (!node)
-		error("switch node: node %s not found", name.c_str());
-	_world.setCurrentNode(node);
-	node->getParentRoom()->setLastVisitedNode(node);
-	loadNode(node);
-}
-
-void ScreamEngine::switchRoom(const Common::String &name) {
-	Room *room = _world.findRoom(name);
-	if (!room)
-		error("switch room: room %s not found", name.c_str());
-	Node *node = room->getLastVisitedNode();
-	_world.setCurrentNode(node);
-	loadNode(node);
+	_loadedNode = node;
 }
 
 void ScreamEngine::performAction(const Action &action) {
 	switch (action._kind) {
 	case kScNode:
-		switchNode(action._arg1);
+		_world.switchNode(action._arg1);
 		break;
 	case kScRoom:
-		switchRoom(action._arg1);
+		_world.switchRoom(action._arg1);
 		break;
 	case kScCustom:
 	case kScZoomOut:
@@ -149,7 +133,6 @@ Common::Error ScreamEngine::run() {
 	bool clicked = false;
 
 	Node *tempNode = _world.findNode(_world.findRoom("house-lobby-dc"), "n1");
-	loadNode(tempNode);
 	_world.setCurrentNode(tempNode);
 
 	debug(1, "openGL error: %d", glGetError());
@@ -178,9 +161,11 @@ Common::Error ScreamEngine::run() {
 			hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
 		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
 
-		if (clicked && hoverObject) {
+		if (clicked && hoverObject)
 			performAction(hoverObject->getClickAction());
-		}
+
+		if (_loadedNode != _world.getCurrentNode())
+			loadNode(_world.getCurrentNode());
 
 		_gfx->clear();
 		_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());

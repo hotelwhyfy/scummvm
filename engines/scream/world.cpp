@@ -135,6 +135,24 @@ Room *World::findRoom(const Common::String &name) const {
 	return nullptr;
 }
 
+void World::switchNode(const Common::String &name) {
+	Node *node = findNode(getCurrentNode()->getParentRoom(), name);
+	if (!node)
+		error("switch node: node %s not found", name.c_str());
+	node->getParentRoom()->setLastVisitedNode(node);
+	setCurrentNode(node);
+}
+
+void World::switchRoom(const Common::String &name) {
+	Room *room = findRoom(name);
+	if (!room)
+		error("switch room: room %s not found", name.c_str());
+	Node *node = room->getLastVisitedNode();
+	if (!node)
+		error("switch room: room %s has no last visited node", name.c_str());
+	setCurrentNode(node);
+}
+
 void World::setEnabled(int key, bool enabled) {
 	switch (key) {
 	case kScObject:
