@@ -20,6 +20,7 @@
  */
 
 #include "common/system.h"
+#include "common/textconsole.h"
 
 #include "scream/script_thread.h"
 
@@ -65,16 +66,18 @@ void ScriptThread::release() {
 	_threadRef = LUA_NOREF;
 }
 
-void ScriptThread::update() {
-	if (!isRunning())
-		return;
-	if (g_system->getMillis() < _wakeTime)
-		return;
-	resume();
-}
-
 void ScriptThread::sleepFor(int seconds) {
 	_wakeTime = g_system->getMillis() + seconds * 1000;
+}
+
+bool ScriptThread::isSleeping() const {
+	return g_system->getMillis() < _wakeTime;
+}
+
+bool ScriptThread::isReadyToResume() {
+	if (isRunning() && !isSleeping())
+		return true;
+	return false;
 }
 
 } // end of namespace Scream

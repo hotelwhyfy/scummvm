@@ -68,6 +68,11 @@ static void describeFunction(lua_State *L, const char *name) {
 	debug(1, "%s", out.c_str());
 }
 
+void Script::update() {
+	if (_thread.isReadyToResume())
+		_thread.resume();
+}
+
 int Script::scFXPlayEx(lua_State *L) {
 	describeFunction(L, "scFXPlayEx");
 	// const char *channel = getString(L, 1);
@@ -197,14 +202,34 @@ int Script::scEnd(lua_State *L) {
 int Script::scDisable(lua_State *L) {
 	// describeFunction(L, "scDisable");
 	int key = lua_tonumber(L, 1);
-	g_engine->_world.setEnabled(key, false);
+	switch (key) {
+	case kScObject:
+		g_engine->_world.boundObject()->setEnabled(false);
+		break;
+	case kScWait:
+		g_engine->_script->_waitEnabled = false;
+		break;
+	default:
+		g_engine->_settings.setEnabled(key, false);
+		break;
+	}
 	return 0;
 }
 
 int Script::scEnable(lua_State *L) {
 	// describeFunction(L, "scEnable");
 	int key = lua_tonumber(L, 1);
-	g_engine->_world.setEnabled(key, true);
+	switch (key) {
+	case kScObject:
+		g_engine->_world.boundObject()->setEnabled(true);
+		break;
+	case kScWait:
+		g_engine->_script->_waitEnabled = true;
+		break;
+	default:
+		g_engine->_settings.setEnabled(key, true);
+		break;
+	}
 	return 0;
 }
 

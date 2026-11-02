@@ -30,18 +30,18 @@ namespace Scream {
 class ScriptThread {
 public:
 	void start(lua_State *state, const Common::String &name);
-	void update();
 	bool isRunning() const { return _thread != nullptr; }
+	void resume();
 	void sleepFor(int seconds);
+	bool isReadyToResume();
+	bool isSleeping() const;
 
 private:
+	void release();
 	lua_State *_thread = nullptr;
 	int _threadRef = LUA_NOREF;
-	uint32 _wakeTime = 0;
 	lua_State *_state = nullptr;
-
-	void release();
-	void resume();
+	uint32 _wakeTime = 0;
 };
 
 } // end of namespace Scream

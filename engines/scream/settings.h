@@ -28,10 +28,11 @@ namespace Scream {
 
 class Settings {
 public:
+	void scSet(int key, const char *value);
+	void setEnabled(int key, bool enabled);
 	Common::String _resPath;
 	Common::String _resFile;
 	Common::String _splash;
-	void scSet(int key, const char *value);
 };
 
 } // end of namespace Scream

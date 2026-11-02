@@ -86,6 +86,14 @@ void ScreamEngine::performAction(const Action &action) {
 	}
 }
 
+int ScreamEngine::chooseCursor(const Object *hoverObject) const {
+	if (_script->isWaiting())
+			return kScWait;
+	if (hoverObject)
+		return hoverObject->getHoverCursor();
+	return kScNormal;
+}
+
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 																			   _gameDescription(gameDesc), _randomSource("Scream") {
 	g_engine = this;
@@ -165,9 +173,10 @@ Common::Error ScreamEngine::run() {
 		const Object *hoverObject = nullptr;
 		if (fh.isValid())
 			hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
-		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
 
-		if (clicked && hoverObject && !_script->isBusy())
+		_cursor.setCursor(_gfx, chooseCursor(hoverObject));
+
+		if (clicked && hoverObject && !_script->isWaiting())
 			performAction(hoverObject->getClickAction());
 
 		if (_loadedNode != _world.getCurrentNode())

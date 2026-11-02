@@ -153,17 +153,6 @@ void World::switchRoom(const Common::String &name) {
 	setCurrentNode(node);
 }
 
-void World::setEnabled(int key, bool enabled) {
-	switch (key) {
-	case kScObject:
-		boundObject()->setEnabled(enabled);
-		break;
-	default:
-		warning("unhandled key for scEnable/scDisable %d", key);
-		break;
-	}
-}
-
 void World::scPlace(int x, int y, int w, int h, int face) {
 	Object *object = boundObject();
 	object->setRect(x, y, w, h, face);

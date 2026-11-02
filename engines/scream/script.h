@@ -37,8 +37,8 @@ public:
 	~Script();
 	bool runFile(const Common::Path &filename);
 	void callFunction(const Common::String &name) { _thread.start(_state, name); }
-	bool isBusy() const { return _thread.isRunning(); }
-	void update() { _thread.update(); }
+	void update();
+	bool isWaiting() const { return _waitEnabled && _thread.isSleeping(); }
 
 private:
 	lua_State *_state = nullptr;
@@ -80,6 +80,7 @@ private:
 	static int scLookAt(lua_State *L);
 
 	ScriptThread _thread;
+	bool _waitEnabled = true;
 };
 
 } // end of namespace Scream

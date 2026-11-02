@@ -59,6 +59,7 @@ private:
 	void loadNode(const Node *node);
 	GLuint _faceTextures[kNumFaces] = {};
 	const Node *_loadedNode = nullptr;
+	int chooseCursor(const Object *hoverObject) const;
 
 protected:
 	// Engine APIs

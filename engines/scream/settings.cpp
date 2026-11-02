@@ -26,6 +26,10 @@
 
 namespace Scream {
 
+void Settings::setEnabled(int key, bool enabled) {
+	warning("Settings::setEnabled: key %d not implemented", key);
+}
+
 void Settings::scSet(int key, const char *value) {
 	switch (key) {
 	case kScResPath:
