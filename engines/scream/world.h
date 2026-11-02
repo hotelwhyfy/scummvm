@@ -54,7 +54,7 @@ public:
 	void scEnd(int level);
 	void scTexture(int face, const char *file);
 	void scPlace(int x, int y, int w, int h, int face);
-	Item *findItem(const Common::String &name);
+	Item *findItem(const Common::String &name) const;
 	Node *findNode(const Room *room, const Common::String &name) const;
 	Room *findRoom(const Common::String &name) const;
 	void setCurrentNode(Node *node) { _currentNode = node; }

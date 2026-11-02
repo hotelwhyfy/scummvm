@@ -88,7 +88,7 @@ Item *World::boundItem() {
 	return _boundItem;
 }
 
-Item *World::findItem(const Common::String &name) {
+Item *World::findItem(const Common::String &name) const {
 	for (Item *item : _items) {
 		if (item->getName() == name) {
 			return item;
