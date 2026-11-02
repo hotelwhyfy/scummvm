@@ -26,13 +26,18 @@
 
 namespace Scream {
 
+class Node;
+
 class Room {
 public:
 	Room(const char *name) : _name(name) {}
 	const Common::String &getName() const { return _name; }
+	Node *getLastVisitedNode() const { return _lastVisitedNode; }
+	void setLastVisitedNode(Node *node) { _lastVisitedNode = node; }
 
 private:
 	Common::String _name;
+	Node *_lastVisitedNode = nullptr;
 };
 
 } // end of namespace Scream

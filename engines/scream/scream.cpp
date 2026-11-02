@@ -62,6 +62,42 @@ void ScreamEngine::loadNode(Node *node) {
 		_faceTextures[i] = loadTexture(_gfx, faceFiles[i]);
 }
 
+void ScreamEngine::switchNode(const Common::String &name) {
+	Node *node = _world.findNode(_world.getCurrentNode()->getParentRoom(), name);
+	if (!node)
+		error("switch node: node %s not found", name.c_str());
+	_world.setCurrentNode(node);
+	node->getParentRoom()->setLastVisitedNode(node);
+	loadNode(node);
+}
+
+void ScreamEngine::switchRoom(const Common::String &name) {
+	Room *room = _world.findRoom(name);
+	if (!room)
+		error("switch room: room %s not found", name.c_str());
+	Node *node = room->getLastVisitedNode();
+	_world.setCurrentNode(node);
+	loadNode(node);
+}
+
+void ScreamEngine::performAction(const Action &action) {
+	switch (action._kind) {
+	case kScNode:
+		switchNode(action._arg1);
+		break;
+	case kScRoom:
+		switchRoom(action._arg1);
+		break;
+	case kScCustom:
+	case kScZoomOut:
+	case kScZoomBack:
+	case kScFeedbackEx:
+	default:
+		warning("click action type not implemented: %d", action._kind);
+		break;
+	}
+}
+
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 																			   _gameDescription(gameDesc), _randomSource("Scream") {
 	g_engine = this;
@@ -110,10 +146,11 @@ Common::Error ScreamEngine::run() {
 		(void)loadGameState(saveSlot);
 
 	Common::Event e;
+	bool clicked = false;
 
-	uint nodeIndex = 0;
-	Node *node = _world.getNode(nodeIndex);
-	loadNode(node);
+	Node *tempNode = _world.findNode(_world.findRoom("house-lobby-dc"), "n1");
+	loadNode(tempNode);
+	_world.setCurrentNode(tempNode);
 
 	debug(1, "openGL error: %d", glGetError());
 
@@ -125,18 +162,8 @@ Common::Error ScreamEngine::run() {
 			case Common::EVENT_MOUSEMOVE:
 				mouse = e.mouse;
 				break;
-			case Common::EVENT_KEYDOWN:
-				if (e.kbd.keycode == Common::KEYCODE_SPACE) {
-					nodeIndex += 1;
-					node = _world.getNode(nodeIndex);
-					if (!node) {
-						nodeIndex = 0;
-						node = _world.getNode(nodeIndex);
-					}
-					loadNode(node);
-				}
-				break;
 			case Common::EVENT_LBUTTONUP:
+				clicked = true;
 				break;
 			default:
 				break;
@@ -144,13 +171,16 @@ Common::Error ScreamEngine::run() {
 		}
 
 		_camera.update(mouse);
-
 		FaceHit fh = _camera.pick(mouse);
 
 		const Object *hoverObject = nullptr;
 		if (fh.isValid())
-			hoverObject = node->findObjectAt(fh.face, fh.pixel);
+			hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
 		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
+
+		if (clicked && hoverObject) {
+			performAction(hoverObject->getClickAction());
+		}
 
 		_gfx->clear();
 		_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
@@ -158,6 +188,8 @@ Common::Error ScreamEngine::run() {
 		_gfx->setup2D();
 
 		_cursor.draw(_gfx, mouse);
+
+		clicked = false;
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded

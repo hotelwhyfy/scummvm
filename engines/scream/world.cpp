@@ -38,13 +38,6 @@ static int parentLevel(int level) {
 	}
 }
 
-// TEMP:
-Node *World::getNode(int index) {
-	if ((uint)index < _nodes.size())
-		return _nodes[index];
-	return nullptr;
-}
-
 World::~World() {
 	for (Track *track : _tracks)
 		delete track;
@@ -72,60 +65,74 @@ World::~World() {
 }
 
 Track *World::boundTrack() {
-	if (!_currentTrack)
+	if (!_boundTrack)
 		error("GetBind: no bound track");
-	return _currentTrack;
+	return _boundTrack;
 }
 
 Dialogue *World::boundDialogue() {
-	if (!_currentDialogue)
+	if (!_boundDialogue)
 		error("GetBind: no bound dialogue");
-	return _currentDialogue;
+	return _boundDialogue;
 }
 
 Choice *World::boundChoice() {
-	if (!_currentChoice)
+	if (!_boundChoice)
 		error("GetBind: no bound choice");
-	return _currentChoice;
+	return _boundChoice;
 }
 
 Item *World::boundItem() {
-	if (!_currentItem)
+	if (!_boundItem)
 		error("GetBind: no bound item"); // engine only warns
-	return _currentItem;
+	return _boundItem;
 }
 
-Item *World::findItem(const char *name) {
+Item *World::findItem(const Common::String &name) {
 	for (Item *item : _items) {
 		if (item->getName() == name) {
 			return item;
 		}
 	}
-	error("findItem: no item found \"%s\"", name);
+	return nullptr;
 }
 
 Room *World::boundRoom() {
-	if (!_currentRoom)
+	if (!_boundRoom)
 		error("GetBind: no bound room");
-	return _currentRoom;
+	return _boundRoom;
 }
 
 Node *World::boundNode() {
-	if (!_currentNode)
+	if (!_boundNode)
 		error("GetBind: no bound node");
-	return _currentNode;
+	return _boundNode;
 }
 
 Zoom *World::boundZoom() {
-	if (!_currentZoom)
+	if (!_boundZoom)
 		error("GetBind: no bound zoom");
-	return _currentZoom;
+	return _boundZoom;
 }
 
 Object *World::boundObject() {
-	if (!_currentObject)
+	if (!_boundObject)
 		error("GetBind: no bound object");
-	return _currentObject;
+	return _boundObject;
+}
+
+Node *World::findNode(const Room *room, const Common::String &name) const {
+	for (Node *node : _nodes)
+		if (node->getName() == name && node->getParentRoom() == room)
+			return node;
+	return nullptr;
+}
+
+Room *World::findRoom(const Common::String &name) const {
+	for (Room *room : _rooms)
+		if (room->getName() == name)
+			return room;
+	return nullptr;
 }
 
 void World::setEnabled(int key, bool enabled) {
@@ -173,6 +180,8 @@ void World::scBegin(int level) {
 	_currentLevel = level;
 	if (level == kScNode) {
 		boundNode()->setParentRoom(boundRoom());
+		if (!boundRoom()->getLastVisitedNode())
+			boundRoom()->setLastVisitedNode(boundNode());
 	}
 }
 
@@ -188,49 +197,49 @@ void World::scCreate(int kind, const char *name) {
 	case kScTrack: {
 		Track *track = new Track(name);
 		_tracks.push_back(track);
-		_currentTrack = track;
+		_boundTrack = track;
 		break;
 	}
 	case kScRoom: {
 		Room *room = new Room(name);
 		_rooms.push_back(room);
-		_currentRoom = room;
+		_boundRoom = room;
 		break;
 	}
 	case kScScript: {
 		Dialogue *dialogue = new Dialogue(name);
 		_dialogues.push_back(dialogue);
-		_currentDialogue = dialogue;
+		_boundDialogue = dialogue;
 		break;
 	}
 	case kScChoice: {
 		Choice *choice = new Choice(name);
 		_choices.push_back(choice);
-		_currentChoice = choice;
+		_boundChoice = choice;
 		break;
 	}
 	case kScItem: {
 		Item *item = new Item(name);
 		_items.push_back(item);
-		_currentItem = item;
+		_boundItem = item;
 		break;
 	}
 	case kScNode: {
 		Node *node = new Node(name);
 		_nodes.push_back(node);
-		_currentNode = node;
+		_boundNode = node;
 		break;
 	}
 	case kScZoom: {
 		Zoom *zoom = new Zoom(name);
 		_zooms.push_back(zoom);
-		_currentZoom = zoom;
+		_boundZoom = zoom;
 		break;
 	}
 	case kScObject: {
 		Object *object = new Object(name);
 		_objects.push_back(object);
-		_currentObject = object;
+		_boundObject = object;
 		break;
 	}
 

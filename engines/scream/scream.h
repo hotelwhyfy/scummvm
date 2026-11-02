@@ -74,6 +74,9 @@ public:
 	Journal _journal;
 	Camera _camera;
 	Gfx *_gfx = nullptr;
+	void switchNode(const Common::String &name);
+	void switchRoom(const Common::String &name);
+	void performAction(const Action &action);
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);

@@ -93,6 +93,8 @@ int Script::scReaction(lua_State *L) {
 	const char *arg1 = getString(L, 3);
 	const char *arg2 = getOptionalString(L, 4);
 	Item *item = g_engine->_world.findItem(itemName);
+	if (!item)
+		error("scReaction: item %s not found", itemName);
 	g_engine->_world.boundObject()->addReaction(item, Action(kind, arg1, arg2));
 	return 0;
 }

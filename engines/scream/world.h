@@ -47,7 +47,6 @@ public:
 	Node *boundNode();
 	Room *boundRoom();
 	Zoom *boundZoom();
-	Item *findItem(const char *name);
 	Object *boundObject();
 	void scCreate(int kind, const char *name);
 	void scInventoryReaction(Item *boundItem, Item *otherItem, const Action &action);
@@ -56,19 +55,23 @@ public:
 	void scTexture(int face, const char *file);
 	void scPlace(int x, int y, int w, int h, int face);
 	void setEnabled(int key, bool enabled);
-
-	// TEMP:
-	Node *getNode(int index);
+	Item *findItem(const Common::String &name);
+	Node *findNode(const Room *room, const Common::String &name) const;
+	Room *findRoom(const Common::String &name) const;
+	void setCurrentNode(Node *node) { _currentNode = node; }
+	Node *getCurrentNode() const { return _currentNode; }
 
 private:
-	Room *_currentRoom = nullptr;
-	Track *_currentTrack = nullptr;
-	Dialogue *_currentDialogue = nullptr;
-	Choice *_currentChoice = nullptr;
-	Item *_currentItem = nullptr;
+	Room *_boundRoom = nullptr;
+	Track *_boundTrack = nullptr;
+	Dialogue *_boundDialogue = nullptr;
+	Choice *_boundChoice = nullptr;
+	Item *_boundItem = nullptr;
+	Node *_boundNode = nullptr;
+	Zoom *_boundZoom = nullptr;
+	Object *_boundObject = nullptr;
+
 	Node *_currentNode = nullptr;
-	Zoom *_currentZoom = nullptr;
-	Object *_currentObject = nullptr;
 
 	int _currentLevel = kScWorld;
 
