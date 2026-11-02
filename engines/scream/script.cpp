@@ -68,6 +68,141 @@ static void describeFunction(lua_State *L, const char *name) {
 	debug(1, "%s", out.c_str());
 }
 
+void Script::callFunction(const Common::String &name) {
+	if (_thread) {
+		warning("callFunction: thread already running, cannot call %s", name.c_str());
+		return;
+	}
+
+	_thread = lua_newthread(_state);
+	_threadRef = luaL_ref(_state, LUA_REGISTRYINDEX);
+
+	lua_getglobal(_thread, name.c_str());
+	if (!lua_isfunction(_thread, -1)) {
+		warning("callFunction: %s is not a function", name.c_str());
+		releaseThread();
+		return;
+	}
+
+	resumeThread();
+}
+
+void Script::resumeThread() {
+	switch (lua_resume(_thread, 0)) {
+	case 0:
+		releaseThread();
+		break;
+	case LUA_YIELD:
+		break;
+	default:
+		warning("Script: resumeThread error: %s", getString(_thread, -1));
+		releaseThread();
+		break;
+	}
+}
+
+void Script::releaseThread() {
+	luaL_unref(_state, LUA_REGISTRYINDEX, _threadRef);
+	_thread = nullptr;
+	_threadRef = LUA_NOREF;
+}
+
+void Script::update() {
+	if (!isRunning())
+		return;
+	if (g_system->getMillis() < _wakeTime)
+		return;
+	resumeThread();
+}
+
+int Script::scFXPlayEx(lua_State *L) {
+	describeFunction(L, "scFXPlayEx");
+	// const char *channel = getString(L, 1);
+	// const char *file = getString(L, 2);
+	// bool wait = lua_toboolean(L, 3); // blocks until Esc is pressed
+	// bool loop = lua_toboolean(L, 4);
+	warning("scFXPlayEx: not implemented");
+	return 0;
+}
+
+int Script::scSleep(lua_State *L) {
+	describeFunction(L, "scSleep");
+	int seconds = lua_tonumber(L, 1);
+	g_engine->_script->_wakeTime = g_system->getMillis() + seconds * 1000;
+	return lua_yield(L, 0);
+}
+
+int Script::scLookAt(lua_State *L) {
+	describeFunction(L, "scLookAt");
+	int face = lua_tonumber(L, 1);
+	int transition = lua_tonumber(L, 2);
+	switch (transition) {
+	case kScInstant:
+		g_engine->_camera.lookAt(face);
+		break;
+	case kScSmooth:
+		g_engine->_camera.lookAt(face);
+		warning("scLookAt: smooth transition not implemented");
+		break;
+	default:
+		warning("scLookAt: invalid transition %d", transition);
+		break;
+	}
+	return 0;
+}
+
+int Script::scSwitch(lua_State *L) {
+	describeFunction(L, "scSwitch");
+	int kind = lua_tonumber(L, 1);
+	const char *name = getString(L, 2);
+	switch (kind) {
+	case kScRoom:
+		g_engine->_world.switchRoom(name);
+		break;
+	case kScNode:
+		g_engine->_world.switchNode(name);
+		break;
+	case kScZoom:
+	case kScZoomOut:
+	case kScZoomBack:
+	case kScOverlay:
+	default:
+		warning("scSwitch: not implemented for kind %d", kind);
+		break;
+	}
+	return 0;
+}
+
+int Script::scBind(lua_State *L) {
+	describeFunction(L, "scBind");
+	int kind = lua_tonumber(L, 1);
+	const char *name = getString(L, 2);
+	switch (kind) {
+	case kScRoom: {
+		Room *room = g_engine->_world.findRoom(name);
+		if (!room)
+			error("scBind: room %s not found", name);
+		g_engine->_world.setBoundRoom(room);
+		break;
+	}
+	default:
+		warning("scBind: not implemented for kind %d", kind);
+		break;
+	}
+	return 0;
+}
+
+int Script::scSetLastVisited(lua_State *L) {
+	describeFunction(L, "scSetLastVisited");
+	const char *nodeName = getString(L, 1);
+	Room *boundRoom = g_engine->_world.boundRoom();
+	Node *node = g_engine->_world.findNode(boundRoom, nodeName);
+	if (!node)
+		error("scSetLastVisited: node %s not found", nodeName);
+	boundRoom->setLastVisitedNode(node);
+	return 0;
+}
+
 int Script::scTerminate(lua_State *L) {
 	describeFunction(L, "scTerminate");
 	return 0;
@@ -366,6 +501,12 @@ Script::Script() {
 	lua_register(_state, "scAudio", scAudio);
 	lua_register(_state, "scRun", scRun);
 	lua_register(_state, "scTerminate", scTerminate);
+	lua_register(_state, "scFXPlayEx", scFXPlayEx);
+	lua_register(_state, "scSleep", scSleep);
+	lua_register(_state, "scBind", scBind);
+	lua_register(_state, "scSetLastVisited", scSetLastVisited);
+	lua_register(_state, "scSwitch", scSwitch);
+	lua_register(_state, "scLookAt", scLookAt);
 }
 
 Script::~Script() {

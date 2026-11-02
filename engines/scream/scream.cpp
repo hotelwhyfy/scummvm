@@ -73,6 +73,10 @@ void ScreamEngine::performAction(const Action &action) {
 		_world.switchRoom(action._arg1);
 		break;
 	case kScCustom:
+		_script->callFunction(action._arg1);
+		if (action._arg2.size() > 0)
+			warning("performAction: custom action with arg2 not implemented: %s", action._arg2.c_str());
+		break;
 	case kScZoomOut:
 	case kScZoomBack:
 	case kScFeedbackEx:
@@ -153,6 +157,8 @@ Common::Error ScreamEngine::run() {
 			}
 		}
 
+		_script->update();
+
 		_camera.update(mouse);
 		FaceHit fh = _camera.pick(mouse);
 
@@ -161,7 +167,7 @@ Common::Error ScreamEngine::run() {
 			hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
 		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
 
-		if (clicked && hoverObject)
+		if (clicked && hoverObject && !_script->isRunning())
 			performAction(hoverObject->getClickAction());
 
 		if (_loadedNode != _world.getCurrentNode())

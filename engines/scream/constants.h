@@ -103,6 +103,11 @@ enum LevelKey {
 	kScWorld = 3000,
 };
 
+enum TransitionKind {
+	kScInstant = 1,
+	kScSmooth = 2,
+};
+
 } // end of namespace Scream
 
 #endif

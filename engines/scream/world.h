@@ -59,6 +59,7 @@ public:
 	Node *findNode(const Room *room, const Common::String &name) const;
 	Room *findRoom(const Common::String &name) const;
 	void setCurrentNode(Node *node) { _currentNode = node; }
+	void setBoundRoom(Room *room) { _boundRoom = room; }
 	Node *getCurrentNode() const { return _currentNode; }
 	void switchNode(const Common::String &name);
 	void switchRoom(const Common::String &name);

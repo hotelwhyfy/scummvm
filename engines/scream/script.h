@@ -22,6 +22,7 @@
 #ifndef SCREAM_SCRIPT_H
 #define SCREAM_SCRIPT_H
 
+#include "common/lua/lauxlib.h"
 #include "common/path.h"
 
 struct lua_State;
@@ -33,6 +34,9 @@ public:
 	Script();
 	~Script();
 	bool runFile(const Common::Path &filename);
+	void callFunction(const Common::String &name);
+	void update();
+	bool isRunning() const { return _thread != nullptr; }
 
 private:
 	lua_State *_state = nullptr;
@@ -66,6 +70,19 @@ private:
 	static int scAudio(lua_State *L);
 	static int scRun(lua_State *L);
 	static int scTerminate(lua_State *L);
+	static int scFXPlayEx(lua_State *L);
+	static int scSleep(lua_State *L);
+	static int scBind(lua_State *L);
+	static int scSetLastVisited(lua_State *L);
+	static int scSwitch(lua_State *L);
+	static int scLookAt(lua_State *L);
+
+	lua_State *_thread = nullptr;
+	int _threadRef = LUA_NOREF;
+	uint32 _wakeTime = 0;
+
+	void releaseThread();
+	void resumeThread();
 };
 
 } // end of namespace Scream

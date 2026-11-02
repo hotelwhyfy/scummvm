@@ -41,6 +41,8 @@ static const int kMouseLeftZoneEdge = kScreenWidth * kTurnZonePercent / 100;
 static const int kMouseRightZoneEdge = kScreenWidth - kMouseLeftZoneEdge;
 static const int kMouseUpZoneEdge = kViewportY + (kScreenHeight - 3 * kViewportY) * kTurnZonePercent / 100;
 static const int kMouseDownZoneEdge = (kScreenHeight - 2 * kViewportY) - (kScreenHeight - 3 * kViewportY) * kTurnZonePercent / 100;
+static const float kLookUpY = 6.28f;
+static const float kLookDownY = -1.57f;
 
 Camera::Camera() : _fov(kDefaultFov) {}
 
@@ -126,6 +128,43 @@ static Common::Point hitPointToFacePixels(const Math::Vector3d &hit, int face) {
 	}
 }
 
+static float calculatePitch(float lookY) {
+	return Math::rad2deg(atan(lookY));
+}
+
+void Camera::lookAt(int face) {
+	switch (face) {
+	case kScFront:
+		_heading = 0.0f;
+		_lookY = 0.0f;
+		break;
+	case kScBack:
+		_heading = 180.0f;
+		_lookY = 0.0f;
+		break;
+	case kScLeft:
+		_heading = 270.0f;
+		_lookY = 0.0f;
+		break;
+	case kScRight:
+		_heading = 90.0f;
+		_lookY = 0.0f;
+		break;
+	case kScUp:
+		_heading = 0.0f;
+		_lookY = kLookUpY;
+		break;
+	case kScDown:
+		_heading = 0.0f;
+		_lookY = kLookDownY;
+		break;
+	default:
+		warning("Camera::lookAt: invalid face %d", face);
+		return;
+	}
+	_pitch = calculatePitch(_lookY);
+}
+
 void Camera::update(const Common::Point &mouse) {
 	if (mouse.x < kMouseLeftZoneEdge) {
 		_heading -= (kMouseLeftZoneEdge - mouse.x) * kTurnSpeedDeg;
@@ -143,7 +182,7 @@ void Camera::update(const Common::Point &mouse) {
 		_lookY -= (mouse.y - kMouseDownZoneEdge) * kTurnSpeedRad;
 	}
 
-	_pitch = Math::rad2deg(atan(_lookY));
+	_pitch = calculatePitch(_lookY);
 }
 
 FaceHit Camera::pick(const Common::Point &mouse) const {

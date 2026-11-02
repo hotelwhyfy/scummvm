@@ -42,6 +42,7 @@ public:
 	float getFov() const { return _fov; }
 	void update(const Common::Point &mouse);
 	FaceHit pick(const Common::Point &mouse) const;
+	void lookAt(int face);
 
 private:
 	float _heading = 0.0f;

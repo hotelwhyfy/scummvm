@@ -56,7 +56,6 @@ class ScreamEngine : public Engine {
 private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
-	Script *_script = nullptr;
 	void loadNode(const Node *node);
 	GLuint _faceTextures[kNumFaces] = {};
 	const Node *_loadedNode = nullptr;
@@ -75,6 +74,7 @@ public:
 	Journal _journal;
 	Camera _camera;
 	Gfx *_gfx = nullptr;
+	Script *_script = nullptr;
 	void performAction(const Action &action);
 
 public:
