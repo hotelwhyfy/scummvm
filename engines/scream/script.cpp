@@ -68,53 +68,6 @@ static void describeFunction(lua_State *L, const char *name) {
 	debug(1, "%s", out.c_str());
 }
 
-void Script::callFunction(const Common::String &name) {
-	if (_thread) {
-		warning("callFunction: thread already running, cannot call %s", name.c_str());
-		return;
-	}
-
-	_thread = lua_newthread(_state);
-	_threadRef = luaL_ref(_state, LUA_REGISTRYINDEX);
-
-	lua_getglobal(_thread, name.c_str());
-	if (!lua_isfunction(_thread, -1)) {
-		warning("callFunction: %s is not a function", name.c_str());
-		releaseThread();
-		return;
-	}
-
-	resumeThread();
-}
-
-void Script::resumeThread() {
-	switch (lua_resume(_thread, 0)) {
-	case 0:
-		releaseThread();
-		break;
-	case LUA_YIELD:
-		break;
-	default:
-		warning("Script: resumeThread error: %s", getString(_thread, -1));
-		releaseThread();
-		break;
-	}
-}
-
-void Script::releaseThread() {
-	luaL_unref(_state, LUA_REGISTRYINDEX, _threadRef);
-	_thread = nullptr;
-	_threadRef = LUA_NOREF;
-}
-
-void Script::update() {
-	if (!isRunning())
-		return;
-	if (g_system->getMillis() < _wakeTime)
-		return;
-	resumeThread();
-}
-
 int Script::scFXPlayEx(lua_State *L) {
 	describeFunction(L, "scFXPlayEx");
 	// const char *channel = getString(L, 1);
@@ -128,7 +81,7 @@ int Script::scFXPlayEx(lua_State *L) {
 int Script::scSleep(lua_State *L) {
 	describeFunction(L, "scSleep");
 	int seconds = lua_tonumber(L, 1);
-	g_engine->_script->_wakeTime = g_system->getMillis() + seconds * 1000;
+	g_engine->_script->_thread.sleepFor(seconds);
 	return lua_yield(L, 0);
 }
 

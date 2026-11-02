@@ -167,7 +167,7 @@ Common::Error ScreamEngine::run() {
 			hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
 		_cursor.setCursor(_gfx, hoverObject ? hoverObject->getHoverCursor() : kScNormal);
 
-		if (clicked && hoverObject && !_script->isRunning())
+		if (clicked && hoverObject && !_script->isBusy())
 			performAction(hoverObject->getClickAction());
 
 		if (_loadedNode != _world.getCurrentNode())
