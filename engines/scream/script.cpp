@@ -202,35 +202,29 @@ int Script::scEnd(lua_State *L) {
 int Script::scDisable(lua_State *L) {
 	// describeFunction(L, "scDisable");
 	int key = lua_tonumber(L, 1);
-	switch (key) {
-	case kScObject:
-		g_engine->_world.boundObject()->setEnabled(false);
-		break;
-	case kScWait:
-		g_engine->_script->_waitEnabled = false;
-		break;
-	default:
-		g_engine->_settings.setEnabled(key, false);
-		break;
-	}
+	g_engine->_script->setEnabled(key, false);
 	return 0;
 }
 
 int Script::scEnable(lua_State *L) {
 	// describeFunction(L, "scEnable");
 	int key = lua_tonumber(L, 1);
+	g_engine->_script->setEnabled(key, true);
+	return 0;
+}
+
+void Script::setEnabled(int key, bool enabled) {
 	switch (key) {
 	case kScObject:
-		g_engine->_world.boundObject()->setEnabled(true);
+		g_engine->_world.boundObject()->setEnabled(enabled);
 		break;
 	case kScWait:
-		g_engine->_script->_waitEnabled = true;
+		_waitEnabled = enabled;
 		break;
 	default:
-		g_engine->_settings.setEnabled(key, true);
+		g_engine->_settings.setEnabled(key, enabled);
 		break;
 	}
-	return 0;
 }
 
 int Script::scOnClick(lua_State *L) {

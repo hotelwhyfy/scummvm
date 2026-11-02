@@ -79,6 +79,8 @@ private:
 	static int scSwitch(lua_State *L);
 	static int scLookAt(lua_State *L);
 
+	void setEnabled(int key, bool enabled);
+
 	ScriptThread _thread;
 	bool _waitEnabled = true;
 };

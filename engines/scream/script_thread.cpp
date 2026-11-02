@@ -71,7 +71,7 @@ void ScriptThread::sleepFor(int seconds) {
 }
 
 bool ScriptThread::isSleeping() const {
-	return g_system->getMillis() < _wakeTime;
+	return isRunning() && g_system->getMillis() < _wakeTime;
 }
 
 bool ScriptThread::isReadyToResume() {
