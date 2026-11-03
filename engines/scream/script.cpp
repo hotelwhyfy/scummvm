@@ -68,7 +68,13 @@ static void describeFunction(lua_State *L, const char *name) {
 	debug(1, "%s", out.c_str());
 }
 
+bool Script::isWaiting() const {
+	return g_engine->_camera.isTurning() || (_waitEnabled && _thread.isSleeping());
+}
+
 void Script::update() {
+	if (g_engine->_camera.isTurning())
+		return;
 	if (_thread.isReadyToResume())
 		_thread.resume();
 }
@@ -97,15 +103,14 @@ int Script::scLookAt(lua_State *L) {
 	switch (transition) {
 	case kScInstant:
 		g_engine->_camera.lookAt(face);
-		break;
+		return 0;
 	case kScSmooth:
 		g_engine->_camera.turnTo(face);
-		break;
+		return lua_yield(L, 0);
 	default:
 		warning("scLookAt: invalid transition %d", transition);
-		break;
+		return 0;
 	}
-	return 0;
 }
 
 int Script::scSwitch(lua_State *L) {

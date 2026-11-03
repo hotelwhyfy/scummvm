@@ -44,6 +44,7 @@ public:
 	FaceHit pick(const Common::Point &mouse) const;
 	void lookAt(int face);
 	void turnTo(int face);
+	bool isTurning() const { return _isTurning; }
 
 private:
 	float _heading = 0.0f;

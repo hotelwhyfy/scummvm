@@ -161,18 +161,6 @@ Common::Error ScreamEngine::run() {
 				clicked = true;
 				break;
 			case Common::EVENT_KEYDOWN:
-				if (e.kbd.keycode == Common::KEYCODE_1)
-					_camera.turnTo(kScFront);
-				if (e.kbd.keycode == Common::KEYCODE_2)
-					_camera.turnTo(kScBack);
-				if (e.kbd.keycode == Common::KEYCODE_3)
-					_camera.turnTo(kScLeft);
-				if (e.kbd.keycode == Common::KEYCODE_4)
-					_camera.turnTo(kScRight);
-				if (e.kbd.keycode == Common::KEYCODE_5)
-					_camera.turnTo(kScUp);
-				if (e.kbd.keycode == Common::KEYCODE_6)
-					_camera.turnTo(kScDown);
 				break;
 			default:
 				break;

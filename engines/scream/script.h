@@ -38,7 +38,7 @@ public:
 	bool runFile(const Common::Path &filename);
 	void callFunction(const Common::String &name) { _thread.start(_state, name); }
 	void update();
-	bool isWaiting() const { return _waitEnabled && _thread.isSleeping(); }
+	bool isWaiting() const;
 	bool isSleeping() const { return _thread.isSleeping(); }
 
 private:
