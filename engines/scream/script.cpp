@@ -79,6 +79,42 @@ void Script::update() {
 		_thread.resume();
 }
 
+int Script::scFeedbackEx(lua_State *L) {
+	describeFunction(L, "scFeedbackEx");
+	warning("scFeedbackEx: not implemented");
+	return 0;
+}
+
+int Script::scFXStop(lua_State *L) {
+	describeFunction(L, "scFXStop");
+	warning("scFXStop: not implemented");
+	return 0;
+}
+
+int Script::scCutscene(lua_State *L) {
+	describeFunction(L, "scCutscene");
+	warning("scCutscene: not implemented");
+	return 0;
+}
+
+int Script::scTrackFadeOut(lua_State *L) {
+	describeFunction(L, "scTrackFadeOut");
+	warning("scTrackFadeOut: not implemented");
+	return 0;
+}
+
+int Script::scFXSet(lua_State *L) {
+	describeFunction(L, "scFXSet");
+	warning("scFXSet: not implemented");
+	return 0;
+}
+
+int Script::scFXPlay(lua_State *L) {
+	describeFunction(L, "scFXPlay");
+	warning("scFXPlay: not implemented");
+	return 0;
+}
+
 int Script::scFXPlayEx(lua_State *L) {
 	describeFunction(L, "scFXPlayEx");
 	// const char *channel = getString(L, 1);
@@ -483,6 +519,12 @@ Script::Script() {
 	lua_register(_state, "scSetLastVisited", scSetLastVisited);
 	lua_register(_state, "scSwitch", scSwitch);
 	lua_register(_state, "scLookAt", scLookAt);
+	lua_register(_state, "scFXSet", scFXSet);
+	lua_register(_state, "scFXPlay", scFXPlay);
+	lua_register(_state, "scTrackFadeOut", scTrackFadeOut);
+	lua_register(_state, "scCutscene", scCutscene);
+	lua_register(_state, "scFXStop", scFXStop);
+	lua_register(_state, "scFeedbackEx", scFeedbackEx);
 }
 
 Script::~Script() {

@@ -79,6 +79,12 @@ private:
 	static int scSetLastVisited(lua_State *L);
 	static int scSwitch(lua_State *L);
 	static int scLookAt(lua_State *L);
+	static int scFXSet(lua_State *L);
+	static int scFXPlay(lua_State *L);
+	static int scTrackFadeOut(lua_State *L);
+	static int scCutscene(lua_State *L);
+	static int scFXStop(lua_State *L);
+	static int scFeedbackEx(lua_State *L);
 
 	void setEnabled(int key, bool enabled);
 
