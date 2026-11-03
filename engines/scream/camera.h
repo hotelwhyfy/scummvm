@@ -43,12 +43,17 @@ public:
 	void update(const Common::Point &mouse);
 	FaceHit pick(const Common::Point &mouse) const;
 	void lookAt(int face);
+	void turnTo(int face);
 
 private:
 	float _heading = 0.0f;
-	float _pitch = 0.0f;
 	float _lookY = 0.0f;
+	float _pitch = 0.0f;
+	float _targetHeading = 0.0f;
+	float _targetLookY = 0.0f;
 	float _fov;
+	bool _isTurning = false;
+	bool setTarget(int face);
 };
 
 } // end of namespace Scream

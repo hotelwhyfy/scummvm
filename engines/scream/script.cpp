@@ -99,8 +99,7 @@ int Script::scLookAt(lua_State *L) {
 		g_engine->_camera.lookAt(face);
 		break;
 	case kScSmooth:
-		g_engine->_camera.lookAt(face);
-		warning("scLookAt: smooth transition not implemented");
+		g_engine->_camera.turnTo(face);
 		break;
 	default:
 		warning("scLookAt: invalid transition %d", transition);

@@ -36,7 +36,8 @@ static const float kTurnPixelFactor = 0.005f;
 static const float kCamSpeedScale = 0.001f;
 static const int kTurnZonePercent = 15;
 static const float kTurnSpeedRad = (kTurnPixelFactor * kCameraSpeed * kCamSpeedScale); // radians per pixel-past-zone-edge per frame
-static const float kTurnSpeedDeg = kTurnSpeedRad * (180.0f / (float)M_PI);             // degrees per pixel-past-zone-edge per frame
+static const float kRadInDeg = (180.0f / (float)M_PI);
+static const float kTurnSpeedDeg = kTurnSpeedRad * kRadInDeg; // degrees per pixel-past-zone-edge per frame
 static const int kMouseLeftZoneEdge = kScreenWidth * kTurnZonePercent / 100;
 static const int kMouseRightZoneEdge = kScreenWidth - kMouseLeftZoneEdge;
 static const int kMouseUpZoneEdge = kViewportY + (kScreenHeight - 3 * kViewportY) * kTurnZonePercent / 100;
@@ -132,40 +133,66 @@ static float calculatePitch(float lookY) {
 	return Math::rad2deg(atan(lookY));
 }
 
-void Camera::lookAt(int face) {
+static float wrap(float input, float min, float max) {
+	float range = max - min;
+	return min + fmod(fmod(input - min, range) + range, range);
+}
+
+bool Camera::setTarget(int face) {
 	switch (face) {
 	case kScFront:
-		_heading = 0.0f;
-		_lookY = 0.0f;
+		_targetHeading = 0.0f;
+		_targetLookY = 0.0f;
 		break;
 	case kScBack:
-		_heading = 180.0f;
-		_lookY = 0.0f;
+		_targetHeading = 180.0f;
+		_targetLookY = 0.0f;
 		break;
 	case kScLeft:
-		_heading = 270.0f;
-		_lookY = 0.0f;
+		_targetHeading = 270.0f;
+		_targetLookY = 0.0f;
 		break;
 	case kScRight:
-		_heading = 90.0f;
-		_lookY = 0.0f;
+		_targetHeading = 90.0f;
+		_targetLookY = 0.0f;
 		break;
 	case kScUp:
-		_heading = 0.0f;
-		_lookY = kLookUpY;
+		_targetHeading = 0.0f;
+		_targetLookY = kLookUpY;
 		break;
 	case kScDown:
-		_heading = 0.0f;
-		_lookY = kLookDownY;
+		_targetHeading = 0.0f;
+		_targetLookY = kLookDownY;
 		break;
 	default:
-		warning("Camera::lookAt: invalid face %d", face);
-		return;
+		warning("Camera::setTarget: invalid face %d", face);
+		return false;
 	}
-	_pitch = calculatePitch(_lookY);
+	return true;
+}
+
+void Camera::lookAt(int face) {
+	if (setTarget(face)) {
+		_heading = _targetHeading;
+		_lookY = _targetLookY;
+		_pitch = calculatePitch(_lookY);
+	}
 }
 
 void Camera::update(const Common::Point &mouse) {
+	if (_isTurning) {
+		float dx = wrap(_targetHeading - _heading, -180, 180);
+		float dy = _targetLookY - _lookY;
+		float stepX = (copysign(kRadInDeg, dx) + dx) * 0.01f; // eased turn from original `step = (1 + d_rad) × 0.01`
+		float stepY = (copysign(1.0f, dy) + dy) * 0.01f;
+		_heading = fabs(stepX) >= fabs(dx) ? _targetHeading : _heading + stepX;
+		_lookY = fabs(stepY) >= fabs(dy) ? _targetLookY : _lookY + stepY;
+		_pitch = calculatePitch(_lookY);
+		if (_heading == _targetHeading && _lookY == _targetLookY)
+			_isTurning = false;
+		return;
+	}
+
 	if (mouse.x < kMouseLeftZoneEdge) {
 		_heading -= (kMouseLeftZoneEdge - mouse.x) * kTurnSpeedDeg;
 		if (_heading < 0)
@@ -197,6 +224,14 @@ FaceHit Camera::pick(const Common::Point &mouse) const {
 	Common::Point fp = hitPointToFacePixels(hp, face);
 
 	return FaceHit(face, fp);
+}
+
+void Camera::turnTo(int face) {
+	if (face == kScDown)
+		face = kScFront;
+	if (setTarget(face)) {
+		_isTurning = true;
+	}
 }
 
 } // end of namespace Scream
