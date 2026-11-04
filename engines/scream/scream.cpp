@@ -76,24 +76,16 @@ void ScreamEngine::loadZoom(const Zoom *zoom) {
 void ScreamEngine::performAction(const Action &action) {
 	switch (action._kind) {
 	case kScNode:
-		_world.switchNode(action._arg1);
-		break;
 	case kScRoom:
-		_world.switchRoom(action._arg1);
-		break;
 	case kScZoom:
-		_world.switchZoom(action._arg1);
+	case kScZoomOut:
+	case kScZoomBack:
+		_world.switchTo(action._kind, action._arg1);
 		break;
 	case kScCustom:
 		_script->callFunction(action._arg1);
 		if (action._arg2.size() > 0)
 			warning("performAction: custom action with arg2 not implemented: %s", action._arg2.c_str());
-		break;
-	case kScZoomOut:
-		_world.zoomOut();
-		break;
-	case kScZoomBack:
-		_world.zoomBack();
 		break;
 	case kScFeedbackEx:
 	default:

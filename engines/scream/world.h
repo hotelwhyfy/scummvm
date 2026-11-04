@@ -62,14 +62,14 @@ public:
 	void setBoundRoom(Room *room) { _boundRoom = room; }
 	Node *getCurrentNode() const { return _currentNode; }
 	Room *getCurrentRoom() const { return _currentNode->getParentRoom(); }
-	void switchNode(const Common::String &name);
-	void switchRoom(const Common::String &name);
-	void switchZoom(const Common::String &name);
-	void zoomOut();
-	void zoomBack();
+	void switchTo(int kind, const Common::String &name);
 	Zoom *getCurrentZoom() { return getCurrentRoom()->getTopZoom(); }
 
 private:
+	void switchNode(const Common::String &name);
+	void switchRoom(const Common::String &name);
+	void switchZoom(const Common::String &name);
+
 	Room *_boundRoom = nullptr;
 	Track *_boundTrack = nullptr;
 	Dialogue *_boundDialogue = nullptr;

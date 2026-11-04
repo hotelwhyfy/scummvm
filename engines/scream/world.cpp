@@ -142,6 +142,30 @@ Zoom *World::findZoom(const Common::String &name) const {
 	return nullptr;
 }
 
+void World::switchTo(int kind, const Common::String &name) {
+	switch (kind) {
+	case kScRoom:
+		switchRoom(name);
+		break;
+	case kScNode:
+		switchNode(name);
+		break;
+	case kScZoom:
+		switchZoom(name);
+		break;
+	case kScZoomOut:
+		getCurrentRoom()->popZoom();
+		break;
+	case kScZoomBack:
+		getCurrentRoom()->clearZooms();
+		break;
+	case kScOverlay:
+	default:
+		warning("World::switchTo: not implemented for kind %d", kind);
+		break;
+	}
+}
+
 void World::switchNode(const Common::String &name) {
 	Room *room = getCurrentRoom();
 	Node *node = findNode(room, name);
@@ -167,13 +191,6 @@ void World::switchZoom(const Common::String &name) {
 		error("switch zoom: zoom %s not found", name.c_str());
 	Room *room = getCurrentRoom();
 	room->pushZoom(zoom);
-}
-
-void World::zoomOut() {
-	getCurrentRoom()->popZoom();
-}
-void World::zoomBack() {
-	getCurrentRoom()->clearZooms();
 }
 
 void World::scPlace(int x, int y, int w, int h, int face) {

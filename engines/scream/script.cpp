@@ -153,27 +153,7 @@ int Script::scSwitch(lua_State *L) {
 	describeFunction(L, "scSwitch");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
-	switch (kind) {
-	case kScRoom:
-		g_engine->_world.switchRoom(name);
-		break;
-	case kScNode:
-		g_engine->_world.switchNode(name);
-		break;
-	case kScZoom:
-		g_engine->_world.switchZoom(name);
-		break;
-	case kScZoomOut:
-		g_engine->_world.zoomOut();
-		break;
-	case kScZoomBack:
-		g_engine->_world.zoomBack();
-		break;
-	case kScOverlay:
-	default:
-		warning("scSwitch: not implemented for kind %d", kind);
-		break;
-	}
+	g_engine->_world.switchTo(kind, name);
 	return 0;
 }
 
