@@ -23,6 +23,7 @@
 #define SCREAM_H
 
 #include "common/error.h"
+#include "common/events.h"
 #include "common/fs.h"
 #include "common/hash-str.h"
 #include "common/random.h"
@@ -36,6 +37,7 @@
 #include "math/vector3d.h"
 
 #include "scream/camera.h"
+#include "scream/constants.h"
 #include "scream/cursor.h"
 #include "scream/detection.h"
 #include "scream/font.h"
@@ -57,17 +59,20 @@ class ScreamEngine : public Engine {
 private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
-	void loadNode(const Node *node);
-	void loadZoom(const Zoom *zoom);
-	GLuint _faceTextures[kNumFaces] = {};
+	Common::Point _mouse = Common::Point(kScreenWidth / 2, kScreenHeight / 2);
+	bool _clicked = false;
 	GLuint _zoomTexture = 0;
+	GLuint _faceTextures[kNumFaces] = {};
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
+	void loadScene();
+	void drawScene();
+	void loadNode(const Node *node);
+	void loadZoom(const Zoom *zoom);
 	int chooseCursor(const Object *hoverObject) const;
 	void updateCamera(const Common::Point &mouse);
 	const Object *findHoverObject(const Common::Point &mouse);
-	void loadScene();
-	void drawScene(const Common::Point &mouse);
+	void handleEvents(Common::Event &e);
 
 protected:
 	// Engine APIs

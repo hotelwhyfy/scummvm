@@ -23,7 +23,6 @@
 
 #include "common/config-manager.h"
 #include "common/debug-channels.h"
-#include "common/events.h"
 #include "common/file.h"
 #include "common/scummsys.h"
 #include "common/system.h"
@@ -41,6 +40,8 @@
 namespace Scream {
 
 ScreamEngine *g_engine;
+
+const static float kZoomViewScale = kScreenWidth / 800.0f; // zooms have a width of 800px stretched to 1024px
 
 void ScreamEngine::loadNode(const Node *node) {
 	if (!node)
@@ -107,14 +108,19 @@ void ScreamEngine::updateCamera(const Common::Point &mouse) {
 }
 
 const Object *ScreamEngine::findHoverObject(const Common::Point &mouse) {
+	bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
+	if (!inBand)
+		return nullptr;
+
 	if (_world.getCurrentZoom()) {
-		return _world.getCurrentZoom()->findObjectAt(mouse);
-	} else {
-		FaceHit fh = _camera.pick(mouse);
-		if (fh.isValid())
-			return _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
+		float x = mouse.x / kZoomViewScale;
+		float y = mouse.y / kZoomViewScale - kViewportY;
+		Common::Point p(x, y);
+		return _world.getCurrentZoom()->findObjectAt(p);
 	}
-	return nullptr;
+
+	FaceHit fh = _camera.pick(mouse);
+	return _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
 }
 
 void ScreamEngine::loadScene() {
@@ -126,7 +132,7 @@ void ScreamEngine::loadScene() {
 		loadZoom(currentZoom);
 }
 
-void ScreamEngine::drawScene(const Common::Point &mouse) {
+void ScreamEngine::drawScene() {
 	_gfx->clear();
 
 	if (!_world.getCurrentZoom()) {
@@ -137,8 +143,6 @@ void ScreamEngine::drawScene(const Common::Point &mouse) {
 		_gfx->setup2D();
 		_gfx->drawTexture2D(_zoomTexture, 0, kViewportY, kScreenWidth, kViewportHeight);
 	}
-
-	_cursor.draw(_gfx, mouse);
 }
 
 int ScreamEngine::chooseCursor(const Object *hoverObject) const {
@@ -147,6 +151,23 @@ int ScreamEngine::chooseCursor(const Object *hoverObject) const {
 	if (hoverObject)
 		return hoverObject->getHoverCursor();
 	return kScNormal;
+}
+
+void ScreamEngine::handleEvents(Common::Event &e) {
+	while (g_system->getEventManager()->pollEvent(e)) {
+		switch (e.type) {
+		case Common::EVENT_MOUSEMOVE:
+			_mouse = e.mouse;
+			break;
+		case Common::EVENT_LBUTTONUP:
+			_clicked = true;
+			break;
+		case Common::EVENT_KEYDOWN:
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
@@ -184,9 +205,7 @@ Common::Error ScreamEngine::run() {
 
 	_cursor.setCursor(_gfx, kScNormal);
 
-	// set the cursor
-	g_system->warpMouse(kScreenWidth / 2, kScreenHeight / 2);
-	Common::Point mouse(kScreenWidth / 2, kScreenHeight / 2);
+	g_system->warpMouse(_mouse.x, _mouse.y);
 
 	// Set the engine's debugger console
 	setDebugger(new Console());
@@ -197,7 +216,6 @@ Common::Error ScreamEngine::run() {
 		(void)loadGameState(saveSlot);
 
 	Common::Event e;
-	bool clicked = false;
 
 	Node *tempNode = _world.findNode(_world.findRoom("house-living"), "n1");
 	_world.setCurrentNode(tempNode);
@@ -207,34 +225,25 @@ Common::Error ScreamEngine::run() {
 	Graphics::FrameLimiter limiter(g_system, 60);
 
 	while (!shouldQuit()) {
-		while (g_system->getEventManager()->pollEvent(e)) {
-			switch (e.type) {
-			case Common::EVENT_MOUSEMOVE:
-				mouse = e.mouse;
-				break;
-			case Common::EVENT_LBUTTONUP:
-				clicked = true;
-				break;
-			case Common::EVENT_KEYDOWN:
-				break;
-			default:
-				break;
-			}
-		}
+		handleEvents(e);
 
 		_script->update();
-		updateCamera(mouse);
 
-		const Object *hoverObject = findHoverObject(mouse);
+		updateCamera(_mouse);
+
+		const Object *hoverObject = findHoverObject(_mouse);
 		_cursor.setCursor(_gfx, chooseCursor(hoverObject));
 
-		if (clicked && hoverObject && !_script->isWaiting())
+		if (_clicked && hoverObject && !_script->isWaiting())
 			performAction(hoverObject->getClickAction());
 
 		loadScene();
-		drawScene(mouse);
 
-		clicked = false;
+		drawScene();
+
+		_cursor.draw(_gfx, _mouse);
+
+		_clicked = false;
 
 		// Delay for a bit. All events loops should have a delay
 		// to prevent the system being unduly loaded

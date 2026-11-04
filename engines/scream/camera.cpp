@@ -213,11 +213,6 @@ void Camera::update(const Common::Point &mouse) {
 }
 
 FaceHit Camera::pick(const Common::Point &mouse) const {
-	bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
-
-	if (!inBand)
-		return FaceHit();
-
 	Math::Vector3d v = mouseToDirection(mouse, _fov, _heading, _pitch);
 	int face = directionToFace(v);
 	Math::Vector3d hp = directionToHitPoint(v);

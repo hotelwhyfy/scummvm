@@ -27,11 +27,9 @@
 namespace Scream {
 
 struct FaceHit {
-	FaceHit() = default;
 	FaceHit(int face, const Common::Point &pixel) : face(face), pixel(pixel) {}
 	int face = 0;
 	Common::Point pixel;
-	bool isValid() const { return face != 0; }
 };
 
 class Camera {

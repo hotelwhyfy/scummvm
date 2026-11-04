@@ -24,8 +24,6 @@
 
 namespace Scream {
 
-const static float scale = kScreenWidth / 800.0f; // zooms have a width of 800px stretched to 1024px
-
 void Zoom::setAudioFile(int key, const char *file) {
 	switch (key) {
 	case kScZoom:
@@ -42,15 +40,9 @@ void Zoom::setAudioFile(int key, const char *file) {
 }
 
 Object *Zoom::findObjectAt(const Common::Point &mouse) const {
-	bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
-	if (inBand) {
-		float x = mouse.x / scale;
-		float y = mouse.y / scale - kViewportY;
-		Common::Point p(x, y);
-		for (Object *object : _objects)
-			if (object->isEnabled() && object->containsPoint(kScZoom, p))
-				return object;
-	}
+	for (Object *object : _objects)
+		if (object->isEnabled() && object->containsPoint(kScZoom, mouse))
+			return object;
 	return nullptr;
 }
 
