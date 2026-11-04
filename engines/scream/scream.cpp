@@ -101,6 +101,46 @@ void ScreamEngine::performAction(const Action &action) {
 	}
 }
 
+void ScreamEngine::updateCamera(const Common::Point &mouse) {
+	if (!_script->isSleeping() && !_world.getCurrentZoom())
+		_camera.update(mouse);
+}
+
+const Object *ScreamEngine::findHoverObject(const Common::Point &mouse) {
+	if (_world.getCurrentZoom()) {
+		return _world.getCurrentZoom()->findObjectAt(mouse);
+	} else {
+		FaceHit fh = _camera.pick(mouse);
+		if (fh.isValid())
+			return _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
+	}
+	return nullptr;
+}
+
+void ScreamEngine::loadScene() {
+	if (_loadedNode != _world.getCurrentNode())
+		loadNode(_world.getCurrentNode());
+
+	const Zoom *currentZoom = _world.getCurrentZoom();
+	if (currentZoom && _loadedZoom != currentZoom)
+		loadZoom(currentZoom);
+}
+
+void ScreamEngine::drawScene(const Common::Point &mouse) {
+	_gfx->clear();
+
+	if (!_world.getCurrentZoom()) {
+		_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
+		_gfx->drawCube(_faceTextures);
+		_gfx->setup2D();
+	} else {
+		_gfx->setup2D();
+		_gfx->drawTexture2D(_zoomTexture, 0, kViewportY, kScreenWidth, kViewportHeight);
+	}
+
+	_cursor.draw(_gfx, mouse);
+}
+
 int ScreamEngine::chooseCursor(const Object *hoverObject) const {
 	if (_script->isWaiting())
 		return kScWait;
@@ -183,43 +223,16 @@ Common::Error ScreamEngine::run() {
 		}
 
 		_script->update();
+		updateCamera(mouse);
 
-		if (!_script->isSleeping() && !_world.getCurrentZoom())
-			_camera.update(mouse);
-
-		const Object *hoverObject = nullptr;
-		if (_world.getCurrentZoom()) {
-			hoverObject = _world.getCurrentZoom()->findObjectAt(mouse);
-		} else {
-			FaceHit fh = _camera.pick(mouse);
-			if (fh.isValid())
-				hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
-		}
-
+		const Object *hoverObject = findHoverObject(mouse);
 		_cursor.setCursor(_gfx, chooseCursor(hoverObject));
 
 		if (clicked && hoverObject && !_script->isWaiting())
 			performAction(hoverObject->getClickAction());
 
-		if (_loadedNode != _world.getCurrentNode())
-			loadNode(_world.getCurrentNode());
-
-		const Zoom *currentZoom = _world.getCurrentZoom();
-		if (currentZoom && _loadedZoom != currentZoom)
-			loadZoom(currentZoom);
-
-		_gfx->clear();
-
-		if (!currentZoom) {
-			_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
-			_gfx->drawCube(_faceTextures);
-			_gfx->setup2D();
-		} else {
-			_gfx->setup2D();
-			_gfx->drawTexture2D(_zoomTexture, 0, kViewportY, kScreenWidth, kViewportHeight);
-		}
-
-		_cursor.draw(_gfx, mouse);
+		loadScene();
+		drawScene(mouse);
 
 		clicked = false;
 

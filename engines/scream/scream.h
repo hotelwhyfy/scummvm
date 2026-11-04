@@ -64,6 +64,10 @@ private:
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
 	int chooseCursor(const Object *hoverObject) const;
+	void updateCamera(const Common::Point &mouse);
+	const Object *findHoverObject(const Common::Point &mouse);
+	void loadScene();
+	void drawScene(const Common::Point &mouse);
 
 protected:
 	// Engine APIs
