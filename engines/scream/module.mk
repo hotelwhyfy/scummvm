@@ -23,7 +23,8 @@ MODULE_OBJS = \
 	gfx.o \
 	image.o \
 	camera.o \
-	script_thread.o
+	script_thread.o \
+	room.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_SCREAM), DYNAMIC_PLUGIN)

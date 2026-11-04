@@ -57,11 +57,17 @@ public:
 	Item *findItem(const Common::String &name) const;
 	Node *findNode(const Room *room, const Common::String &name) const;
 	Room *findRoom(const Common::String &name) const;
+	Zoom *findZoom(const Common::String &name) const;
 	void setCurrentNode(Node *node) { _currentNode = node; }
 	void setBoundRoom(Room *room) { _boundRoom = room; }
 	Node *getCurrentNode() const { return _currentNode; }
+	Room *getCurrentRoom() const { return _currentNode->getParentRoom(); }
 	void switchNode(const Common::String &name);
 	void switchRoom(const Common::String &name);
+	void switchZoom(const Common::String &name);
+	void zoomOut();
+	void zoomBack();
+	Zoom *getCurrentZoom() { return getCurrentRoom()->getTopZoom(); }
 
 private:
 	Room *_boundRoom = nullptr;

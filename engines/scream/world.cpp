@@ -135,11 +135,19 @@ Room *World::findRoom(const Common::String &name) const {
 	return nullptr;
 }
 
+Zoom *World::findZoom(const Common::String &name) const {
+	for (Zoom *zoom : _zooms)
+		if (zoom->getName() == name)
+			return zoom;
+	return nullptr;
+}
+
 void World::switchNode(const Common::String &name) {
-	Node *node = findNode(getCurrentNode()->getParentRoom(), name);
+	Room *room = getCurrentRoom();
+	Node *node = findNode(room, name);
 	if (!node)
 		error("switch node: node %s not found", name.c_str());
-	node->getParentRoom()->setLastVisitedNode(node);
+	room->setLastVisitedNode(node);
 	setCurrentNode(node);
 }
 
@@ -151,6 +159,21 @@ void World::switchRoom(const Common::String &name) {
 	if (!node)
 		error("switch room: room %s has no last visited node", name.c_str());
 	setCurrentNode(node);
+}
+
+void World::switchZoom(const Common::String &name) {
+	Zoom *zoom = findZoom(name);
+	if (!zoom)
+		error("switch zoom: zoom %s not found", name.c_str());
+	Room *room = getCurrentRoom();
+	room->pushZoom(zoom);
+}
+
+void World::zoomOut() {
+	getCurrentRoom()->popZoom();
+}
+void World::zoomBack() {
+	getCurrentRoom()->clearZooms();
 }
 
 void World::scPlace(int x, int y, int w, int h, int face) {
@@ -186,9 +209,9 @@ void World::scBegin(int level) {
 	}
 	_currentLevel = level;
 	if (level == kScNode) {
-		boundNode()->setParentRoom(boundRoom());
+		boundNode()->setParentRoom(boundRoom()); // add node to currently bound room
 		if (!boundRoom()->getLastVisitedNode())
-			boundRoom()->setLastVisitedNode(boundNode());
+			boundRoom()->setLastVisitedNode(boundNode()); // first visit to a room starts at the first node
 	}
 }
 

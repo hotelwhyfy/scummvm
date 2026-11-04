@@ -161,8 +161,14 @@ int Script::scSwitch(lua_State *L) {
 		g_engine->_world.switchNode(name);
 		break;
 	case kScZoom:
+		g_engine->_world.switchZoom(name);
+		break;
 	case kScZoomOut:
+		g_engine->_world.zoomOut();
+		break;
 	case kScZoomBack:
+		g_engine->_world.zoomBack();
+		break;
 	case kScOverlay:
 	default:
 		warning("scSwitch: not implemented for kind %d", kind);

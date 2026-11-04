@@ -64,6 +64,14 @@ void ScreamEngine::loadNode(const Node *node) {
 	_loadedNode = node;
 }
 
+void ScreamEngine::loadZoom(const Zoom *zoom) {
+	if (!zoom)
+		error("ScreamEngine::loadZoom: zoom not provided");
+	_gfx->deleteTexture(_zoomTexture);
+	_zoomTexture = loadTexture(_gfx, zoom->getImageFile());
+	_loadedZoom = zoom;
+}
+
 void ScreamEngine::performAction(const Action &action) {
 	switch (action._kind) {
 	case kScNode:
@@ -72,13 +80,20 @@ void ScreamEngine::performAction(const Action &action) {
 	case kScRoom:
 		_world.switchRoom(action._arg1);
 		break;
+	case kScZoom:
+		_world.switchZoom(action._arg1);
+		break;
 	case kScCustom:
 		_script->callFunction(action._arg1);
 		if (action._arg2.size() > 0)
 			warning("performAction: custom action with arg2 not implemented: %s", action._arg2.c_str());
 		break;
 	case kScZoomOut:
+		_world.zoomOut();
+		break;
 	case kScZoomBack:
+		_world.zoomBack();
+		break;
 	case kScFeedbackEx:
 	default:
 		warning("click action type not implemented: %d", action._kind);
@@ -144,7 +159,7 @@ Common::Error ScreamEngine::run() {
 	Common::Event e;
 	bool clicked = false;
 
-	Node *tempNode = _world.findNode(_world.findRoom("house-lobby-dc"), "n1");
+	Node *tempNode = _world.findNode(_world.findRoom("house-living"), "n1");
 	_world.setCurrentNode(tempNode);
 
 	debug(1, "openGL error: %d", glGetError());
@@ -169,14 +184,17 @@ Common::Error ScreamEngine::run() {
 
 		_script->update();
 
-		if (!_script->isSleeping())
+		if (!_script->isSleeping() && !_world.getCurrentZoom())
 			_camera.update(mouse);
 
-		FaceHit fh = _camera.pick(mouse);
-
 		const Object *hoverObject = nullptr;
-		if (fh.isValid())
-			hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
+		if (_world.getCurrentZoom()) {
+			hoverObject = _world.getCurrentZoom()->findObjectAt(mouse);
+		} else {
+			FaceHit fh = _camera.pick(mouse);
+			if (fh.isValid())
+				hoverObject = _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
+		}
 
 		_cursor.setCursor(_gfx, chooseCursor(hoverObject));
 
@@ -186,10 +204,20 @@ Common::Error ScreamEngine::run() {
 		if (_loadedNode != _world.getCurrentNode())
 			loadNode(_world.getCurrentNode());
 
+		const Zoom *currentZoom = _world.getCurrentZoom();
+		if (currentZoom && _loadedZoom != currentZoom)
+			loadZoom(currentZoom);
+
 		_gfx->clear();
-		_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
-		_gfx->drawCube(_faceTextures);
-		_gfx->setup2D();
+
+		if (!currentZoom) {
+			_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
+			_gfx->drawCube(_faceTextures);
+			_gfx->setup2D();
+		} else {
+			_gfx->setup2D();
+			_gfx->drawTexture2D(_zoomTexture, 0, kViewportY, kScreenWidth, kViewportHeight);
+		}
 
 		_cursor.draw(_gfx, mouse);
 
@@ -205,6 +233,7 @@ Common::Error ScreamEngine::run() {
 	for (GLuint texture : _faceTextures)
 		_gfx->deleteTexture(texture);
 	_cursor.freeTexture(_gfx);
+	_gfx->deleteTexture(_zoomTexture);
 
 	return Common::kNoError;
 }

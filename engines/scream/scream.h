@@ -44,6 +44,7 @@
 #include "scream/menu.h"
 #include "scream/settings.h"
 #include "scream/world.h"
+#include "scream/zoom.h"
 
 namespace Scream {
 
@@ -57,8 +58,11 @@ private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
 	void loadNode(const Node *node);
+	void loadZoom(const Zoom *zoom);
 	GLuint _faceTextures[kNumFaces] = {};
+	GLuint _zoomTexture = 0;
 	const Node *_loadedNode = nullptr;
+	const Zoom *_loadedZoom = nullptr;
 	int chooseCursor(const Object *hoverObject) const;
 
 protected:

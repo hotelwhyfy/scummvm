@@ -22,11 +22,14 @@
 #ifndef SCREAM_ROOM_H
 #define SCREAM_ROOM_H
 
+#include "common/stack.h"
 #include "common/str.h"
+#include "common/textconsole.h"
 
 namespace Scream {
 
 class Node;
+class Zoom;
 
 class Room {
 public:
@@ -34,10 +37,15 @@ public:
 	const Common::String &getName() const { return _name; }
 	Node *getLastVisitedNode() const { return _lastVisitedNode; }
 	void setLastVisitedNode(Node *node) { _lastVisitedNode = node; }
+	void pushZoom(Zoom *zoom) { _zooms.push(zoom); }
+	void popZoom();
+	void clearZooms() { _zooms.clear(); }
+	Zoom *getTopZoom() const;
 
 private:
 	Common::String _name;
 	Node *_lastVisitedNode = nullptr;
+	Common::Stack<Zoom *> _zooms;
 };
 
 } // end of namespace Scream

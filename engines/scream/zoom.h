@@ -23,6 +23,7 @@
 #define SCREAM_ZOOM_H
 
 #include "common/array.h"
+#include "common/rect.h"
 #include "common/str.h"
 
 #include "scream/object.h"
@@ -35,6 +36,9 @@ public:
 	void setImageFile(const char *file) { _imageFile = file; }
 	void addObject(Object *object) { _objects.push_back(object); }
 	void setAudioFile(int key, const char *file);
+	const Common::String &getName() const { return _name; }
+	const Common::String &getImageFile() const { return _imageFile; }
+	Object *findObjectAt(const Common::Point &mouse) const;
 
 private:
 	Common::String _name;
