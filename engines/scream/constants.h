@@ -61,6 +61,14 @@ enum SettingsKey {
 	kScMovSpeed = 1018,
 	kScHints = 1029,
 	kScLanguage = 1038,
+	kScCamSpeed = 1016,
+	kScSkySpeed = 1019,
+	kScQuality = 1007,
+	kScSpeed = 1009,
+	kScLog = 1010,
+	kScQuickMode = 1011,
+	kScFullScreen = 1012,
+	kScResource = 1013,
 };
 
 enum QualityKey {

@@ -54,6 +54,9 @@ void Settings::scSet(int key, const char *value) {
 	case kScSplash:
 		_splash = value;
 		break;
+	case kScLanguage:
+		_language = value;
+		break;
 	default:
 		warning("unhandled settings key %d", key);
 		break;
@@ -65,6 +68,18 @@ void Settings::scSet(int key, int value) {
 	case kScTextSpeed:
 		_textSpeed = speedValue(value);
 		break;
+	case kScMovSpeed:
+		_movSpeed = speedValue(value);
+		break;
+	case kScSpeed:
+	case kScLog:
+	case kScQuickMode:
+	case kScFullScreen:
+	case kScResource:
+		break;
+	case kScCamSpeed:
+	case kScSkySpeed:
+	case kScQuality:
 	default:
 		warning("unhandled settings key %d", key);
 		break;
