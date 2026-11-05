@@ -34,7 +34,9 @@ public:
 	Common::String _resPath;
 	Common::String _resFile;
 	Common::String _splash;
+	Common::String _language = "en";
 	uint _textSpeed = 50;
+	uint _movSpeed = 25;
 };
 
 } // end of namespace Scream

@@ -86,6 +86,7 @@ private:
 	static int scFXStop(lua_State *L);
 	static int scFeedbackEx(lua_State *L);
 	static int scFeedback(lua_State *L);
+	static int scGet(lua_State *L);
 
 	void setEnabled(int key, bool enabled);
 

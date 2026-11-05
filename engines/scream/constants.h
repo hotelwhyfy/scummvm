@@ -58,6 +58,9 @@ enum SettingsKey {
 	kScResFile = 1015,
 	kScSplash = 1028,
 	kScTextSpeed = 1017,
+	kScMovSpeed = 1018,
+	kScHints = 1029,
+	kScLanguage = 1038,
 };
 
 enum QualityKey {

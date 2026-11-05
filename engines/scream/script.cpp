@@ -449,6 +449,36 @@ int Script::scCursor(lua_State *L) {
 	return 0;
 }
 
+int Script::scGet(lua_State *L) {
+	describeFunction(L, "scGet");
+	int key = lua_tonumber(L, 1);
+	switch (key) {
+	case kScRoom:
+		lua_pushstring(L, g_engine->_world.getCurrentRoom()->getName().c_str());
+		break;
+	case kScNode:
+		lua_pushstring(L, g_engine->_world.getCurrentNode()->getName().c_str());
+		break;
+	case kScLanguage:
+		lua_pushstring(L, g_engine->_settings._language.c_str());
+		break;
+	case kScTextSpeed:
+		lua_pushnumber(L, g_engine->_settings._textSpeed);
+		break;
+	case kScHints:
+		warning("scGet: case not implemented for %d", key);
+		lua_pushnumber(L, 0);
+		break;
+	case kScMovSpeed:
+		lua_pushnumber(L, g_engine->_settings._movSpeed);
+		break;
+	default:
+		lua_pushnumber(L, 0);
+		break;
+	}
+	return 1;
+}
+
 int Script::scSet(lua_State *L) {
 	// describeFunction(L, "scSet");
 	int key = lua_tonumber(L, 1);
@@ -524,6 +554,7 @@ Script::Script() {
 	lua_register(_state, "scFXStop", scFXStop);
 	lua_register(_state, "scFeedbackEx", scFeedbackEx);
 	lua_register(_state, "scFeedback", scFeedback);
+	lua_register(_state, "scGet", scGet);
 }
 
 Script::~Script() {
