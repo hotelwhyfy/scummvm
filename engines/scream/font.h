@@ -23,16 +23,23 @@
 #define SCREAM_FONT_H
 
 #include "common/str.h"
+#include "graphics/opengl/system_headers.h"
 
 namespace Scream {
+
+class Gfx;
 
 class Font {
 public:
 	void scFont(const char *file);
 	const Common::String &getFont() const { return _font; }
+	void drawText(Gfx *gfx, int x, int y, const Common::String &text, float alpha);
+	void freeTexture(Gfx *gfx);
 
 private:
 	Common::String _font;
+	GLuint _texture = 0;
+	Common::String _loadedFile;
 };
 
 } // end of namespace Scream

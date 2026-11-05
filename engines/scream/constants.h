@@ -57,6 +57,13 @@ enum SettingsKey {
 	kScResPath = 1014,
 	kScResFile = 1015,
 	kScSplash = 1028,
+	kScTextSpeed = 1017,
+};
+
+enum QualityKey {
+	kScLo = 101,
+	kScMed = 102,
+	kScHi = 103,
 };
 
 enum AudioKey {

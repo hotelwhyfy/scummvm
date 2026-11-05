@@ -29,10 +29,12 @@ namespace Scream {
 class Settings {
 public:
 	void scSet(int key, const char *value);
+	void scSet(int key, int value);
 	void setEnabled(int key, bool enabled);
 	Common::String _resPath;
 	Common::String _resFile;
 	Common::String _splash;
+	uint _textSpeed = 50;
 };
 
 } // end of namespace Scream

@@ -20,11 +20,37 @@
  */
 
 #include "scream/font.h"
+#include "scream/gfx.h"
+#include "scream/image.h"
 
 namespace Scream {
 
 void Font::scFont(const char *file) {
 	_font = file;
+}
+
+void Font::drawText(Gfx *gfx, int x, int y, const Common::String &text, float alpha) {
+	if (_loadedFile != _font) {
+		gfx->deleteTexture(_texture);
+		_texture = loadTexture(gfx, _font);
+		_loadedFile = _font;
+	}
+	for (uint i = 0; i < text.size(); ++i) {
+		byte b = (byte)text[i];
+		float column = b % 16;
+		float row = b / 16;
+		float u0 = column / 16.0f;
+		float v0 = row / 16.0f;
+		float u1 = (column + 1) / 16.0f;
+		float v1 = (row + 1) / 16.0f;
+		gfx->drawTexture2D(_texture, x, y, 16, 16, u0, v0, u1, v1, alpha);
+		x += 10;
+	}
+}
+
+void Font::freeTexture(Gfx *gfx) {
+	gfx->deleteTexture(_texture);
+	_texture = 0;
 }
 
 } // end of namespace Scream

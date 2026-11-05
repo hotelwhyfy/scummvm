@@ -79,9 +79,18 @@ void Script::update() {
 		_thread.resume();
 }
 
+int Script::scFeedback(lua_State *L) {
+	describeFunction(L, "scFeedback");
+	const char *text = getString(L, 1);
+	g_engine->showFeedback(text);
+	return 0;
+}
+
 int Script::scFeedbackEx(lua_State *L) {
 	describeFunction(L, "scFeedbackEx");
-	warning("scFeedbackEx: not implemented");
+	const char *text = getString(L, 1);
+	g_engine->showFeedback(text);
+	warning("scFeedbackEx: audio not implemented");
 	return 0;
 }
 
@@ -447,6 +456,9 @@ int Script::scSet(lua_State *L) {
 	if (type == LUA_TSTRING) {
 		const char *value = getString(L, 2);
 		g_engine->_settings.scSet(key, value);
+	} else if (type == LUA_TNUMBER) {
+		int value = lua_tonumber(L, 2);
+		g_engine->_settings.scSet(key, value);
 	} else {
 		warning("unhandled type in Script::scSet (%d)", key);
 	}
@@ -511,6 +523,7 @@ Script::Script() {
 	lua_register(_state, "scCutscene", scCutscene);
 	lua_register(_state, "scFXStop", scFXStop);
 	lua_register(_state, "scFeedbackEx", scFeedbackEx);
+	lua_register(_state, "scFeedback", scFeedback);
 }
 
 Script::~Script() {

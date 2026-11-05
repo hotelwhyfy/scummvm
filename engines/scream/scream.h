@@ -29,6 +29,7 @@
 #include "common/random.h"
 #include "common/scummsys.h"
 #include "common/serializer.h"
+#include "common/str.h"
 #include "common/system.h"
 #include "common/util.h"
 #include "engines/engine.h"
@@ -40,6 +41,7 @@
 #include "scream/constants.h"
 #include "scream/cursor.h"
 #include "scream/detection.h"
+#include "scream/feedback.h"
 #include "scream/font.h"
 #include "scream/hints.h"
 #include "scream/journal.h"
@@ -73,6 +75,7 @@ private:
 	void updateCamera(const Common::Point &mouse);
 	const Object *findHoverObject(const Common::Point &mouse);
 	void handleEvents(Common::Event &e);
+	void freeTextures();
 
 protected:
 	// Engine APIs
@@ -87,9 +90,11 @@ public:
 	World _world;
 	Journal _journal;
 	Camera _camera;
+	Feedback _feedback;
 	Gfx *_gfx = nullptr;
 	Script *_script = nullptr;
 	void performAction(const Action &action);
+	void showFeedback(const Common::String &text);
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);

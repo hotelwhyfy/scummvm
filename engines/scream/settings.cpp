@@ -26,6 +26,19 @@
 
 namespace Scream {
 
+static int speedValue(int value) {
+	switch (value) {
+	case kScLo:
+		return 25;
+	case kScMed:
+		return 50;
+	case kScHi:
+		return 75;
+	default:
+		return value;
+	}
+}
+
 void Settings::setEnabled(int key, bool enabled) {
 	warning("Settings::setEnabled: key %d not implemented", key);
 }
@@ -40,6 +53,17 @@ void Settings::scSet(int key, const char *value) {
 		break;
 	case kScSplash:
 		_splash = value;
+		break;
+	default:
+		warning("unhandled settings key %d", key);
+		break;
+	}
+}
+
+void Settings::scSet(int key, int value) {
+	switch (key) {
+	case kScTextSpeed:
+		_textSpeed = speedValue(value);
 		break;
 	default:
 		warning("unhandled settings key %d", key);

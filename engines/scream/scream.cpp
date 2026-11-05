@@ -87,11 +87,21 @@ void ScreamEngine::performAction(const Action &action) {
 		if (action._arg2.size() > 0)
 			warning("performAction: custom action with arg2 not implemented: %s", action._arg2.c_str());
 		break;
+	case kScFeedback:
+		showFeedback(action._arg1);
+		break;
 	case kScFeedbackEx:
+		showFeedback(action._arg1);
+		warning("click action kScFeedbackEx does not handle audio");
+		break;
 	default:
 		warning("click action type not implemented: %d", action._kind);
 		break;
 	}
+}
+
+void ScreamEngine::showFeedback(const Common::String &text) {
+	_feedback.set(text, _settings._textSpeed);
 }
 
 void ScreamEngine::updateCamera(const Common::Point &mouse) {
@@ -160,6 +170,14 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 			break;
 		}
 	}
+}
+
+void ScreamEngine::freeTextures() {
+	for (GLuint texture : _faceTextures)
+		_gfx->deleteTexture(texture);
+	_cursor.freeTexture(_gfx);
+	_gfx->deleteTexture(_zoomTexture);
+	_font.freeTexture(_gfx);
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
@@ -233,6 +251,8 @@ Common::Error ScreamEngine::run() {
 
 		drawScene();
 
+		_feedback.draw(_gfx, _font, _settings._textSpeed);
+
 		_cursor.draw(_gfx, _mouse);
 
 		_clicked = false;
@@ -244,10 +264,7 @@ Common::Error ScreamEngine::run() {
 		limiter.startFrame();
 	}
 
-	for (GLuint texture : _faceTextures)
-		_gfx->deleteTexture(texture);
-	_cursor.freeTexture(_gfx);
-	_gfx->deleteTexture(_zoomTexture);
+	freeTextures();
 
 	return Common::kNoError;
 }

@@ -39,7 +39,9 @@ public:
 	void setup3D(float heading, float pitch, float fov);
 	void drawCube(const GLuint textures[kNumFaces]);
 	void setup2D();
-	void drawTexture2D(GLuint texture, int x, int y, int w, int h);
+	void drawTexture2D(GLuint texture, int x, int y, int w, int h,
+					   float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f,
+					   float alpha = 1.0f);
 	const Graphics::PixelFormat &getPixelFormat() const { return _pixelFormat; }
 
 private:

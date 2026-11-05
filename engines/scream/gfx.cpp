@@ -99,18 +99,18 @@ GLuint Gfx::createTexture(const Graphics::Surface *surface) {
 	return textureId;
 }
 
-void Gfx::drawTexture2D(GLuint texture, int x, int y, int w, int h) {
+void Gfx::drawTexture2D(GLuint texture, int x, int y, int w, int h, float u0, float v0, float u1, float v1, float alpha) {
 	glEnable(GL_TEXTURE_2D);
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor4f(1.0f, 1.0f, 1.0f, alpha);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_TRIANGLE_STRIP);
-	glTexCoord2f(0.0f, 1.0f);
+	glTexCoord2f(u0, v1);
 	glVertex2f(x, y);
-	glTexCoord2f(1.0f, 1.0f);
+	glTexCoord2f(u1, v1);
 	glVertex2f(x + w, y);
-	glTexCoord2f(0.0f, 0.0f);
+	glTexCoord2f(u0, v0);
 	glVertex2f(x, y + h);
-	glTexCoord2f(1.0f, 0.0f);
+	glTexCoord2f(u1, v0);
 	glVertex2f(x + w, y + h);
 	glEnd();
 }
