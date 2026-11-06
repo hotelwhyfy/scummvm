@@ -91,7 +91,10 @@ static bool actionHappensInPlace(int actionType) {
 void ScreamEngine::handleSceneInput() {
 	updateCamera(_mouse);
 
-	const Object *hoverObject = _sceneView.findObjectAt(_world, _camera, _mouse);
+	Object *hoverObject = _sceneView.findObjectAt(_world, _camera, _mouse);
+
+	if (hoverObject && !_script->isWaiting())
+		_world.setBoundObject(hoverObject);
 
 	updateCursor(hoverObject ? hoverObject->getHoverCursor() : kScNormal);
 
@@ -124,7 +127,10 @@ void ScreamEngine::handleSceneInput() {
 }
 
 void ScreamEngine::handleInventoryInput() {
-	const Item *hoverItem = _inventoryView.findItemAt(_inventory, _mouse);
+	Item *hoverItem = _inventoryView.findItemAt(_inventory, _mouse);
+
+	if (hoverItem)
+		_world.setBoundItem(hoverItem);
 
 	updateCursor(hoverItem ? kScUse : kScNormal);
 

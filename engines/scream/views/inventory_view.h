@@ -36,7 +36,7 @@ class Gfx;
 
 class InventoryView {
 public:
-	const Item *findItemAt(const Inventory &inventory, const Common::Point &mouse) const;
+	Item *findItemAt(const Inventory &inventory, const Common::Point &mouse) const;
 	void draw(Gfx *gfx, const Inventory &inventory);
 	void drawHeld(Gfx *gfx, const Inventory &inventory, const Common::Point &mouse);
 	void freeTextures(Gfx *gfx);

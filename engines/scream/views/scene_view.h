@@ -39,7 +39,7 @@ public:
 	void draw(Gfx *gfx, World &world, const Camera &camera);
 	void invalidate();
 	void freeTextures(Gfx *gfx);
-	const Object *findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const;
+	Object *findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const;
 	static bool isInBand(const Common::Point &mouse);
 
 private:

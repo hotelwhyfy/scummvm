@@ -44,7 +44,7 @@ static int faceIndex(int face) {
 	}
 }
 
-const Object *Node::findObjectAt(int face, const Common::Point &p) const {
+Object *Node::findObjectAt(int face, const Common::Point &p) const {
 	for (Object *object : _objects)
 		if (object->isEnabled() && object->containsPoint(face, p))
 			return object;

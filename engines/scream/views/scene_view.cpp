@@ -93,7 +93,7 @@ void SceneView::freeTextures(Gfx *gfx) {
 	gfx->deleteTexture(_zoomTexture);
 }
 
-const Object *SceneView::findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const {
+Object *SceneView::findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const {
 	if (!isInBand(mouse))
 		return nullptr;
 

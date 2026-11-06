@@ -29,7 +29,7 @@
 
 namespace Scream {
 
-const Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point &mouse) const {
+Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point &mouse) const {
 	const Common::Array<Item *> &items = inventory.getItems();
 	for (uint i = 0; i < items.size() && i < kInventoryMaxSlot - 1; ++i) {
 		uint column = i % kInventoryColumns;
