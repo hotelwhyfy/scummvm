@@ -154,7 +154,7 @@ void World::switchTo(int kind, const Common::String &name) {
 		switchZoom(name);
 		break;
 	case kScZoomOut:
-		getCurrentRoom()->popZoom();
+		zoomOut();
 		break;
 	case kScZoomBack:
 		getCurrentRoom()->clearZooms();
@@ -166,13 +166,23 @@ void World::switchTo(int kind, const Common::String &name) {
 	}
 }
 
+void World::zoomOut() {
+	getCurrentRoom()->popZoom();
+	Zoom *topZoom = getCurrentRoom()->getTopZoom();
+	if (topZoom)
+		_boundZoom = topZoom;
+}
+
 void World::switchNode(const Common::String &name) {
 	Room *room = getCurrentRoom();
+	if (!room)
+		error("Switch node: no current room");
 	Node *node = findNode(room, name);
 	if (!node)
 		error("switch node: node %s not found", name.c_str());
 	room->setLastVisitedNode(node);
 	setCurrentNode(node);
+	_boundNode = node;
 }
 
 void World::switchRoom(const Common::String &name) {
@@ -183,6 +193,7 @@ void World::switchRoom(const Common::String &name) {
 	if (!node)
 		error("switch room: room %s has no last visited node", name.c_str());
 	setCurrentNode(node);
+	_boundRoom = room;
 }
 
 void World::switchZoom(const Common::String &name) {
@@ -191,6 +202,7 @@ void World::switchZoom(const Common::String &name) {
 		error("switch zoom: zoom %s not found", name.c_str());
 	Room *room = getCurrentRoom();
 	room->pushZoom(zoom);
+	_boundZoom = zoom;
 }
 
 void World::scPlace(int x, int y, int w, int h, int face) {

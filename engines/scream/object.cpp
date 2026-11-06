@@ -21,6 +21,7 @@
 
 #include "scream/object.h"
 #include "scream/constants.h"
+#include "scream/item.h"
 
 namespace Scream {
 
@@ -45,6 +46,13 @@ void Object::setRect(int x, int y, int w, int h, int face) {
 	_h = h;
 	_face = face;
 	_enabled = true;
+}
+
+const Action *Object::findReaction(const Item *item) const {
+	for (const Reaction &reaction : _reactions)
+		if (reaction._otherItem == item)
+			return &reaction._action;
+	return nullptr;
 }
 
 } // end of namespace Scream

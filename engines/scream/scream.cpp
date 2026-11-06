@@ -41,38 +41,6 @@ namespace Scream {
 
 ScreamEngine *g_engine;
 
-const static float kZoomViewScale = kScreenWidth / 800.0f; // zooms have a width of 800px stretched to 1024px
-
-void ScreamEngine::loadNode(const Node *node) {
-	if (!node)
-		error("ScreamEngine::loadNode: node not provided");
-
-	for (GLuint faceTexture : _faceTextures)
-		_gfx->deleteTexture(faceTexture);
-
-	const char *faceFiles[kNumFaces] = {
-		node->getFace(kScFront).c_str(),
-		node->getFace(kScBack).c_str(),
-		node->getFace(kScLeft).c_str(),
-		node->getFace(kScRight).c_str(),
-		node->getFace(kScUp).c_str(),
-		node->getFace(kScDown).c_str(),
-	};
-
-	for (uint i = 0; i < kNumFaces; ++i)
-		_faceTextures[i] = loadTexture(_gfx, faceFiles[i]);
-
-	_loadedNode = node;
-}
-
-void ScreamEngine::loadZoom(const Zoom *zoom) {
-	if (!zoom)
-		error("ScreamEngine::loadZoom: zoom not provided");
-	_gfx->deleteTexture(_zoomTexture);
-	_zoomTexture = loadTexture(_gfx, zoom->getImageFile());
-	_loadedZoom = zoom;
-}
-
 void ScreamEngine::performAction(const Action &action) {
 	switch (action._kind) {
 	case kScNode:
@@ -109,60 +77,94 @@ void ScreamEngine::updateCamera(const Common::Point &mouse) {
 		_camera.update(mouse);
 }
 
-const Object *ScreamEngine::findHoverObject(const Common::Point &mouse) {
-	bool inBand = mouse.y > (int)kViewportY && mouse.y < (int)(kViewportY + kViewportHeight);
-	if (!inBand)
-		return nullptr;
-
-	if (_world.getCurrentZoom()) {
-		float x = mouse.x / kZoomViewScale;
-		float y = mouse.y / kZoomViewScale - kViewportY;
-		Common::Point p(x, y);
-		return _world.getCurrentZoom()->findObjectAt(p);
-	}
-
-	FaceHit fh = _camera.pick(mouse);
-	return _world.getCurrentNode()->findObjectAt(fh.face, fh.pixel);
-}
-
-void ScreamEngine::loadScene() {
-	if (_loadedNode != _world.getCurrentNode())
-		loadNode(_world.getCurrentNode());
-
-	const Zoom *currentZoom = _world.getCurrentZoom();
-	if (currentZoom && _loadedZoom != currentZoom)
-		loadZoom(currentZoom);
-}
-
-void ScreamEngine::drawScene() {
-	_gfx->clear();
-
-	if (!_world.getCurrentZoom()) {
-		_gfx->setup3D(_camera.getHeading(), _camera.getPitch(), _camera.getFov());
-		_gfx->drawCube(_faceTextures);
-		_gfx->setup2D();
-	} else {
-		_gfx->setup2D();
-		_gfx->drawTexture2D(_zoomTexture, 0, kViewportY, kScreenWidth, kViewportHeight);
-	}
-}
-
-int ScreamEngine::chooseCursor(const Object *hoverObject) const {
+void ScreamEngine::updateCursor(int hoverCursor) {
+	int cursor = hoverCursor;
 	if (_script->isWaiting())
-		return kScWait;
-	if (hoverObject)
-		return hoverObject->getHoverCursor();
-	return kScNormal;
+		cursor = kScWait;
+	_cursor.setCursor(_gfx, cursor);
+}
+
+static bool actionHappensInPlace(int actionType) {
+	return (actionType == kScFeedback || actionType == kScFeedbackEx || actionType == kScCustom);
+}
+
+void ScreamEngine::handleSceneInput() {
+	updateCamera(_mouse);
+
+	const Object *hoverObject = _sceneView.findObjectAt(_world, _camera, _mouse);
+
+	updateCursor(hoverObject ? hoverObject->getHoverCursor() : kScNormal);
+
+	if (!_clicked)
+		return;
+
+	const Item *held = _inventory.getHeld();
+
+	if (!_sceneView.isInBand(_mouse))
+		return;
+
+	_inventory.drop();
+
+	if (!hoverObject)
+		return;
+
+	if (!held) {
+		performAction(hoverObject->getClickAction());
+		return;
+	}
+
+	if (!actionHappensInPlace(hoverObject->getClickAction()._kind))
+		return;
+
+	const Action *reaction = hoverObject->findReaction(held);
+	if (reaction)
+		performAction(*reaction);
+	else
+		showFeedback(held->getFailText());
+}
+
+void ScreamEngine::handleInventoryInput() {
+	const Item *hoverItem = _inventoryView.findItemAt(_inventory, _mouse);
+
+	updateCursor(hoverItem ? kScUse : kScNormal);
+
+	if (!_clicked)
+		return;
+
+	const Item *held = _inventory.getHeld();
+
+	if (!held && hoverItem) {
+		_inventory.grab(hoverItem);
+		return;
+	}
+
+	if (held && hoverItem && hoverItem != held) {
+		const Action *reaction = hoverItem->findReaction(held);
+		if (reaction)
+			performAction(*reaction);
+		else
+			showFeedback(held->getFailText());
+	}
+
+	_dropWhenIdle = true;
 }
 
 void ScreamEngine::handleEvents(Common::Event &e) {
 	while (g_system->getEventManager()->pollEvent(e)) {
+
+		if (_script->isBusy())
+			continue;
+
 		switch (e.type) {
 		case Common::EVENT_MOUSEMOVE:
 			_mouse = e.mouse;
 			break;
 		case Common::EVENT_LBUTTONUP:
 			_clicked = true;
+			break;
+		case Common::EVENT_RBUTTONUP:
+			if (_inventory.count() > 0 || _inventoryOpen)
+				_inventoryOpen = !_inventoryOpen;
 			break;
 		case Common::EVENT_KEYDOWN:
 			break;
@@ -173,11 +175,10 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 }
 
 void ScreamEngine::freeTextures() {
-	for (GLuint texture : _faceTextures)
-		_gfx->deleteTexture(texture);
 	_cursor.freeTexture(_gfx);
-	_gfx->deleteTexture(_zoomTexture);
 	_font.freeTexture(_gfx);
+	_inventoryView.freeTextures(_gfx);
+	_sceneView.freeTextures(_gfx);
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
@@ -227,8 +228,7 @@ Common::Error ScreamEngine::run() {
 
 	Common::Event e;
 
-	Node *tempNode = _world.findNode(_world.findRoom("house-living"), "n1");
-	_world.setCurrentNode(tempNode);
+	_world.switchTo(kScRoom, "garden");
 
 	debug(1, "openGL error: %d", glGetError());
 
@@ -239,21 +239,27 @@ Common::Error ScreamEngine::run() {
 
 		_script->update();
 
-		updateCamera(_mouse);
+		if (_inventoryOpen)
+			handleInventoryInput();
+		else
+			handleSceneInput();
 
-		const Object *hoverObject = findHoverObject(_mouse);
-		_cursor.setCursor(_gfx, chooseCursor(hoverObject));
+		if (_dropWhenIdle && !_script->isBusy()) {
+			_inventory.drop();
+			_dropWhenIdle = false;
+		}
 
-		if (_clicked && hoverObject && !_script->isWaiting())
-			performAction(hoverObject->getClickAction());
+		_sceneView.draw(_gfx, _world, _camera);
 
-		loadScene();
-
-		drawScene();
+		if (_inventoryOpen)
+			_inventoryView.draw(_gfx, _inventory);
 
 		_feedback.draw(_gfx, _font, _settings._textSpeed);
 
-		_cursor.draw(_gfx, _mouse);
+		if (_inventory.getHeld() && !_script->isWaiting())
+			_inventoryView.drawHeld(_gfx, _inventory, _mouse);
+		else
+			_cursor.draw(_gfx, _mouse);
 
 		_clicked = false;
 

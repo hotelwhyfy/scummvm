@@ -48,27 +48,33 @@ public:
 	Room *boundRoom();
 	Zoom *boundZoom();
 	Object *boundObject();
+
+	Item *findItem(const Common::String &name) const;
+	Node *findNode(const Room *room, const Common::String &name) const;
+	Room *findRoom(const Common::String &name) const;
+	Zoom *findZoom(const Common::String &name) const;
+
+	Node *getCurrentNode() const { return _currentNode; }
+	Room *getCurrentRoom() const { return _currentNode->getParentRoom(); }
+	Zoom *getCurrentZoom() const { return getCurrentRoom()->getTopZoom(); }
+
+	void setBoundRoom(Room *room) { _boundRoom = room; }
+	void setBoundItem(Item *item) { _boundItem = item; }
+
 	void scCreate(int kind, const char *name);
 	void scInventoryReaction(Item *boundItem, Item *otherItem, const Action &action);
 	void scBegin(int level);
 	void scEnd(int level);
 	void scTexture(int face, const char *file);
 	void scPlace(int x, int y, int w, int h, int face);
-	Item *findItem(const Common::String &name) const;
-	Node *findNode(const Room *room, const Common::String &name) const;
-	Room *findRoom(const Common::String &name) const;
-	Zoom *findZoom(const Common::String &name) const;
 	void setCurrentNode(Node *node) { _currentNode = node; }
-	void setBoundRoom(Room *room) { _boundRoom = room; }
-	Node *getCurrentNode() const { return _currentNode; }
-	Room *getCurrentRoom() const { return _currentNode->getParentRoom(); }
 	void switchTo(int kind, const Common::String &name);
-	Zoom *getCurrentZoom() { return getCurrentRoom()->getTopZoom(); }
 
 private:
 	void switchNode(const Common::String &name);
 	void switchRoom(const Common::String &name);
 	void switchZoom(const Common::String &name);
+	void zoomOut();
 
 	Room *_boundRoom = nullptr;
 	Track *_boundTrack = nullptr;

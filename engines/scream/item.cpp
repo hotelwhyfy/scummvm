@@ -38,4 +38,11 @@ void Item::addReaction(Item *item, const Action &action) {
 	_reactions.push_back(reaction);
 }
 
+const Action *Item::findReaction(const Item *item) const {
+	for (const Reaction &reaction : _reactions)
+		if (reaction._otherItem == item)
+			return &reaction._action;
+	return nullptr;
+}
+
 } // end of namespace Scream

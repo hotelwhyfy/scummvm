@@ -25,7 +25,10 @@ MODULE_OBJS = \
 	camera.o \
 	script_thread.o \
 	room.o \
-	feedback.o
+	feedback.o \
+	inventory.o \
+	views/inventory_view.o \
+	views/scene_view.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_SCREAM), DYNAMIC_PLUGIN)

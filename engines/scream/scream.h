@@ -25,7 +25,6 @@
 #include "common/error.h"
 #include "common/events.h"
 #include "common/fs.h"
-#include "common/hash-str.h"
 #include "common/random.h"
 #include "common/scummsys.h"
 #include "common/serializer.h"
@@ -44,9 +43,12 @@
 #include "scream/feedback.h"
 #include "scream/font.h"
 #include "scream/hints.h"
+#include "scream/inventory.h"
 #include "scream/journal.h"
 #include "scream/menu.h"
 #include "scream/settings.h"
+#include "scream/views/inventory_view.h"
+#include "scream/views/scene_view.h"
 #include "scream/world.h"
 #include "scream/zoom.h"
 
@@ -62,18 +64,16 @@ private:
 	const ADGameDescription *_gameDescription;
 	Common::RandomSource _randomSource;
 	Common::Point _mouse = Common::Point(kScreenWidth / 2, kScreenHeight / 2);
+
 	bool _clicked = false;
-	GLuint _zoomTexture = 0;
-	GLuint _faceTextures[kNumFaces] = {};
-	const Node *_loadedNode = nullptr;
-	const Zoom *_loadedZoom = nullptr;
-	void loadScene();
-	void drawScene();
-	void loadNode(const Node *node);
-	void loadZoom(const Zoom *zoom);
-	int chooseCursor(const Object *hoverObject) const;
+	bool _inventoryOpen = false;
+	bool _dropWhenIdle = false;
+
+	void handleSceneInput();
+	void handleInventoryInput();
+
+	void updateCursor(int hoverCursor);
 	void updateCamera(const Common::Point &mouse);
-	const Object *findHoverObject(const Common::Point &mouse);
 	void handleEvents(Common::Event &e);
 	void freeTextures();
 
@@ -91,10 +91,14 @@ public:
 	Journal _journal;
 	Camera _camera;
 	Feedback _feedback;
+	Inventory _inventory;
 	Gfx *_gfx = nullptr;
 	Script *_script = nullptr;
+	InventoryView _inventoryView;
+	SceneView _sceneView;
 	void performAction(const Action &action);
 	void showFeedback(const Common::String &text);
+	void reloadScene() { _sceneView.invalidate(); }
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);

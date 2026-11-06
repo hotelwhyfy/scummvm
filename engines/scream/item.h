@@ -33,9 +33,12 @@ class Item {
 public:
 	Item(const char *name);
 	const Common::String &getName() const { return _name; }
+	const Common::String &getIcon() const { return _icon; }
 	uint getReactionCount() const { return _reactions.size(); }
+	const Common::String &getFailText() const { return _failText; }
 	void scInventorySet(const char *icon, const char *label, const char *failText, const char *failVoice);
 	void addReaction(Item *item, const Action &action);
+	const Action *findReaction(const Item *item) const;
 
 private:
 	Common::String _name;

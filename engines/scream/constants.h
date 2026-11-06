@@ -32,6 +32,14 @@ const uint kCursorSize = 64;
 const uint kScreenWidth = 1024;
 const uint kScreenHeight = 768;
 const uint kViewportY = 64;
+const uint kInventoryIconSize = 64;
+const uint kInventoryLeft = 32;
+const uint kInventoryGap = 32;
+const uint kInventoryDrawTop = 66;
+const uint kInventoryClickTop = 64;
+const uint kInventoryMaxSlot = 60;
+const uint kInventoryColumns = 10;
+const uint kInventoryRows = 7;
 const uint kViewportHeight = kScreenHeight - (2 * kViewportY);
 const float kViewportAspect = (float)kScreenWidth / kViewportHeight;
 

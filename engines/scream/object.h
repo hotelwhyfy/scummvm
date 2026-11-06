@@ -31,6 +31,8 @@
 
 namespace Scream {
 
+class Item;
+
 class Object {
 public:
 	Object(const char *name) : _name(name) {}
@@ -44,6 +46,7 @@ public:
 	bool isEnabled() const { return _enabled; }
 	int getHoverCursor() const { return _hoverCursor; }
 	const Action &getClickAction() const { return _clickAction; }
+	const Action *findReaction(const Item *item) const;
 
 private:
 	Common::String _name;

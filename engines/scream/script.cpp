@@ -79,15 +79,38 @@ void Script::update() {
 		_thread.resume();
 }
 
+int Script::scTextureUpdate(lua_State *L) {
+	describeFunction(L, "scTextureUpdate");
+	int face = lua_tonumber(L, 1);
+	const char *file = getString(L, 2);
+	int visible = lua_tonumber(L, 3);
+	g_engine->_world.scTexture(face, file);
+	if (visible != 0)
+		g_engine->reloadScene();
+	return 0;
+}
+
+int Script::scInventoryAdd(lua_State *L) {
+	describeFunction(L, "scInventoryAdd");
+	g_engine->_inventory.add(g_engine->_world.boundItem());
+	return 0;
+}
+
+int Script::scInventoryRemove(lua_State *L) {
+	describeFunction(L, "scInventoryRemove");
+	g_engine->_inventory.remove(g_engine->_world.boundItem());
+	return 0;
+}
+
 int Script::scFeedback(lua_State *L) {
-	describeFunction(L, "scFeedback");
+	// describeFunction(L, "scFeedback");
 	const char *text = getString(L, 1);
 	g_engine->showFeedback(text);
 	return 0;
 }
 
 int Script::scFeedbackEx(lua_State *L) {
-	describeFunction(L, "scFeedbackEx");
+	// describeFunction(L, "scFeedbackEx");
 	const char *text = getString(L, 1);
 	g_engine->showFeedback(text);
 	warning("scFeedbackEx: audio not implemented");
@@ -95,37 +118,37 @@ int Script::scFeedbackEx(lua_State *L) {
 }
 
 int Script::scFXStop(lua_State *L) {
-	describeFunction(L, "scFXStop");
+	// describeFunction(L, "scFXStop");
 	warning("scFXStop: not implemented");
 	return 0;
 }
 
 int Script::scCutscene(lua_State *L) {
-	describeFunction(L, "scCutscene");
+	// describeFunction(L, "scCutscene");
 	warning("scCutscene: not implemented");
 	return 0;
 }
 
 int Script::scTrackFadeOut(lua_State *L) {
-	describeFunction(L, "scTrackFadeOut");
+	// describeFunction(L, "scTrackFadeOut");
 	warning("scTrackFadeOut: not implemented");
 	return 0;
 }
 
 int Script::scFXSet(lua_State *L) {
-	describeFunction(L, "scFXSet");
+	// describeFunction(L, "scFXSet");
 	warning("scFXSet: not implemented");
 	return 0;
 }
 
 int Script::scFXPlay(lua_State *L) {
-	describeFunction(L, "scFXPlay");
+	// describeFunction(L, "scFXPlay");
 	warning("scFXPlay: not implemented");
 	return 0;
 }
 
 int Script::scFXPlayEx(lua_State *L) {
-	describeFunction(L, "scFXPlayEx");
+	// describeFunction(L, "scFXPlayEx");
 	// const char *channel = getString(L, 1);
 	// const char *file = getString(L, 2);
 	// bool wait = lua_toboolean(L, 3); // blocks until Esc is pressed
@@ -135,14 +158,14 @@ int Script::scFXPlayEx(lua_State *L) {
 }
 
 int Script::scSleep(lua_State *L) {
-	describeFunction(L, "scSleep");
+	// describeFunction(L, "scSleep");
 	int seconds = lua_tonumber(L, 1);
 	g_engine->_script->_thread.sleepFor(seconds);
 	return lua_yield(L, 0);
 }
 
 int Script::scLookAt(lua_State *L) {
-	describeFunction(L, "scLookAt");
+	// describeFunction(L, "scLookAt");
 	int face = lua_tonumber(L, 1);
 	int transition = lua_tonumber(L, 2);
 	switch (transition) {
@@ -159,7 +182,7 @@ int Script::scLookAt(lua_State *L) {
 }
 
 int Script::scSwitch(lua_State *L) {
-	describeFunction(L, "scSwitch");
+	// describeFunction(L, "scSwitch");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
 	g_engine->_world.switchTo(kind, name);
@@ -167,7 +190,7 @@ int Script::scSwitch(lua_State *L) {
 }
 
 int Script::scBind(lua_State *L) {
-	describeFunction(L, "scBind");
+	// describeFunction(L, "scBind");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
 	switch (kind) {
@@ -178,6 +201,13 @@ int Script::scBind(lua_State *L) {
 		g_engine->_world.setBoundRoom(room);
 		break;
 	}
+	case kScItem: {
+		Item *item = g_engine->_world.findItem(name);
+		if (!item)
+			error("scBind: item %s not found", name);
+		g_engine->_world.setBoundItem(item);
+		break;
+	}
 	default:
 		warning("scBind: not implemented for kind %d", kind);
 		break;
@@ -186,7 +216,7 @@ int Script::scBind(lua_State *L) {
 }
 
 int Script::scSetLastVisited(lua_State *L) {
-	describeFunction(L, "scSetLastVisited");
+	// describeFunction(L, "scSetLastVisited");
 	const char *nodeName = getString(L, 1);
 	Room *boundRoom = g_engine->_world.boundRoom();
 	Node *node = g_engine->_world.findNode(boundRoom, nodeName);
@@ -197,12 +227,12 @@ int Script::scSetLastVisited(lua_State *L) {
 }
 
 int Script::scTerminate(lua_State *L) {
-	describeFunction(L, "scTerminate");
+	// describeFunction(L, "scTerminate");
 	return 0;
 }
 
 int Script::scRun(lua_State *L) {
-	describeFunction(L, "scRun");
+	// describeFunction(L, "scRun");
 	return 0;
 }
 
@@ -555,6 +585,9 @@ Script::Script() {
 	lua_register(_state, "scFeedbackEx", scFeedbackEx);
 	lua_register(_state, "scFeedback", scFeedback);
 	lua_register(_state, "scGet", scGet);
+	lua_register(_state, "scInventoryAdd", scInventoryAdd);
+	lua_register(_state, "scInventoryRemove", scInventoryRemove);
+	lua_register(_state, "scTextureUpdate", scTextureUpdate);
 }
 
 Script::~Script() {

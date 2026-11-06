@@ -40,6 +40,7 @@ public:
 	void update();
 	bool isWaiting() const;
 	bool isSleeping() const { return _thread.isSleeping(); }
+	bool isBusy() const { return _thread.isRunning(); }
 
 private:
 	lua_State *_state = nullptr;
@@ -87,6 +88,9 @@ private:
 	static int scFeedbackEx(lua_State *L);
 	static int scFeedback(lua_State *L);
 	static int scGet(lua_State *L);
+	static int scInventoryAdd(lua_State *L);
+	static int scInventoryRemove(lua_State *L);
+	static int scTextureUpdate(lua_State *L);
 
 	void setEnabled(int key, bool enabled);
 
