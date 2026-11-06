@@ -22,10 +22,10 @@
 #ifndef SCREAM_VIEWS_INVENTORY_VIEW_H
 #define SCREAM_VIEWS_INVENTORY_VIEW_H
 
+#include "common/hash-str.h"
 #include "common/hashmap.h"
 #include "common/rect.h"
 #include "common/str.h"
-#include "common/hash-str.h"
 #include "graphics/opengl/system_headers.h"
 
 #include "scream/inventory.h"
@@ -37,13 +37,17 @@ class Gfx;
 class InventoryView {
 public:
 	Item *findItemAt(const Inventory &inventory, const Common::Point &mouse) const;
-	void draw(Gfx *gfx, const Inventory &inventory);
+	void draw(Gfx *gfx, const Inventory &inventory, uint movSpeed);
 	void drawHeld(Gfx *gfx, const Inventory &inventory, const Common::Point &mouse);
 	void freeTextures(Gfx *gfx);
+	void toggle(const Inventory &inventory);
+	bool isOpen() const { return _open; }
 
 private:
 	GLuint getIconTexture(Gfx *gfx, const Common::String &icon);
 	Common::HashMap<Common::String, GLuint> _iconTextures;
+	float _fade = 0.0f;
+	bool _open = false;
 };
 
 } // end of namespace Scream

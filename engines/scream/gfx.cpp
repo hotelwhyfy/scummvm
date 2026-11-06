@@ -115,6 +115,19 @@ void Gfx::drawTexture2D(GLuint texture, int x, int y, int w, int h, float u0, fl
 	glEnd();
 }
 
+void Gfx::tint(float r, float g, float b) {
+	glDisable(GL_TEXTURE_2D);
+	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+	glColor3f(r, g, b);
+	glBegin(GL_TRIANGLE_STRIP);
+	glVertex2f(0.0f, 0.0f);
+	glVertex2f(kScreenWidth, 0.0f);
+	glVertex2f(0.0f, kScreenHeight);
+	glVertex2f(kScreenWidth, kScreenHeight);
+	glEnd();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 void Gfx::deleteTexture(GLuint texture) {
 	glDeleteTextures(1, &texture);
 }

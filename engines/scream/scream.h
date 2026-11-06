@@ -66,7 +66,6 @@ private:
 	Common::Point _mouse = Common::Point(kScreenWidth / 2, kScreenHeight / 2);
 
 	bool _clicked = false;
-	bool _inventoryOpen = false;
 	bool _dropWhenIdle = false;
 
 	void handleSceneInput();

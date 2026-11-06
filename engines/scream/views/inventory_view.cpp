@@ -29,6 +29,12 @@
 
 namespace Scream {
 
+static const float maxFade = 0.5f;
+static const float fadeStep = 0.001f;
+static const float tintR = 0.9f;
+static const float tintG = 0.75f;
+static const float tintB = 0.5f;
+
 Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point &mouse) const {
 	const Common::Array<Item *> &items = inventory.getItems();
 	for (uint i = 0; i < items.size() && i < kInventoryMaxSlot - 1; ++i) {
@@ -43,7 +49,9 @@ Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point 
 	return nullptr;
 }
 
-void InventoryView::draw(Gfx *gfx, const Inventory &inventory) {
+void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint movSpeed) {
+	float k = 1.0f - _fade;
+	gfx->tint(tintR * k, tintG * k, tintB * k);
 	const Common::Array<Item *> &items = inventory.getItems();
 	for (uint i = 0; i < items.size(); ++i) {
 		if (items[i] == inventory.getHeld())
@@ -54,8 +62,9 @@ void InventoryView::draw(Gfx *gfx, const Inventory &inventory) {
 		uint row = i / kInventoryColumns;
 		uint x = kInventoryLeft + column * (kInventoryIconSize + kInventoryGap);
 		uint y = kScreenHeight - kInventoryDrawTop - kInventoryIconSize - (kInventoryIconSize + kInventoryGap) * row;
-		gfx->drawTexture2D(texture, x, y, kInventoryIconSize, kInventoryIconSize);
+		gfx->drawTexture2D(texture, x, y, kInventoryIconSize, kInventoryIconSize, 0.0f, 0.0f, 1.0f, 1.0f, _fade * 2);
 	}
+	_fade = MIN(maxFade, _fade + movSpeed * fadeStep);
 }
 
 void InventoryView::drawHeld(Gfx *gfx, const Inventory &inventory, const Common::Point &mouse) {
@@ -77,6 +86,16 @@ void InventoryView::freeTextures(Gfx *gfx) {
 	for (auto &entry : _iconTextures)
 		gfx->deleteTexture(entry._value);
 	_iconTextures.clear();
+}
+
+void InventoryView::toggle(const Inventory &inventory) {
+	if (_open) {
+		_open = false;
+	} else if (inventory.count() > 0) {
+		if (_fade >= maxFade)
+			_fade = 0.0f;
+		_open = true;
+	}
 }
 
 } // end of namespace Scream

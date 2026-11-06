@@ -169,8 +169,7 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 			_clicked = true;
 			break;
 		case Common::EVENT_RBUTTONUP:
-			if (_inventory.count() > 0 || _inventoryOpen)
-				_inventoryOpen = !_inventoryOpen;
+			_inventoryView.toggle(_inventory);
 			break;
 		case Common::EVENT_KEYDOWN:
 			break;
@@ -245,7 +244,7 @@ Common::Error ScreamEngine::run() {
 
 		_script->update();
 
-		if (_inventoryOpen)
+		if (_inventoryView.isOpen())
 			handleInventoryInput();
 		else
 			handleSceneInput();
@@ -257,8 +256,8 @@ Common::Error ScreamEngine::run() {
 
 		_sceneView.draw(_gfx, _world, _camera);
 
-		if (_inventoryOpen)
-			_inventoryView.draw(_gfx, _inventory);
+		if (_inventoryView.isOpen())
+			_inventoryView.draw(_gfx, _inventory, _settings._movSpeed);
 
 		_feedback.draw(_gfx, _font, _settings._textSpeed);
 

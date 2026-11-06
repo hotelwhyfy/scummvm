@@ -43,6 +43,7 @@ public:
 					   float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f,
 					   float alpha = 1.0f);
 	const Graphics::PixelFormat &getPixelFormat() const { return _pixelFormat; }
+	void tint(float r, float g, float b);
 
 private:
 	const Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();
