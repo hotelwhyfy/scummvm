@@ -40,6 +40,7 @@ public:
 	void draw(Gfx *gfx, const Inventory &inventory, uint movSpeed);
 	void freeTextures(Gfx *gfx);
 	void toggle(const Inventory &inventory);
+	void close();
 	bool isOpen() const { return _open; }
 
 private:

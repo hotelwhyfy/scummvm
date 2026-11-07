@@ -178,6 +178,10 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 			_inventoryView.toggle(_inventory);
 			break;
 		case Common::EVENT_KEYDOWN:
+			if (e.kbd.keycode == Common::KEYCODE_ESCAPE) {
+				_inventory.drop();
+				_inventoryView.close();
+			}
 			break;
 		default:
 			break;
