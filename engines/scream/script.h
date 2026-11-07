@@ -91,6 +91,14 @@ private:
 	static int scInventoryAdd(lua_State *L);
 	static int scInventoryRemove(lua_State *L);
 	static int scTextureUpdate(lua_State *L);
+	static int scHints(lua_State *L);
+	static int scJournalClear(lua_State *L);
+	static int scLock(lua_State *L);
+	static int scUnlock(lua_State *L);
+	static int scSetAmbience(lua_State *L);
+	static int scTimerCreateGlobal(lua_State *L);
+	static int scTrackPlay(lua_State *L);
+	static int scTrackStop(lua_State *L);
 
 	void setEnabled(int key, bool enabled);
 

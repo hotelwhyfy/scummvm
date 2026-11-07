@@ -79,8 +79,56 @@ void Script::update() {
 		_thread.resume();
 }
 
+int Script::scHints(lua_State *L) {
+	// describeFunction(L, "scHints");
+	warning("scHints not implemented");
+	return 0;
+}
+
+int Script::scJournalClear(lua_State *L) {
+	// describeFunction(L, "scJournalClear");
+	warning("scJournalClear not implemented");
+	return 0;
+}
+
+int Script::scLock(lua_State *L) {
+	// describeFunction(L, "scLock");
+	warning("scLock not implemented");
+	return 0;
+}
+
+int Script::scUnlock(lua_State *L) {
+	// describeFunction(L, "scUnlock");
+	warning("scUnlock not implemented");
+	return 0;
+}
+
+int Script::scSetAmbience(lua_State *L) {
+	// describeFunction(L, "scSetAmbience");
+	warning("scSetAmbience not implemented");
+	return 0;
+}
+
+int Script::scTimerCreateGlobal(lua_State *L) {
+	// describeFunction(L, "scTimerCreateGlobal");
+	warning("scTimerCreateGlobal not implemented");
+	return 0;
+}
+
+int Script::scTrackPlay(lua_State *L) {
+	// describeFunction(L, "scTrackPlay");
+	warning("scTrackPlay not implemented");
+	return 0;
+}
+
+int Script::scTrackStop(lua_State *L) {
+	// describeFunction(L, "scTrackStop");
+	warning("scTrackStop not implemented");
+	return 0;
+}
+
 int Script::scTextureUpdate(lua_State *L) {
-	describeFunction(L, "scTextureUpdate");
+	// describeFunction(L, "scTextureUpdate");
 	int face = lua_tonumber(L, 1);
 	const char *file = getString(L, 2);
 	int visible = lua_tonumber(L, 3);
@@ -91,13 +139,13 @@ int Script::scTextureUpdate(lua_State *L) {
 }
 
 int Script::scInventoryAdd(lua_State *L) {
-	describeFunction(L, "scInventoryAdd");
+	// describeFunction(L, "scInventoryAdd");
 	g_engine->_inventory.add(g_engine->_world.boundItem());
 	return 0;
 }
 
 int Script::scInventoryRemove(lua_State *L) {
-	describeFunction(L, "scInventoryRemove");
+	// describeFunction(L, "scInventoryRemove");
 	g_engine->_inventory.remove(g_engine->_world.boundItem());
 	return 0;
 }
@@ -588,6 +636,14 @@ Script::Script() {
 	lua_register(_state, "scInventoryAdd", scInventoryAdd);
 	lua_register(_state, "scInventoryRemove", scInventoryRemove);
 	lua_register(_state, "scTextureUpdate", scTextureUpdate);
+	lua_register(_state, "scHints", scHints);
+	lua_register(_state, "scJournalClear", scJournalClear);
+	lua_register(_state, "scLock", scLock);
+	lua_register(_state, "scUnlock", scUnlock);
+	lua_register(_state, "scSetAmbience", scSetAmbience);
+	lua_register(_state, "scTimerCreateGlobal", scTimerCreateGlobal);
+	lua_register(_state, "scTrackPlay", scTrackPlay);
+	lua_register(_state, "scTrackStop", scTrackStop);
 }
 
 Script::~Script() {
