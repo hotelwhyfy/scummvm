@@ -36,19 +36,32 @@ Cursor::Cursor() {
 }
 
 void Cursor::draw(Gfx *gfx, const Common::Point &mouse) const {
-	gfx->drawTexture2D(_currentTexture,
-					   mouse.x - _currentHotspot.x,
-					   kScreenHeight - (mouse.y - _currentHotspot.y) - kCursorSize,
-					   kCursorSize, kCursorSize);
+	int x = mouse.x - _currentHotspot.x;
+	int y = kScreenHeight - (mouse.y - _currentHotspot.y) - kCursorSize;
+	gfx->drawTexture2D(_currentTexture, x, y, kCursorSize, kCursorSize);
+	if (_glow) {
+		gfx->setAdditiveBlend(true);
+		gfx->drawTexture2D(_currentTexture, x, y, kCursorSize, kCursorSize);
+		gfx->drawTexture2D(_currentTexture, x - 1, y - 1, kCursorSize + 2, kCursorSize + 2);
+		gfx->setAdditiveBlend(false);
+	}
 }
 
 void Cursor::freeTexture(Gfx *gfx) {
 	gfx->deleteTexture(_currentTexture);
 	_currentTexture = 0;
 	_currentType = 0;
+	_currentFile = "";
+}
+
+void Cursor::loadFile(Gfx *gfx, const Common::String &fileName) {
+	_currentTexture = loadTexture(gfx, fileName);
+	_currentFile = fileName;
 }
 
 void Cursor::setCursor(Gfx *gfx, int cursorType) {
+	_glow = false;
+
 	if (cursorType == _currentType)
 		return;
 
@@ -56,17 +69,26 @@ void Cursor::setCursor(Gfx *gfx, int cursorType) {
 	if (fileName.empty())
 		return;
 
-	gfx->deleteTexture(_currentTexture);
-	GLuint cursorTexture = loadTexture(gfx, fileName);
+	freeTexture(gfx);
+	loadFile(gfx, fileName);
 	_currentType = cursorType;
-	_currentTexture = cursorTexture;
 	_currentHotspot = getHotSpot(_currentType);
+}
+
+void Cursor::setIcon(Gfx *gfx, const Common::String &icon, bool glow) {
+	_glow = glow;
+
+	if (icon == _currentFile)
+		return;
+
+	freeTexture(gfx);
+	loadFile(gfx, icon);
+	_currentHotspot = Common::Point(kCursorSize / 2, kCursorSize / 2);
 }
 
 void Cursor::scCursor(int cursorType, const char *file) {
 	if (cursorType == kScZoomBack)
 		cursorType = kScZoomOut;
-
 	_cursorMap[cursorType] = file;
 }
 
@@ -93,7 +115,7 @@ Common::Point Cursor::getHotSpot(int cursorType) const {
 	case kScZoomBack:
 		return Common::Point(24, 24);
 	default:
-		return Common::Point(32, 32);
+		return Common::Point(kCursorSize / 2, kCursorSize / 2);
 	}
 }
 

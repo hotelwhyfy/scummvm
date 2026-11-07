@@ -36,16 +36,20 @@ public:
 	Cursor();
 	void scCursor(int cursorType, const char *file);
 	void setCursor(Gfx *gfx, int cursorType);
+	void setIcon(Gfx *gfx, const Common::String &icon, bool glow);
 	void draw(Gfx *gfx, const Common::Point &mouse) const;
 	void freeTexture(Gfx *gfx);
 
 private:
+	void loadFile(Gfx *gfx, const Common::String &fileName);
 	Common::String getFileName(int cursorType) const;
 	Common::Point getHotSpot(int cursorType) const;
 	Common::HashMap<int, Common::String> _cursorMap;
 	int _currentType = 0;
 	GLuint _currentTexture = 0;
 	Common::Point _currentHotspot;
+	Common::String _currentFile;
+	bool _glow = false;
 };
 
 } // end of namespace Scream

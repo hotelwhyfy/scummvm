@@ -77,11 +77,13 @@ void ScreamEngine::updateCamera(const Common::Point &mouse) {
 		_camera.update(mouse);
 }
 
-void ScreamEngine::updateCursor(int hoverCursor) {
-	int cursor = hoverCursor;
+void ScreamEngine::updateCursor(int hoverCursor, bool glow) {
 	if (_script->isWaiting())
-		cursor = kScWait;
-	_cursor.setCursor(_gfx, cursor);
+		_cursor.setCursor(_gfx, kScWait);
+	else if (_inventory.getHeld())
+		_cursor.setIcon(_gfx, _inventory.getHeld()->getIcon(), glow);
+	else
+		_cursor.setCursor(_gfx, hoverCursor);
 }
 
 static bool actionHappensInPlace(int actionType) {
@@ -96,12 +98,14 @@ void ScreamEngine::handleSceneInput() {
 	if (hoverObject && !_script->isWaiting())
 		_world.setBoundObject(hoverObject);
 
-	updateCursor(hoverObject ? hoverObject->getHoverCursor() : kScNormal);
+	const Item *held = _inventory.getHeld();
+
+	bool glow = held && hoverObject && actionHappensInPlace(hoverObject->getClickAction()._kind);
+
+	updateCursor(hoverObject ? hoverObject->getHoverCursor() : kScNormal, glow);
 
 	if (!_clicked)
 		return;
-
-	const Item *held = _inventory.getHeld();
 
 	if (!_sceneView.isInBand(_mouse))
 		return;
@@ -132,12 +136,14 @@ void ScreamEngine::handleInventoryInput() {
 	if (hoverItem)
 		_world.setBoundItem(hoverItem);
 
-	updateCursor(hoverItem ? kScUse : kScNormal);
+	const Item *held = _inventory.getHeld();
+
+	bool glow = held && hoverItem && (hoverItem != held);
+
+	updateCursor(hoverItem ? kScUse : kScNormal, glow);
 
 	if (!_clicked)
 		return;
-
-	const Item *held = _inventory.getHeld();
 
 	if (!held && hoverItem) {
 		_inventory.grab(hoverItem);
@@ -261,10 +267,7 @@ Common::Error ScreamEngine::run() {
 
 		_feedback.draw(_gfx, _font, _settings._textSpeed);
 
-		if (_inventory.getHeld() && !_script->isWaiting())
-			_inventoryView.drawHeld(_gfx, _inventory, _mouse);
-		else
-			_cursor.draw(_gfx, _mouse);
+		_cursor.draw(_gfx, _mouse);
 
 		_clicked = false;
 

@@ -128,6 +128,13 @@ void Gfx::tint(float r, float g, float b) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void Gfx::setAdditiveBlend(bool additive) {
+	if (additive)
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	else
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 void Gfx::deleteTexture(GLuint texture) {
 	glDeleteTextures(1, &texture);
 }

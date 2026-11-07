@@ -44,6 +44,7 @@ public:
 					   float alpha = 1.0f);
 	const Graphics::PixelFormat &getPixelFormat() const { return _pixelFormat; }
 	void tint(float r, float g, float b);
+	void setAdditiveBlend(bool additive);
 
 private:
 	const Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();

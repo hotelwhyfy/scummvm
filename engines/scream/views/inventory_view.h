@@ -38,7 +38,6 @@ class InventoryView {
 public:
 	Item *findItemAt(const Inventory &inventory, const Common::Point &mouse) const;
 	void draw(Gfx *gfx, const Inventory &inventory, uint movSpeed);
-	void drawHeld(Gfx *gfx, const Inventory &inventory, const Common::Point &mouse);
 	void freeTextures(Gfx *gfx);
 	void toggle(const Inventory &inventory);
 	bool isOpen() const { return _open; }

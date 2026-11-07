@@ -67,15 +67,6 @@ void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint movSpeed) {
 	_fade = MIN(kMaxFade, _fade + movSpeed * kFadeStep);
 }
 
-void InventoryView::drawHeld(Gfx *gfx, const Inventory &inventory, const Common::Point &mouse) {
-	Common::String icon = inventory.getHeld()->getIcon();
-	GLuint texture = getIconTexture(gfx, icon);
-	gfx->drawTexture2D(texture,
-					   mouse.x - (kInventoryIconSize / 2),
-					   kScreenHeight - (mouse.y - (kInventoryIconSize / 2)) - kInventoryIconSize,
-					   kInventoryIconSize, kInventoryIconSize);
-}
-
 GLuint InventoryView::getIconTexture(Gfx *gfx, const Common::String &icon) {
 	if (!_iconTextures.contains(icon))
 		_iconTextures[icon] = loadTexture(gfx, icon);

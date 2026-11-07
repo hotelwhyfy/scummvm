@@ -71,7 +71,7 @@ private:
 	void handleSceneInput();
 	void handleInventoryInput();
 
-	void updateCursor(int hoverCursor);
+	void updateCursor(int hoverCursor, bool glow);
 	void updateCamera(const Common::Point &mouse);
 	void handleEvents(Common::Event &e);
 	void freeTextures();
