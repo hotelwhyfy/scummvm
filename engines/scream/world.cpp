@@ -142,6 +142,12 @@ Zoom *World::findZoom(const Common::String &name) const {
 	return nullptr;
 }
 
+Room *World::getCurrentRoom() const {
+	if (!_currentNode)
+		error("World::getCurrentRoom: no current node");
+	return _currentNode->getParentRoom();
+}
+
 void World::switchTo(int kind, const Common::String &name) {
 	switch (kind) {
 	case kScRoom:
@@ -175,8 +181,6 @@ void World::zoomOut() {
 
 void World::switchNode(const Common::String &name) {
 	Room *room = getCurrentRoom();
-	if (!room)
-		error("Switch node: no current room");
 	Node *node = findNode(room, name);
 	if (!node)
 		error("switch node: node %s not found", name.c_str());

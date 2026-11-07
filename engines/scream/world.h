@@ -55,7 +55,7 @@ public:
 	Zoom *findZoom(const Common::String &name) const;
 
 	Node *getCurrentNode() const { return _currentNode; }
-	Room *getCurrentRoom() const { return _currentNode->getParentRoom(); }
+	Room *getCurrentRoom() const;
 	Zoom *getCurrentZoom() const { return getCurrentRoom()->getTopZoom(); }
 
 	void setBoundRoom(Room *room) { _boundRoom = room; }
