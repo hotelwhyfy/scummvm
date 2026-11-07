@@ -29,11 +29,11 @@
 
 namespace Scream {
 
-static const float maxFade = 0.5f;
-static const float fadeStep = 0.001f;
-static const float tintR = 0.9f;
-static const float tintG = 0.75f;
-static const float tintB = 0.5f;
+static const float kMaxFade = 0.5f;
+static const float kFadeStep = 0.001f;
+static const float kTintR = 0.9f;
+static const float kTintG = 0.75f;
+static const float kTintB = 0.5f;
 
 Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point &mouse) const {
 	const Common::Array<Item *> &items = inventory.getItems();
@@ -51,7 +51,7 @@ Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point 
 
 void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint movSpeed) {
 	float k = 1.0f - _fade;
-	gfx->tint(tintR * k, tintG * k, tintB * k);
+	gfx->tint(kTintR * k, kTintG * k, kTintB * k);
 	const Common::Array<Item *> &items = inventory.getItems();
 	for (uint i = 0; i < items.size(); ++i) {
 		if (items[i] == inventory.getHeld())
@@ -64,7 +64,7 @@ void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint movSpeed) {
 		uint y = kScreenHeight - kInventoryDrawTop - kInventoryIconSize - (kInventoryIconSize + kInventoryGap) * row;
 		gfx->drawTexture2D(texture, x, y, kInventoryIconSize, kInventoryIconSize, 0.0f, 0.0f, 1.0f, 1.0f, _fade * 2);
 	}
-	_fade = MIN(maxFade, _fade + movSpeed * fadeStep);
+	_fade = MIN(kMaxFade, _fade + movSpeed * kFadeStep);
 }
 
 void InventoryView::drawHeld(Gfx *gfx, const Inventory &inventory, const Common::Point &mouse) {
@@ -92,7 +92,7 @@ void InventoryView::toggle(const Inventory &inventory) {
 	if (_open) {
 		_open = false;
 	} else if (inventory.count() > 0) {
-		if (_fade >= maxFade)
+		if (_fade >= kMaxFade)
 			_fade = 0.0f;
 		_open = true;
 	}
