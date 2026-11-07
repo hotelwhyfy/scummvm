@@ -183,6 +183,10 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 			break;
 		case Common::EVENT_KEYDOWN:
 			if (e.kbd.keycode == Common::KEYCODE_ESCAPE) {
+				if (_inventoryView.isOpen()) {
+					drawViews();
+					_crossfade.capture(_gfx);
+				}
 				_inventory.drop();
 				_inventoryView.close();
 			}
