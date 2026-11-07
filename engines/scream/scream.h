@@ -70,6 +70,8 @@ private:
 	bool _dropWhenIdle = false;
 
 	void drawViews();
+	void captureView();
+
 	void handleSceneInput();
 	void handleInventoryInput();
 
@@ -101,7 +103,8 @@ public:
 
 	void performAction(const Action &action);
 	void showFeedback(const Common::String &text);
-	void reloadScene() { _sceneView.invalidate(); }
+	void switchView(int kind, const Common::String &name);
+	void reloadScene();
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);

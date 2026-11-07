@@ -48,7 +48,7 @@ void ScreamEngine::performAction(const Action &action) {
 	case kScZoom:
 	case kScZoomOut:
 	case kScZoomBack:
-		_world.switchTo(action._kind, action._arg1);
+		switchView(action._kind, action._arg1);
 		break;
 	case kScCustom:
 		_script->callFunction(action._arg1);
@@ -175,18 +175,14 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 			_clicked = true;
 			break;
 		case Common::EVENT_RBUTTONUP:
-			if (_inventoryView.canToggle(_inventory)) {
-				drawViews();
-				_crossfade.capture(_gfx);
-				_inventoryView.toggle(_inventory);
-			}
+			if (_inventoryView.canToggle(_inventory))
+				captureView();
+			_inventoryView.toggle(_inventory);
 			break;
 		case Common::EVENT_KEYDOWN:
 			if (e.kbd.keycode == Common::KEYCODE_ESCAPE) {
-				if (_inventoryView.isOpen()) {
-					drawViews();
-					_crossfade.capture(_gfx);
-				}
+				if (_inventoryView.isOpen())
+					captureView();
 				_inventory.drop();
 				_inventoryView.close();
 			}
@@ -208,6 +204,23 @@ void ScreamEngine::freeTextures() {
 void ScreamEngine::drawViews() {
 	_sceneView.draw(_gfx, _world, _camera);
 	_inventoryView.draw(_gfx, _inventory, _settings._movSpeed);
+}
+
+void ScreamEngine::captureView() {
+	if (!_gfx || !_world.getCurrentNode())
+		return;
+	drawViews();
+	_crossfade.capture(_gfx);
+}
+
+void ScreamEngine::switchView(int kind, const Common::String &name) {
+	captureView();
+	_world.switchTo(kind, name);
+}
+
+void ScreamEngine::reloadScene() {
+	captureView();
+	_sceneView.invalidate();
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),

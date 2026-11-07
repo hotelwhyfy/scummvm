@@ -83,7 +83,6 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 void SceneView::invalidate() {
 	_loadedNode = nullptr;
 	_loadedZoom = nullptr;
-	warning("SceneView: reload scene crossfade not implemented");
 }
 
 void SceneView::freeTextures(Gfx *gfx) {

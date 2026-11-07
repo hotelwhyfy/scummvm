@@ -185,7 +185,7 @@ int Script::scSwitch(lua_State *L) {
 	// describeFunction(L, "scSwitch");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
-	g_engine->_world.switchTo(kind, name);
+	g_engine->switchView(kind, name);
 	return 0;
 }
 
