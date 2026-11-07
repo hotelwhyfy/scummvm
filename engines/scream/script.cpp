@@ -581,6 +581,8 @@ int Script::scInit(lua_State *L) {
 		error("Could not open resource file \"%s\"", resFile.c_str());
 	}
 	SearchMan.add(resFile, res);
+	g_engine->_world.scCreate(kScZoom, kBlackZoom);
+	g_engine->_world.scTexture(kScZoom, kBlackImage);
 	return 0;
 }
 

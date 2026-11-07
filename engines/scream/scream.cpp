@@ -33,7 +33,6 @@
 #include "scream/constants.h"
 #include "scream/detection.h"
 #include "scream/gfx.h"
-#include "scream/image.h"
 #include "scream/resources.h"
 #include "scream/script.h"
 

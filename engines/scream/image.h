@@ -24,7 +24,6 @@
 
 #include "common/str.h"
 #include "graphics/opengl/system_headers.h"
-#include "graphics/pixelformat.h"
 
 namespace Scream {
 
