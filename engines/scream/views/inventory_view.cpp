@@ -82,17 +82,18 @@ void InventoryView::freeTextures(Gfx *gfx) {
 }
 
 void InventoryView::toggle(const Inventory &inventory) {
-	if (_open) {
+	if (!canToggle(inventory))
+		return;
+	if (_open)
 		close();
-	} else if (inventory.count() > 0) {
-		if (_fade >= kMaxFade)
-			_fade = 0.0f;
-		_open = true;
-	}
+	else
+		open();
 }
 
-void InventoryView::close() {
-	_open = false;
+void InventoryView::open() {
+	_open = true;
+	if (_fade >= kMaxFade)
+		_fade = 0.0f;
 }
 
 } // end of namespace Scream

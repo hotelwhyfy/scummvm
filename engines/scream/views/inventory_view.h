@@ -40,11 +40,12 @@ public:
 	void draw(Gfx *gfx, const Inventory &inventory, uint speed);
 	void freeTextures(Gfx *gfx);
 	void toggle(const Inventory &inventory);
-	void close();
+	void close() { _open = false; }
 	bool isOpen() const { return _open; }
 	bool canToggle(const Inventory &inventory) const { return isOpen() || inventory.count() > 0; }
 
 private:
+	void open();
 	GLuint getIconTexture(Gfx *gfx, const Common::String &icon);
 	Common::HashMap<Common::String, GLuint> _iconTextures;
 	float _fade = 0.0f;
