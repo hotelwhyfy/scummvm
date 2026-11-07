@@ -38,6 +38,7 @@
 
 #include "scream/camera.h"
 #include "scream/constants.h"
+#include "scream/crossfade.h"
 #include "scream/cursor.h"
 #include "scream/detection.h"
 #include "scream/feedback.h"
@@ -68,6 +69,7 @@ private:
 	bool _clicked = false;
 	bool _dropWhenIdle = false;
 
+	void drawViews();
 	void handleSceneInput();
 	void handleInventoryInput();
 
@@ -95,6 +97,8 @@ public:
 	Script *_script = nullptr;
 	InventoryView _inventoryView;
 	SceneView _sceneView;
+	Crossfade _crossfade;
+
 	void performAction(const Action &action);
 	void showFeedback(const Common::String &text);
 	void reloadScene() { _sceneView.invalidate(); }

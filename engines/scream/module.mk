@@ -18,6 +18,7 @@ MODULE_OBJS = \
 	camera.o \
 	feedback.o \
 	inventory.o \
+	crossfade.o \
 	world/world.o \
 	world/track.o \
 	world/dialogue.o \

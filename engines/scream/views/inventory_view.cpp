@@ -49,7 +49,9 @@ Item *InventoryView::findItemAt(const Inventory &inventory, const Common::Point 
 	return nullptr;
 }
 
-void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint movSpeed) {
+void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint speed) {
+	if (!isOpen())
+		return;
 	float k = 1.0f - _fade;
 	gfx->tint(kTintR * k, kTintG * k, kTintB * k);
 	const Common::Array<Item *> &items = inventory.getItems();
@@ -64,7 +66,7 @@ void InventoryView::draw(Gfx *gfx, const Inventory &inventory, uint movSpeed) {
 		uint y = kScreenHeight - kInventoryDrawTop - kInventoryIconSize - (kInventoryIconSize + kInventoryGap) * row;
 		gfx->drawTexture2D(texture, x, y, kInventoryIconSize, kInventoryIconSize, 0.0f, 0.0f, 1.0f, 1.0f, _fade * 2);
 	}
-	_fade = MIN(kMaxFade, _fade + movSpeed * kFadeStep);
+	_fade = MIN(kMaxFade, _fade + speed * kFadeStep);
 }
 
 GLuint InventoryView::getIconTexture(Gfx *gfx, const Common::String &icon) {

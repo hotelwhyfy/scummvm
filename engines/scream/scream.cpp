@@ -175,7 +175,11 @@ void ScreamEngine::handleEvents(Common::Event &e) {
 			_clicked = true;
 			break;
 		case Common::EVENT_RBUTTONUP:
-			_inventoryView.toggle(_inventory);
+			if (_inventoryView.canToggle(_inventory)) {
+				drawViews();
+				_crossfade.capture(_gfx);
+				_inventoryView.toggle(_inventory);
+			}
 			break;
 		case Common::EVENT_KEYDOWN:
 			if (e.kbd.keycode == Common::KEYCODE_ESCAPE) {
@@ -194,6 +198,12 @@ void ScreamEngine::freeTextures() {
 	_font.freeTexture(_gfx);
 	_inventoryView.freeTextures(_gfx);
 	_sceneView.freeTextures(_gfx);
+	_crossfade.freeTexture(_gfx);
+}
+
+void ScreamEngine::drawViews() {
+	_sceneView.draw(_gfx, _world, _camera);
+	_inventoryView.draw(_gfx, _inventory, _settings._movSpeed);
 }
 
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
@@ -264,13 +274,9 @@ Common::Error ScreamEngine::run() {
 			_dropWhenIdle = false;
 		}
 
-		_sceneView.draw(_gfx, _world, _camera);
-
-		if (_inventoryView.isOpen())
-			_inventoryView.draw(_gfx, _inventory, _settings._movSpeed);
-
+		drawViews();
+		_crossfade.draw(_gfx, _settings._movSpeed);
 		_feedback.draw(_gfx, _font, _settings._textSpeed);
-
 		_cursor.draw(_gfx, _mouse);
 
 		_clicked = false;

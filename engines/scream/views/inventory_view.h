@@ -37,11 +37,12 @@ class Gfx;
 class InventoryView {
 public:
 	Item *findItemAt(const Inventory &inventory, const Common::Point &mouse) const;
-	void draw(Gfx *gfx, const Inventory &inventory, uint movSpeed);
+	void draw(Gfx *gfx, const Inventory &inventory, uint speed);
 	void freeTextures(Gfx *gfx);
 	void toggle(const Inventory &inventory);
 	void close();
 	bool isOpen() const { return _open; }
+	bool canToggle(const Inventory &inventory) const { return isOpen() || inventory.count() > 0; }
 
 private:
 	GLuint getIconTexture(Gfx *gfx, const Common::String &icon);

@@ -45,6 +45,7 @@ public:
 	const Graphics::PixelFormat &getPixelFormat() const { return _pixelFormat; }
 	void tint(float r, float g, float b);
 	void setAdditiveBlend(bool additive);
+	void copyScreen(GLuint &texture);
 
 private:
 	const Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();
