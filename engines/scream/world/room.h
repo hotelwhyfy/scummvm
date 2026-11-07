@@ -19,36 +19,33 @@
  *
  */
 
-#ifndef SCREAM_NODE_H
-#define SCREAM_NODE_H
+#ifndef SCREAM_WORLD_ROOM_H
+#define SCREAM_WORLD_ROOM_H
 
-#include "common/array.h"
+#include "common/stack.h"
 #include "common/str.h"
-
-#include "scream/constants.h"
-#include "scream/object.h"
-#include "scream/room.h"
+#include "common/textconsole.h"
 
 namespace Scream {
 
-class Node {
+class Node;
+class Zoom;
+
+class Room {
 public:
-	Node(const char *name) : _name(name) {}
-	void setParentRoom(Room *room) { _parentRoom = room; }
-	void setFace(int face, const char *file);
-	void setFootstepFile(const char *file) { _footstepFile = file; }
-	void addObject(Object *object) { _objects.push_back(object); }
-	const Common::String &getFace(int face) const;
-	Object *findObjectAt(int face, const Common::Point &p) const;
+	Room(const char *name) : _name(name) {}
 	const Common::String &getName() const { return _name; }
-	Room *getParentRoom() const { return _parentRoom; }
+	Node *getLastVisitedNode() const { return _lastVisitedNode; }
+	void setLastVisitedNode(Node *node) { _lastVisitedNode = node; }
+	void pushZoom(Zoom *zoom) { _zooms.push(zoom); }
+	void popZoom();
+	void clearZooms() { _zooms.clear(); }
+	Zoom *getTopZoom() const;
 
 private:
 	Common::String _name;
-	Room *_parentRoom = nullptr;
-	Common::String _faces[kNumFaces];
-	Common::String _footstepFile;
-	Common::Array<Object *> _objects;
+	Node *_lastVisitedNode = nullptr;
+	Common::Stack<Zoom *> _zooms;
 };
 
 } // end of namespace Scream

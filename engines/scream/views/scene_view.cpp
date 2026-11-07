@@ -23,8 +23,8 @@
 #include "scream/constants.h"
 #include "scream/gfx.h"
 #include "scream/image.h"
-#include "scream/node.h"
-#include "scream/zoom.h"
+#include "scream/world/node.h"
+#include "scream/world/zoom.h"
 
 namespace Scream {
 

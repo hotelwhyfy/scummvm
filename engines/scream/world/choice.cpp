@@ -19,19 +19,17 @@
  *
  */
 
-#include "scream/room.h"
+#include "scream/world/choice.h"
 
 namespace Scream {
 
-void Room::popZoom() {
-	if (!_zooms.empty())
-		_zooms.pop();
+Choice::Choice(const char *name) : _name(name) {
 }
 
-Zoom *Room::getTopZoom() const {
-	if (!_zooms.empty())
-		return _zooms.top();
-	return nullptr;
+void Choice::scChoiceAdd(const char *text, const char *handler) {
+	if (_options.size() < 16) {
+		_options.push_back(ChoiceOption(text, handler));
+	}
 }
 
 } // end of namespace Scream

@@ -19,33 +19,40 @@
  *
  */
 
-#ifndef SCREAM_TRACK_H
-#define SCREAM_TRACK_H
-
-#include "common/str.h"
+#include "scream/constants.h"
+#include "scream/world/object.h"
+#include "scream/world/item.h"
 
 namespace Scream {
 
-class Track {
-public:
-	Track(const char *name);
-	void scTrackSet3D(const char *front, const char *rearLeft, const char *rearRight, int loop);
-	void scTrackSetEx(int key, int value);
-	void scTrackSet(const char *front, int loop);
-	const Common::String &getName() const { return _name; }
+bool Object::containsPoint(int face, const Common::Point &p) const {
+	if (face != _face)
+		return false;
+	return p.x >= _x && p.x <= (_x + _w) && p.y >= _y && p.y <= (_y + _h);
+}
 
-private:
-	Common::String _name;
-	Common::String _front;
-	Common::String _rearLeft;
-	Common::String _rearRight;
-	int _volume = 10;
-	int _fadeIn = 0;
-	int _fadeOut = 0;
-	int _loop = 0;
-	bool _3d = false; // stored, but never read by the engine
-};
+void Object::addReaction(Item *item, const Action &action) {
+	if (_reactions.size() >= kScMaxReactions)
+		error("Too may reactions on %s", _name.c_str());
+
+	Reaction reaction(item, action);
+	_reactions.push_back(reaction);
+}
+
+void Object::setRect(int x, int y, int w, int h, int face) {
+	_x = x;
+	_y = y;
+	_w = w;
+	_h = h;
+	_face = face;
+	_enabled = true;
+}
+
+const Action *Object::findReaction(const Item *item) const {
+	for (const Reaction &reaction : _reactions)
+		if (reaction._otherItem == item)
+			return &reaction._action;
+	return nullptr;
+}
 
 } // end of namespace Scream
-
-#endif

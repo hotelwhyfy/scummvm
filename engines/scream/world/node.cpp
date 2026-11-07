@@ -21,7 +21,7 @@
 
 #include "common/textconsole.h"
 
-#include "scream/node.h"
+#include "scream/world/node.h"
 
 namespace Scream {
 

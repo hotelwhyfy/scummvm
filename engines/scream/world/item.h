@@ -19,28 +19,34 @@
  *
  */
 
-#ifndef SCREAM_CHOICE_H
-#define SCREAM_CHOICE_H
+#ifndef SCREAM_WORLD_ITEM_H
+#define SCREAM_WORLD_ITEM_H
 
 #include "common/array.h"
 #include "common/str.h"
 
+#include "scream/world/action.h"
+
 namespace Scream {
 
-struct ChoiceOption {
-	ChoiceOption(const char *text, const char *handler) : _text(text), _handler(handler) {}
-	Common::String _text;
-	Common::String _handler;
-};
-
-class Choice {
+class Item {
 public:
-	Choice(const char *name);
-	void scChoiceAdd(const char *text, const char *handler);
+	Item(const char *name);
+	const Common::String &getName() const { return _name; }
+	const Common::String &getIcon() const { return _icon; }
+	uint getReactionCount() const { return _reactions.size(); }
+	const Common::String &getFailText() const { return _failText; }
+	void scInventorySet(const char *icon, const char *label, const char *failText, const char *failVoice);
+	void addReaction(Item *item, const Action &action);
+	const Action *findReaction(const Item *item) const;
 
 private:
 	Common::String _name;
-	Common::Array<ChoiceOption> _options;
+	Common::String _icon;
+	Common::String _label;
+	Common::String _failText;
+	Common::String _failVoice;
+	Common::Array<Reaction> _reactions;
 };
 
 } // end of namespace Scream

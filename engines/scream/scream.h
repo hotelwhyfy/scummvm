@@ -49,8 +49,8 @@
 #include "scream/settings.h"
 #include "scream/views/inventory_view.h"
 #include "scream/views/scene_view.h"
-#include "scream/world.h"
-#include "scream/zoom.h"
+#include "scream/world/world.h"
+#include "scream/world/zoom.h"
 
 namespace Scream {
 

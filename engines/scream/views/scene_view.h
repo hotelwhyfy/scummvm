@@ -26,7 +26,7 @@
 #include "graphics/opengl/system_headers.h"
 
 #include "scream/camera.h"
-#include "scream/world.h"
+#include "scream/world/world.h"
 
 namespace Scream {
 

@@ -19,31 +19,31 @@
  *
  */
 
-#ifndef SCREAM_DIALOGUE_H
-#define SCREAM_DIALOGUE_H
-
-#include "common/array.h"
-#include "common/str.h"
+#include "scream/constants.h"
+#include "scream/world/zoom.h"
 
 namespace Scream {
 
-struct DialogueLine {
-	DialogueLine(const char *voiceFile, const char *text, bool hint) : _voiceFile(voiceFile), _text(text), _hint(hint) {}
-	Common::String _voiceFile;
-	Common::String _text;
-	bool _hint;
-};
+void Zoom::setAudioFile(int key, const char *file) {
+	switch (key) {
+	case kScZoom:
+		_enterAudioFile = file;
+		break;
+	case kScZoomOut:
+	case kScZoomBack:
+		_leaveAudioFile = file;
+		break;
+	default:
+		warning("scAudio: unsupported key %d", key);
+		break;
+	}
+}
 
-class Dialogue {
-public:
-	Dialogue(const char *name);
-	void scScriptAdd(const char *voiceFile, const char *text, bool hint);
-
-private:
-	Common::String _name;
-	Common::Array<DialogueLine> _lines;
-};
+Object *Zoom::findObjectAt(const Common::Point &mouse) const {
+	for (Object *object : _objects)
+		if (object->isEnabled() && object->containsPoint(kScZoom, mouse))
+			return object;
+	return nullptr;
+}
 
 } // end of namespace Scream
-
-#endif

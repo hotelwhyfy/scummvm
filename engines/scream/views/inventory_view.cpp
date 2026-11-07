@@ -24,8 +24,8 @@
 #include "scream/constants.h"
 #include "scream/gfx.h"
 #include "scream/image.h"
-#include "scream/item.h"
 #include "scream/views/inventory_view.h"
+#include "scream/world/item.h"
 
 namespace Scream {
 

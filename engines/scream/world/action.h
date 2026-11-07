@@ -19,30 +19,28 @@
  *
  */
 
-#include "scream/item.h"
+#ifndef SCREAM_WORLD_ACTION_H
+#define SCREAM_WORLD_ACTION_H
+
+#include "common/str.h"
 
 namespace Scream {
 
-Item::Item(const char *name) : _name(name) {
-}
+class Item;
 
-void Item::scInventorySet(const char *icon, const char *label, const char *failText, const char *failVoice) {
-	_icon = icon;
-	_label = label;
-	_failText = failText;
-	_failVoice = failVoice;
-}
+struct Action {
+	Action(int kind, const char *arg1, const char *arg2) : _kind(kind), _arg1(arg1), _arg2(arg2) {}
+	int _kind;
+	Common::String _arg1;
+	Common::String _arg2;
+};
 
-void Item::addReaction(Item *item, const Action &action) {
-	Reaction reaction(item, action);
-	_reactions.push_back(reaction);
-}
-
-const Action *Item::findReaction(const Item *item) const {
-	for (const Reaction &reaction : _reactions)
-		if (reaction._otherItem == item)
-			return &reaction._action;
-	return nullptr;
-}
+struct Reaction {
+	Reaction(Item *otherItem, const Action &action) : _otherItem(otherItem), _action(action) {}
+	Item *_otherItem;
+	Action _action;
+};
 
 } // end of namespace Scream
+
+#endif

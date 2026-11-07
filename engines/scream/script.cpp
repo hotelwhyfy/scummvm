@@ -25,13 +25,13 @@
 #include "common/lua/lua.h"
 
 #include "scream/font.h"
-#include "scream/item.h"
 #include "scream/menu.h"
-#include "scream/object.h"
 #include "scream/resources.h"
 #include "scream/scream.h"
 #include "scream/script.h"
 #include "scream/settings.h"
+#include "scream/world/item.h"
+#include "scream/world/object.h"
 
 namespace Scream {
 

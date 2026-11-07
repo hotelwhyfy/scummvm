@@ -19,14 +19,14 @@
  *
  */
 
-#ifndef SCREAM_ZOOM_H
-#define SCREAM_ZOOM_H
+#ifndef SCREAM_WORLD_ZOOM_H
+#define SCREAM_WORLD_ZOOM_H
 
 #include "common/array.h"
 #include "common/rect.h"
 #include "common/str.h"
 
-#include "scream/object.h"
+#include "scream/world/object.h"
 
 namespace Scream {
 

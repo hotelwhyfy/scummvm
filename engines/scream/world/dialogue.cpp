@@ -19,7 +19,7 @@
  *
  */
 
-#include "scream/dialogue.h"
+#include "scream/world/dialogue.h"
 
 namespace Scream {
 

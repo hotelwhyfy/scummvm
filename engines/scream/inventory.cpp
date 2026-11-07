@@ -20,7 +20,7 @@
  */
 
 #include "scream/inventory.h"
-#include "scream/item.h"
+#include "scream/world/item.h"
 
 namespace Scream {
 

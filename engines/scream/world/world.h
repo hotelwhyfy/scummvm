@@ -19,21 +19,21 @@
  *
  */
 
-#ifndef SCREAM_WORLD_H
-#define SCREAM_WORLD_H
+#ifndef SCREAM_WORLD_WORLD_H
+#define SCREAM_WORLD_WORLD_H
 
 #include "common/array.h"
 
-#include "scream/action.h"
-#include "scream/choice.h"
 #include "scream/constants.h"
-#include "scream/dialogue.h"
-#include "scream/item.h"
-#include "scream/node.h"
-#include "scream/object.h"
-#include "scream/room.h"
-#include "scream/track.h"
-#include "scream/zoom.h"
+#include "scream/world/action.h"
+#include "scream/world/choice.h"
+#include "scream/world/dialogue.h"
+#include "scream/world/item.h"
+#include "scream/world/node.h"
+#include "scream/world/object.h"
+#include "scream/world/room.h"
+#include "scream/world/track.h"
+#include "scream/world/zoom.h"
 
 namespace Scream {
 

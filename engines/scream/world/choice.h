@@ -19,40 +19,30 @@
  *
  */
 
-#include "scream/object.h"
-#include "scream/constants.h"
-#include "scream/item.h"
+#ifndef SCREAM_WORLD_CHOICE_H
+#define SCREAM_WORLD_CHOICE_H
+
+#include "common/array.h"
+#include "common/str.h"
 
 namespace Scream {
 
-bool Object::containsPoint(int face, const Common::Point &p) const {
-	if (face != _face)
-		return false;
-	return p.x >= _x && p.x <= (_x + _w) && p.y >= _y && p.y <= (_y + _h);
-}
+struct ChoiceOption {
+	ChoiceOption(const char *text, const char *handler) : _text(text), _handler(handler) {}
+	Common::String _text;
+	Common::String _handler;
+};
 
-void Object::addReaction(Item *item, const Action &action) {
-	if (_reactions.size() >= kScMaxReactions)
-		error("Too may reactions on %s", _name.c_str());
+class Choice {
+public:
+	Choice(const char *name);
+	void scChoiceAdd(const char *text, const char *handler);
 
-	Reaction reaction(item, action);
-	_reactions.push_back(reaction);
-}
-
-void Object::setRect(int x, int y, int w, int h, int face) {
-	_x = x;
-	_y = y;
-	_w = w;
-	_h = h;
-	_face = face;
-	_enabled = true;
-}
-
-const Action *Object::findReaction(const Item *item) const {
-	for (const Reaction &reaction : _reactions)
-		if (reaction._otherItem == item)
-			return &reaction._action;
-	return nullptr;
-}
+private:
+	Common::String _name;
+	Common::Array<ChoiceOption> _options;
+};
 
 } // end of namespace Scream
+
+#endif

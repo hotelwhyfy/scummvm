@@ -22,7 +22,7 @@
 #include "common/textconsole.h"
 
 #include "scream/constants.h"
-#include "scream/world.h"
+#include "scream/world/world.h"
 
 namespace Scream {
 

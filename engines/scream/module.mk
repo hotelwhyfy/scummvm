@@ -4,29 +4,29 @@ MODULE_OBJS = \
 	scream.o \
 	console.o \
 	metaengine.o \
-	resources.o \
 	script.o \
+	script_thread.o \
+	resources.o \
 	settings.o \
 	cursor.o \
 	font.o \
 	menu.o \
 	hints.o \
-	world.o \
-	track.o \
-	dialogue.o \
-	choice.o \
-	item.o \
 	journal.o \
-	node.o \
-	object.o \
-	zoom.o \
 	gfx.o \
 	image.o \
 	camera.o \
-	script_thread.o \
-	room.o \
 	feedback.o \
 	inventory.o \
+	world/world.o \
+	world/track.o \
+	world/dialogue.o \
+	world/choice.o \
+	world/item.o \
+	world/node.o \
+	world/object.o \
+	world/room.o \
+	world/zoom.o \
 	views/inventory_view.o \
 	views/scene_view.o
 

@@ -19,16 +19,41 @@
  *
  */
 
-#include "scream/choice.h"
+#include "scream/constants.h"
+#include "scream/world/track.h"
 
 namespace Scream {
 
-Choice::Choice(const char *name) : _name(name) {
+Track::Track(const char *name) : _name(name) {
 }
 
-void Choice::scChoiceAdd(const char *text, const char *handler) {
-	if (_options.size() < 16) {
-		_options.push_back(ChoiceOption(text, handler));
+void Track::scTrackSet(const char *front, int loop) {
+	_front = front;
+	_loop = loop;
+	_3d = false;
+}
+
+void Track::scTrackSet3D(const char *front, const char *rearLeft, const char *rearRight, int loop) {
+	_front = front;
+	_rearLeft = rearLeft;
+	_rearRight = rearRight;
+	_loop = loop;
+	_3d = true;
+}
+
+void Track::scTrackSetEx(int key, int value) {
+	switch (key) {
+	case kScVolume:
+		_volume = value;
+		break;
+	case kScFadeIn:
+		_fadeIn = value;
+		break;
+	case kScFadeOut:
+		_fadeOut = value;
+		break;
+	default:
+		break;
 	}
 }
 

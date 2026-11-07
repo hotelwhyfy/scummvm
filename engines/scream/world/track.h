@@ -19,42 +19,33 @@
  *
  */
 
-#include "scream/track.h"
-#include "scream/constants.h"
+#ifndef SCREAM_WORLD_TRACK_H
+#define SCREAM_WORLD_TRACK_H
+
+#include "common/str.h"
 
 namespace Scream {
 
-Track::Track(const char *name) : _name(name) {
-}
+class Track {
+public:
+	Track(const char *name);
+	void scTrackSet3D(const char *front, const char *rearLeft, const char *rearRight, int loop);
+	void scTrackSetEx(int key, int value);
+	void scTrackSet(const char *front, int loop);
+	const Common::String &getName() const { return _name; }
 
-void Track::scTrackSet(const char *front, int loop) {
-	_front = front;
-	_loop = loop;
-	_3d = false;
-}
-
-void Track::scTrackSet3D(const char *front, const char *rearLeft, const char *rearRight, int loop) {
-	_front = front;
-	_rearLeft = rearLeft;
-	_rearRight = rearRight;
-	_loop = loop;
-	_3d = true;
-}
-
-void Track::scTrackSetEx(int key, int value) {
-	switch (key) {
-	case kScVolume:
-		_volume = value;
-		break;
-	case kScFadeIn:
-		_fadeIn = value;
-		break;
-	case kScFadeOut:
-		_fadeOut = value;
-		break;
-	default:
-		break;
-	}
-}
+private:
+	Common::String _name;
+	Common::String _front;
+	Common::String _rearLeft;
+	Common::String _rearRight;
+	int _volume = 10;
+	int _fadeIn = 0;
+	int _fadeOut = 0;
+	int _loop = 0;
+	bool _3d = false; // stored, but never read by the engine
+};
 
 } // end of namespace Scream
+
+#endif

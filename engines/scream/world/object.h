@@ -19,33 +19,45 @@
  *
  */
 
-#ifndef SCREAM_ITEM_H
-#define SCREAM_ITEM_H
+#ifndef SCREAM_WORLD_OBJECT_H
+#define SCREAM_WORLD_OBJECT_H
 
 #include "common/array.h"
+#include "common/rect.h"
 #include "common/str.h"
 
-#include "scream/action.h"
+#include "scream/constants.h"
+#include "scream/world/action.h"
 
 namespace Scream {
 
-class Item {
+class Item;
+
+class Object {
 public:
-	Item(const char *name);
-	const Common::String &getName() const { return _name; }
-	const Common::String &getIcon() const { return _icon; }
-	uint getReactionCount() const { return _reactions.size(); }
-	const Common::String &getFailText() const { return _failText; }
-	void scInventorySet(const char *icon, const char *label, const char *failText, const char *failVoice);
+	Object(const char *name) : _name(name) {}
+	void setRect(int x, int y, int w, int h, int face);
+	void setHoverCursor(int cursor) { _hoverCursor = cursor; }
+	void setClickAction(const Action &action) { _clickAction = action; }
+	void setEnabled(bool enabled) { _enabled = enabled; }
 	void addReaction(Item *item, const Action &action);
+	bool containsPoint(int face, const Common::Point &p) const;
+	const Common::String &getName() const { return _name; }
+	bool isEnabled() const { return _enabled; }
+	int getHoverCursor() const { return _hoverCursor; }
+	const Action &getClickAction() const { return _clickAction; }
 	const Action *findReaction(const Item *item) const;
 
 private:
 	Common::String _name;
-	Common::String _icon;
-	Common::String _label;
-	Common::String _failText;
-	Common::String _failVoice;
+	int _x = 0;
+	int _y = 0;
+	int _w = 0;
+	int _h = 0;
+	int _face = 0;
+	bool _enabled = false;
+	int _hoverCursor = kScNormal;
+	Action _clickAction = Action(0, "", "");
 	Common::Array<Reaction> _reactions;
 };
 
