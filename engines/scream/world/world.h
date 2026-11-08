@@ -40,19 +40,19 @@ namespace Scream {
 class World {
 public:
 	~World();
-	Track *boundTrack();
-	Dialogue *boundDialogue();
-	Choice *boundChoice();
-	Item *boundItem();
-	Node *boundNode();
-	Room *boundRoom();
-	Zoom *boundZoom();
-	Object *boundObject();
+	Track *boundTrack() const;
+	Dialogue *boundDialogue() const;
+	Choice *boundChoice() const;
+	Item *boundItem() const;
+	Node *boundNode() const;
+	Room *boundRoom() const;
+	Zoom *boundZoom() const;
+	Object *boundObject() const;
 
 	Item *findItem(const Common::String &name) const;
-	Node *findNode(const Room *room, const Common::String &name) const;
 	Room *findRoom(const Common::String &name) const;
 	Zoom *findZoom(const Common::String &name) const;
+	Node *findNode(const Room *room, const Common::String &name) const;
 
 	Node *getCurrentNode() const { return _currentNode; }
 	Room *getCurrentRoom() const;
