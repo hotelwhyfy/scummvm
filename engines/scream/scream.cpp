@@ -160,7 +160,8 @@ void ScreamEngine::handleInventoryInput() {
 	_dropWhenIdle = true;
 }
 
-void ScreamEngine::handleEvents(Common::Event &e) {
+void ScreamEngine::handleEvents() {
+	Common::Event e;
 	while (g_system->getEventManager()->pollEvent(e)) {
 
 		if (_script->isBusy())
@@ -267,9 +268,6 @@ Common::Error ScreamEngine::run() {
 	if (saveSlot != -1)
 		(void)loadGameState(saveSlot);
 
-	Common::Event e;
-
-	// _world.switchTo(kScRoom, "garden");
 	_script->callFunction(_menu.getNewGame1());
 
 	debug(1, "openGL error: %d", glGetError());
@@ -277,7 +275,7 @@ Common::Error ScreamEngine::run() {
 	Graphics::FrameLimiter limiter(g_system, 60);
 
 	while (!shouldQuit()) {
-		handleEvents(e);
+		handleEvents();
 
 		_script->update();
 

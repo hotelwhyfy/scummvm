@@ -71,14 +71,14 @@ private:
 
 	void drawViews();
 	void captureView();
+	void freeTextures();
 
+	void handleEvents();
 	void handleSceneInput();
 	void handleInventoryInput();
 
 	void updateCursor(int hoverCursor, bool glow);
 	void updateCamera(const Common::Point &mouse);
-	void handleEvents(Common::Event &e);
-	void freeTextures();
 
 protected:
 	// Engine APIs
@@ -125,16 +125,14 @@ public:
 	}
 
 	bool hasFeature(EngineFeature f) const override {
-		return (f == kSupportsLoadingDuringRuntime) ||
-			   (f == kSupportsSavingDuringRuntime) ||
-			   (f == kSupportsReturnToLauncher);
+		return (f == kSupportsReturnToLauncher);
 	};
 
 	bool canLoadGameStateCurrently(Common::U32String *msg = nullptr) override {
-		return true;
+		return false;
 	}
 	bool canSaveGameStateCurrently(Common::U32String *msg = nullptr) override {
-		return true;
+		return false;
 	}
 
 	/**
