@@ -575,11 +575,16 @@ int Script::scSet(lua_State *L) {
 
 int Script::scInit(lua_State *L) {
 	describeFunction(L, "scInit");
+	Res *scream = new Res();
+	if (!scream->open(Common::Path(kScreamResFile))) {
+		error("Could not open resource file \"%s\"", kScreamResFile);
+	}
 	Res *res = new Res();
 	const Common::String &resFile = g_engine->_settings._resFile;
 	if (!res->open((Common::Path)resFile)) {
 		error("Could not open resource file \"%s\"", resFile.c_str());
 	}
+	SearchMan.add(kScreamResFile, scream);
 	SearchMan.add(resFile, res);
 	g_engine->_world.scCreate(kScZoom, kBlackZoom);
 	g_engine->_world.scTexture(kScZoom, kBlackImage);
