@@ -61,8 +61,9 @@ void SceneView::loadZoom(Gfx *gfx, const Zoom *zoom) {
 }
 
 void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
-	if (_loadedNode != world.getCurrentNode())
-		loadNode(gfx, world.getCurrentNode());
+	const Node *currentNode = world.getCurrentNode();
+	if (currentNode && _loadedNode != currentNode)
+		loadNode(gfx, currentNode);
 
 	const Zoom *currentZoom = world.getCurrentZoom();
 	if (currentZoom && _loadedZoom != currentZoom)
@@ -70,12 +71,14 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 
 	gfx->clear();
 
-	if (!world.getCurrentZoom()) {
+	if (currentNode && !currentZoom) {
 		gfx->setup3D(camera.getHeading(), camera.getPitch(), camera.getFov());
 		gfx->drawCube(_faceTextures);
-		gfx->setup2D();
-	} else {
-		gfx->setup2D();
+	}
+
+	gfx->setup2D();
+
+	if (currentZoom) {
 		gfx->drawTexture2D(_zoomTexture, 0, kViewportY, kScreenWidth, kViewportHeight);
 	}
 }

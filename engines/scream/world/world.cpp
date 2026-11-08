@@ -143,9 +143,9 @@ Zoom *World::findZoom(const Common::String &name) const {
 }
 
 Room *World::getCurrentRoom() const {
-	if (!_currentNode)
-		error("World::getCurrentRoom: no current node");
-	return _currentNode->getParentRoom();
+	if (!_currentRoom)
+		error("World::getCurrentRoom: no current room");
+	return _currentRoom;
 }
 
 void World::switchTo(int kind, const Common::String &name) {
@@ -198,6 +198,7 @@ void World::switchRoom(const Common::String &name) {
 		error("switch room: room %s has no last visited node", name.c_str());
 	setCurrentNode(node);
 	_boundRoom = room;
+	_currentRoom = room;
 }
 
 void World::switchZoom(const Common::String &name) {
@@ -267,6 +268,7 @@ void World::scCreate(int kind, const char *name) {
 		Room *room = new Room(name);
 		_rooms.push_back(room);
 		_boundRoom = room;
+		_currentRoom = room;
 		break;
 	}
 	case kScScript: {

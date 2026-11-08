@@ -27,6 +27,12 @@
 namespace Scream {
 
 class Menu {
+public:
+	void scMenuSet(const char *logoFile, const char *backFile, const char *newFile, const char *setupFile, const char *loadFile, const char *saveFile, const char *quitFile, const char *newGame1, const char *newGame2);
+	void scMenuSetEx(int key, const char *value);
+	void scMenuSetSaveFunc();
+	const Common::String &getNewGame1() const { return _newGame1; }
+
 private:
 	bool _showMenu = false;
 	bool _useSaveFunc = false;
@@ -45,11 +51,6 @@ private:
 	Common::String _introHandler;
 	Common::String _outroHandler;
 	Common::String _image;
-
-public:
-	void scMenuSet(const char *logoFile, const char *backFile, const char *newFile, const char *setupFile, const char *loadFile, const char *saveFile, const char *quitFile, const char *newGame1, const char *newGame2);
-	void scMenuSetEx(int key, const char *value);
-	void scMenuSetSaveFunc();
 };
 
 } // end of namespace Scream

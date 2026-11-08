@@ -206,7 +206,7 @@ void ScreamEngine::drawViews() {
 }
 
 void ScreamEngine::captureView() {
-	if (!_gfx || !_world.getCurrentNode())
+	if (!_gfx)
 		return;
 	drawViews();
 	_crossfade.capture(_gfx);
@@ -269,7 +269,8 @@ Common::Error ScreamEngine::run() {
 
 	Common::Event e;
 
-	_world.switchTo(kScRoom, "garden");
+	// _world.switchTo(kScRoom, "garden");
+	_script->callFunction(_menu.getNewGame1());
 
 	debug(1, "openGL error: %d", glGetError());
 
