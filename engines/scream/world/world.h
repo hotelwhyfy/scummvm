@@ -61,15 +61,14 @@ public:
 	void setBoundRoom(Room *room) { _boundRoom = room; }
 	void setBoundItem(Item *item) { _boundItem = item; }
 	void setBoundObject(Object *object) { _boundObject = object; }
-	void setCurrentNode(Node *node) { _currentNode = node; }
 
+	void switchTo(int kind, const Common::String &name);
 	void scCreate(int kind, const char *name);
 	void scInventoryReaction(Item *boundItem, Item *otherItem, const Action &action);
 	void scBegin(int level);
 	void scEnd(int level);
 	void scTexture(int face, const char *file);
 	void scPlace(int x, int y, int w, int h, int face);
-	void switchTo(int kind, const Common::String &name);
 
 private:
 	void switchNode(const Common::String &name);

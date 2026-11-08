@@ -66,26 +66,50 @@ World::~World() {
 
 Track *World::boundTrack() {
 	if (!_boundTrack)
-		error("GetBind: no bound track");
+		error("World::boundTrack: no bound track");
 	return _boundTrack;
 }
 
 Dialogue *World::boundDialogue() {
 	if (!_boundDialogue)
-		error("GetBind: no bound dialogue");
+		error("World::boundDialogue: no bound dialogue");
 	return _boundDialogue;
 }
 
 Choice *World::boundChoice() {
 	if (!_boundChoice)
-		error("GetBind: no bound choice");
+		error("World::boundChoice: no bound choice");
 	return _boundChoice;
 }
 
 Item *World::boundItem() {
 	if (!_boundItem)
-		error("GetBind: no bound item"); // engine only warns
+		error("World::boundItem: no bound item"); // engine only warns
 	return _boundItem;
+}
+
+Room *World::boundRoom() {
+	if (!_boundRoom)
+		error("World::boundRoom: no bound room");
+	return _boundRoom;
+}
+
+Node *World::boundNode() {
+	if (!_boundNode)
+		error("World::boundNode: no bound node");
+	return _boundNode;
+}
+
+Zoom *World::boundZoom() {
+	if (!_boundZoom)
+		error("World::boundZoom: no bound zoom");
+	return _boundZoom;
+}
+
+Object *World::boundObject() {
+	if (!_boundObject)
+		error("World::boundObject: no bound object");
+	return _boundObject;
 }
 
 Item *World::findItem(const Common::String &name) const {
@@ -95,30 +119,6 @@ Item *World::findItem(const Common::String &name) const {
 		}
 	}
 	return nullptr;
-}
-
-Room *World::boundRoom() {
-	if (!_boundRoom)
-		error("GetBind: no bound room");
-	return _boundRoom;
-}
-
-Node *World::boundNode() {
-	if (!_boundNode)
-		error("GetBind: no bound node");
-	return _boundNode;
-}
-
-Zoom *World::boundZoom() {
-	if (!_boundZoom)
-		error("GetBind: no bound zoom");
-	return _boundZoom;
-}
-
-Object *World::boundObject() {
-	if (!_boundObject)
-		error("GetBind: no bound object");
-	return _boundObject;
 }
 
 Node *World::findNode(const Room *room, const Common::String &name) const {
@@ -170,90 +170,6 @@ void World::switchTo(int kind, const Common::String &name) {
 		warning("World::switchTo: not implemented for kind %d", kind);
 		break;
 	}
-}
-
-void World::zoomOut() {
-	getCurrentRoom()->popZoom();
-	Zoom *topZoom = getCurrentRoom()->getTopZoom();
-	if (topZoom)
-		_boundZoom = topZoom;
-}
-
-void World::switchNode(const Common::String &name) {
-	Room *room = getCurrentRoom();
-	Node *node = findNode(room, name);
-	if (!node)
-		error("switch node: node %s not found", name.c_str());
-	room->setLastVisitedNode(node);
-	setCurrentNode(node);
-	_boundNode = node;
-}
-
-void World::switchRoom(const Common::String &name) {
-	Room *room = findRoom(name);
-	if (!room)
-		error("switch room: room %s not found", name.c_str());
-	Node *node = room->getLastVisitedNode();
-	if (!node)
-		error("switch room: room %s has no last visited node", name.c_str());
-	setCurrentNode(node);
-	_boundRoom = room;
-	_currentRoom = room;
-}
-
-void World::switchZoom(const Common::String &name) {
-	Zoom *zoom = findZoom(name);
-	if (!zoom)
-		error("switch zoom: zoom %s not found", name.c_str());
-	Room *room = getCurrentRoom();
-	room->pushZoom(zoom);
-	_boundZoom = zoom;
-}
-
-void World::scPlace(int x, int y, int w, int h, int face) {
-	Object *object = boundObject();
-	object->setRect(x, y, w, h, face);
-	if (_currentLevel == kScZoom) {
-		boundZoom()->addObject(object);
-	} else {
-		boundNode()->addObject(object);
-	}
-}
-
-void World::scTexture(int face, const char *file) {
-	if (face == kScZoom) {
-		boundZoom()->setImageFile(file);
-	} else {
-		boundNode()->setFace(face, file);
-	}
-}
-
-void World::scEnd(int level) {
-	if (_currentLevel != level) {
-		warning("scEnd: invalid call %d when current level is %d", level, _currentLevel);
-		return;
-	}
-	_currentLevel = parentLevel(level);
-}
-
-void World::scBegin(int level) {
-	if (_currentLevel != parentLevel(level)) {
-		warning("scBegin: invalid level %d when current level is %d", level, _currentLevel);
-		return;
-	}
-	_currentLevel = level;
-	if (level == kScNode) {
-		boundNode()->setParentRoom(boundRoom()); // add node to currently bound room
-		if (!boundRoom()->getLastVisitedNode())
-			boundRoom()->setLastVisitedNode(boundNode()); // first visit to a room starts at the first node
-	}
-}
-
-void World::scInventoryReaction(Item *boundItem, Item *otherItem, const Action &action) {
-	boundItem->addReaction(otherItem, action);
-	if (otherItem->getReactionCount() >= kScMaxReactions)
-		error("Too many reactions!");
-	otherItem->addReaction(boundItem, action);
 }
 
 void World::scCreate(int kind, const char *name) {
@@ -309,9 +225,93 @@ void World::scCreate(int kind, const char *name) {
 	}
 
 	default:
-		warning("scCreate kind not implemented: %d", kind);
+		warning("World::scCreate: kind not implemented: %d", kind);
 		break;
 	}
+}
+
+void World::scInventoryReaction(Item *boundItem, Item *otherItem, const Action &action) {
+	boundItem->addReaction(otherItem, action);
+	if (otherItem->getReactionCount() >= kScMaxReactions)
+		error("World::scInventoryReaction: Too many reactions!");
+	otherItem->addReaction(boundItem, action);
+}
+
+void World::scBegin(int level) {
+	if (_currentLevel != parentLevel(level)) {
+		warning("World::scBegin: invalid level %d when current level is %d", level, _currentLevel);
+		return;
+	}
+	_currentLevel = level;
+	if (level == kScNode) {
+		boundNode()->setParentRoom(boundRoom()); // add node to currently bound room
+		if (!boundRoom()->getLastVisitedNode())
+			boundRoom()->setLastVisitedNode(boundNode()); // first visit to a room starts at the first node
+	}
+}
+
+void World::scEnd(int level) {
+	if (_currentLevel != level) {
+		warning("World::scEnd: invalid call %d when current level is %d", level, _currentLevel);
+		return;
+	}
+	_currentLevel = parentLevel(level);
+}
+
+void World::scTexture(int face, const char *file) {
+	if (face == kScZoom) {
+		boundZoom()->setImageFile(file);
+	} else {
+		boundNode()->setFace(face, file);
+	}
+}
+
+void World::scPlace(int x, int y, int w, int h, int face) {
+	Object *object = boundObject();
+	object->setRect(x, y, w, h, face);
+	if (_currentLevel == kScZoom) {
+		boundZoom()->addObject(object);
+	} else {
+		boundNode()->addObject(object);
+	}
+}
+
+void World::switchNode(const Common::String &name) {
+	Room *room = getCurrentRoom();
+	Node *node = findNode(room, name);
+	if (!node)
+		error("World::switchNode: node %s not found", name.c_str());
+	room->setLastVisitedNode(node);
+	_currentNode = node;
+	_boundNode = node;
+}
+
+void World::switchRoom(const Common::String &name) {
+	Room *room = findRoom(name);
+	if (!room)
+		error("World::switchRoom: room %s not found", name.c_str());
+	Node *node = room->getLastVisitedNode();
+	if (!node)
+		error("World::switchRoom: room %s has no last visited node", name.c_str());
+	_currentRoom = room;
+	_currentNode = node;
+	_boundRoom = room;
+}
+
+void World::switchZoom(const Common::String &name) {
+	Zoom *zoom = findZoom(name);
+	if (!zoom)
+		error("World::switchZoom: zoom %s not found", name.c_str());
+	Room *room = getCurrentRoom();
+	room->pushZoom(zoom);
+	_boundZoom = zoom;
+}
+
+void World::zoomOut() {
+	getCurrentRoom()->popZoom();
+	Zoom *topZoom = getCurrentRoom()->getTopZoom();
+	if (topZoom)
+		_boundZoom = topZoom;
 }
 
 } // end of namespace Scream
