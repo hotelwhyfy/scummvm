@@ -46,9 +46,12 @@ private:
 	GLuint _faceTextures[kNumFaces] = {};
 	GLuint _maskTextures[kNumFaces] = {};
 	GLuint _backdropTextures[kNumFaces] = {};
+	GLuint _horizonTextures[kNumFaces] = {};
 	GLuint _zoomTexture = 0;
 	GLuint _whiteTexture = 0;
+	GLuint _transparentTexture = 0;
 	GLuint _rainTexture = 0;
+	GLuint _gradientTexture = 0;
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
 	void loadNode(Gfx *gfx, const Node *node);

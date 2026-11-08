@@ -45,6 +45,7 @@ static const float kViewportAspect = (float)kScreenWidth / kViewportHeight;
 static const char *const kBlackImage = "black.jpg";
 static const char *const kBlackZoom = "black";
 static const char *const kRainImage = "rain_def.tga";
+static const char *const kGradientImage = "gradient.tga";
 static const char *const kScreamResFile = "scream.res";
 
 enum FaceKey {

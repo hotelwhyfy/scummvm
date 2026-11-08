@@ -46,11 +46,16 @@ void SceneView::loadNode(Gfx *gfx, const Node *node) {
 
 void SceneView::loadBackdrop(Gfx *gfx) {
 	_whiteTexture = loadSolid(gfx, 255, 255, 255);
+	_transparentTexture = loadSolid(gfx, 0, 0, 0, 0);
 	_rainTexture = loadTexture(gfx, kRainImage);
+	_gradientTexture = loadTexture(gfx, kGradientImage);
 	for (uint i = 0; i < kNumFaces; ++i) {
 		_backdropTextures[i] = _whiteTexture;
+		_horizonTextures[i] = _gradientTexture;
 	}
 	_backdropTextures[kScDown - 1] = _rainTexture;
+	_horizonTextures[kScUp - 1] = _transparentTexture;
+	_horizonTextures[kScDown - 1] = _whiteTexture;
 }
 
 void SceneView::loadZoom(Gfx *gfx, const Zoom *zoom) {
@@ -80,6 +85,8 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 		if (world.getAtmosphere().sky) {
 			gfx->setBlend(kBlendAdditive);
 			gfx->drawCube(_backdropTextures, Color(0.9f, 0.9f, 0.9f));
+			gfx->setBlend(kBlendNormal);
+			gfx->drawCube(_horizonTextures, Color(0.55f, 0.65f, 0.8f));
 			gfx->setBlend(kBlendMask);
 			gfx->drawCube(_maskTextures);
 			gfx->setBlend(kBlendMultiply);
@@ -112,9 +119,13 @@ void SceneView::freeTextures(Gfx *gfx) {
 	gfx->deleteTexture(_zoomTexture);
 	gfx->deleteTexture(_whiteTexture);
 	gfx->deleteTexture(_rainTexture);
+	gfx->deleteTexture(_gradientTexture);
+	gfx->deleteTexture(_transparentTexture);
 	_zoomTexture = 0;
 	_whiteTexture = 0;
 	_rainTexture = 0;
+	_gradientTexture = 0;
+	_transparentTexture = 0;
 }
 
 Object *SceneView::findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const {

@@ -35,13 +35,13 @@
 
 namespace Scream {
 
-GLuint loadSolid(Gfx *gfx, uint8 r, uint8 g, uint8 b) {
+GLuint loadSolid(Gfx *gfx, uint8 r, uint8 g, uint8 b, uint8 a) {
 	const Graphics::PixelFormat &pixelFormat = gfx->getPixelFormat();
 	const int16 w = 64;
 	const int16 h = 64;
 	Graphics::Surface solid;
 	solid.create(w, h, pixelFormat);
-	solid.fillRect(Common::Rect(w, h), pixelFormat.ARGBToColor(255, r, g, b));
+	solid.fillRect(Common::Rect(w, h), pixelFormat.ARGBToColor(a, r, g, b));
 	GLuint texture = gfx->createTexture(&solid);
 	solid.free();
 	return texture;
