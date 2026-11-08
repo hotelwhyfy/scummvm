@@ -35,24 +35,29 @@
 
 namespace Scream {
 
-static GLuint loadBlack(Gfx *gfx) {
+GLuint loadSolid(Gfx *gfx, uint8 r, uint8 g, uint8 b) {
 	const Graphics::PixelFormat &pixelFormat = gfx->getPixelFormat();
 	const int16 w = 64;
 	const int16 h = 64;
-	Graphics::Surface black;
-	black.create(w, h, pixelFormat);
-	black.fillRect(Common::Rect(w, h), pixelFormat.ARGBToColor(255, 0, 0, 0));
-	GLuint texture = gfx->createTexture(&black);
-	black.free();
+	Graphics::Surface solid;
+	solid.create(w, h, pixelFormat);
+	solid.fillRect(Common::Rect(w, h), pixelFormat.ARGBToColor(255, r, g, b));
+	GLuint texture = gfx->createTexture(&solid);
+	solid.free();
 	return texture;
 }
 
 GLuint loadTexture(Gfx *gfx, const Common::String &fileName) {
 	if (fileName.equalsIgnoreCase(kBlackImage))
-		return loadBlack(gfx);
+		return loadSolid(gfx, 0, 0, 0);
+
+	Common::Path filePath(fileName);
+
+	if (!Common::File::exists(filePath))
+		return loadSolid(gfx, 255, 255, 255);
 
 	Common::File file;
-	if (!file.open(Common::Path(fileName)))
+	if (!file.open(filePath))
 		error("Could not open file: %s", fileName.c_str());
 
 	const Graphics::PixelFormat &pixelFormat = gfx->getPixelFormat();

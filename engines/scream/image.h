@@ -30,6 +30,7 @@ namespace Scream {
 class Gfx;
 
 GLuint loadTexture(Gfx *gfx, const Common::String &fileName);
+GLuint loadSolid(Gfx *gfx, uint8 r, uint8 g, uint8 b);
 
 } // end of namespace Scream
 

@@ -67,4 +67,10 @@ const Common::String &Node::getFace(int face) const {
 	return emptyString;
 }
 
+Common::String Node::getMask(int face) const {
+	const Common::String &image = getFace(face);
+	size_t dotpos = image.findFirstOf('.');
+	return image.substr(0, dotpos) + "_msk.tga";
+}
+
 } // end of namespace Scream

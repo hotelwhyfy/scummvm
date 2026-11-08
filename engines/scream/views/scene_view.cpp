@@ -34,22 +34,23 @@ void SceneView::loadNode(Gfx *gfx, const Node *node) {
 	if (!node)
 		error("SceneView::loadNode: node not provided");
 
-	for (GLuint faceTexture : _faceTextures)
-		gfx->deleteTexture(faceTexture);
+	freeNodeTextures(gfx);
 
-	const char *faceFiles[kNumFaces] = {
-		node->getFace(kScFront).c_str(),
-		node->getFace(kScBack).c_str(),
-		node->getFace(kScLeft).c_str(),
-		node->getFace(kScRight).c_str(),
-		node->getFace(kScUp).c_str(),
-		node->getFace(kScDown).c_str(),
-	};
-
-	for (uint i = 0; i < kNumFaces; ++i)
-		_faceTextures[i] = loadTexture(gfx, faceFiles[i]);
+	for (uint i = 0; i < kNumFaces; ++i) {
+		_faceTextures[i] = loadTexture(gfx, node->getFace(i + 1).c_str());
+		_maskTextures[i] = loadTexture(gfx, node->getMask(i + 1).c_str());
+	}
 
 	_loadedNode = node;
+}
+
+void SceneView::loadBackdrop(Gfx *gfx) {
+	_whiteTexture = loadSolid(gfx, 255, 255, 255);
+	_rainTexture = loadTexture(gfx, kRainImage);
+	for (uint i = 0; i < kNumFaces; ++i) {
+		_skyTextures[i] = _whiteTexture;
+	}
+	_skyTextures[kScDown - 1] = _rainTexture;
 }
 
 void SceneView::loadZoom(Gfx *gfx, const Zoom *zoom) {
@@ -69,11 +70,20 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 	if (currentZoom && _loadedZoom != currentZoom)
 		loadZoom(gfx, currentZoom);
 
+	if (_whiteTexture == 0)
+		loadBackdrop(gfx);
+
 	gfx->clear();
 
 	if (currentNode && !currentZoom) {
 		gfx->setup3D(camera.getHeading(), camera.getPitch(), camera.getFov());
+		gfx->setBlend(kBlendAdditive);
+		gfx->drawCube(_skyTextures, Color(0.9f, 0.9f, 0.9f));
+		gfx->setBlend(kBlendMask);
+		gfx->drawCube(_maskTextures);
+		gfx->setBlend(kBlendMultiply);
 		gfx->drawCube(_faceTextures);
+		gfx->setBlend(kBlendNormal);
 	}
 
 	gfx->setup2D();
@@ -88,11 +98,21 @@ void SceneView::invalidate() {
 	_loadedZoom = nullptr;
 }
 
-void SceneView::freeTextures(Gfx *gfx) {
+void SceneView::freeNodeTextures(Gfx *gfx) {
 	for (GLuint texture : _faceTextures)
 		gfx->deleteTexture(texture);
+	for (GLuint texture : _maskTextures)
+		gfx->deleteTexture(texture);
+}
 
+void SceneView::freeTextures(Gfx *gfx) {
+	freeNodeTextures(gfx);
 	gfx->deleteTexture(_zoomTexture);
+	gfx->deleteTexture(_whiteTexture);
+	gfx->deleteTexture(_rainTexture);
+	_zoomTexture = 0;
+	_whiteTexture = 0;
+	_rainTexture = 0;
 }
 
 Object *SceneView::findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const {

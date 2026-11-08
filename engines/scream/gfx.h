@@ -25,10 +25,21 @@
 #include "graphics/opengl/system_headers.h"
 #include "graphics/pixelformat.h"
 #include "graphics/surface.h"
+#include "math/vector3d.h"
 
 #include "scream/constants.h"
 
 namespace Scream {
+
+enum BlendMode {
+	kBlendNormal = 1,
+	kBlendAdditive = 2,
+	kBlendAdditiveAlpha = 3,
+	kBlendMask = 4,
+	kBlendMultiply = 5,
+};
+
+typedef Math::Vector3d Color;
 
 class Gfx {
 public:
@@ -37,15 +48,15 @@ public:
 	void deleteTexture(GLuint texture);
 	void clear();
 	void setup3D(float heading, float pitch, float fov);
-	void drawCube(const GLuint textures[kNumFaces]);
+	void drawCube(const GLuint textures[kNumFaces], const Color &color = Color(1.0f, 1.0f, 1.0f));
 	void setup2D();
 	void drawTexture2D(GLuint texture, int x, int y, int w, int h,
 					   float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f,
 					   float alpha = 1.0f);
 	const Graphics::PixelFormat &getPixelFormat() const { return _pixelFormat; }
 	void tint(float r, float g, float b);
-	void setAdditiveBlend(bool additive);
 	void copyScreen(GLuint &texture);
+	void setBlend(BlendMode type);
 
 private:
 	const Graphics::PixelFormat _pixelFormat = Graphics::PixelFormat::createFormatRGBA32();

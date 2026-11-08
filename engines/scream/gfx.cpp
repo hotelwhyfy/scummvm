@@ -128,11 +128,25 @@ void Gfx::tint(float r, float g, float b) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Gfx::setAdditiveBlend(bool additive) {
-	if (additive)
+void Gfx::setBlend(BlendMode type) {
+	switch (type) {
+	case kBlendAdditive:
+		glBlendFunc(GL_ONE, GL_ONE);
+		break;
+	case kBlendAdditiveAlpha:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	else
+		break;
+	case kBlendMask:
+		glBlendFunc(GL_SRC_COLOR, GL_ONE);
+		break;
+	case kBlendMultiply:
+		glBlendFunc(GL_DST_COLOR, GL_ZERO);
+		break;
+	case kBlendNormal:
+	default:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	}
 }
 
 void Gfx::deleteTexture(GLuint texture) {
@@ -171,9 +185,9 @@ void Gfx::setup3D(float heading, float pitch, float fov) {
 	glRotatef(heading, 0.0f, 1.0f, 0.0f);
 }
 
-void Gfx::drawCube(const GLuint textures[kNumFaces]) {
+void Gfx::drawCube(const GLuint textures[kNumFaces], const Color &color) {
 	glEnable(GL_TEXTURE_2D);
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3fv(color.getData());
 
 	for (uint face = 0; face < kNumFaces; ++face) {
 		glBindTexture(GL_TEXTURE_2D, textures[face]);

@@ -40,10 +40,10 @@ void Cursor::draw(Gfx *gfx, const Common::Point &mouse) const {
 	int y = kScreenHeight - (mouse.y - _currentHotspot.y) - kCursorSize;
 	gfx->drawTexture2D(_currentTexture, x, y, kCursorSize, kCursorSize);
 	if (_glow) {
-		gfx->setAdditiveBlend(true);
+		gfx->setBlend(kBlendAdditiveAlpha);
 		gfx->drawTexture2D(_currentTexture, x, y, kCursorSize, kCursorSize);
 		gfx->drawTexture2D(_currentTexture, x - 1, y - 1, kCursorSize + 2, kCursorSize + 2);
-		gfx->setAdditiveBlend(false);
+		gfx->setBlend(kBlendNormal);
 	}
 }
 

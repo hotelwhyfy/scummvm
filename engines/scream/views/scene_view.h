@@ -44,11 +44,17 @@ public:
 
 private:
 	GLuint _faceTextures[kNumFaces] = {};
+	GLuint _maskTextures[kNumFaces] = {};
+	GLuint _skyTextures[kNumFaces] = {};
 	GLuint _zoomTexture = 0;
+	GLuint _whiteTexture = 0;
+	GLuint _rainTexture = 0;
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
 	void loadNode(Gfx *gfx, const Node *node);
 	void loadZoom(Gfx *gfx, const Zoom *zoom);
+	void loadBackdrop(Gfx *gfx);
+	void freeNodeTextures(Gfx *gfx);
 };
 
 } // end of namespace Scream

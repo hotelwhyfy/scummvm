@@ -42,6 +42,7 @@ public:
 	Object *findObjectAt(int face, const Common::Point &p) const;
 	const Common::String &getName() const { return _name; }
 	Room *getParentRoom() const { return _parentRoom; }
+	Common::String getMask(int face) const;
 
 private:
 	Common::String _name;
