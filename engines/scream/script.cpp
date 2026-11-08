@@ -65,7 +65,7 @@ static void describeFunction(lua_State *L, const char *name) {
 		}
 	}
 	out += " )";
-	debug(1, "%s", out.c_str());
+	debug(2, "%s", out.c_str());
 }
 
 bool Script::isWaiting() const {
@@ -80,55 +80,55 @@ void Script::update() {
 }
 
 int Script::scHints(lua_State *L) {
-	// describeFunction(L, "scHints");
+	describeFunction(L, "scHints");
 	warning("scHints not implemented");
 	return 0;
 }
 
 int Script::scJournalClear(lua_State *L) {
-	// describeFunction(L, "scJournalClear");
+	describeFunction(L, "scJournalClear");
 	warning("scJournalClear not implemented");
 	return 0;
 }
 
 int Script::scLock(lua_State *L) {
-	// describeFunction(L, "scLock");
+	describeFunction(L, "scLock");
 	warning("scLock not implemented");
 	return 0;
 }
 
 int Script::scUnlock(lua_State *L) {
-	// describeFunction(L, "scUnlock");
+	describeFunction(L, "scUnlock");
 	warning("scUnlock not implemented");
 	return 0;
 }
 
 int Script::scSetAmbience(lua_State *L) {
-	// describeFunction(L, "scSetAmbience");
+	describeFunction(L, "scSetAmbience");
 	warning("scSetAmbience not implemented");
 	return 0;
 }
 
 int Script::scTimerCreateGlobal(lua_State *L) {
-	// describeFunction(L, "scTimerCreateGlobal");
+	describeFunction(L, "scTimerCreateGlobal");
 	warning("scTimerCreateGlobal not implemented");
 	return 0;
 }
 
 int Script::scTrackPlay(lua_State *L) {
-	// describeFunction(L, "scTrackPlay");
+	describeFunction(L, "scTrackPlay");
 	warning("scTrackPlay not implemented");
 	return 0;
 }
 
 int Script::scTrackStop(lua_State *L) {
-	// describeFunction(L, "scTrackStop");
+	describeFunction(L, "scTrackStop");
 	warning("scTrackStop not implemented");
 	return 0;
 }
 
 int Script::scTextureUpdate(lua_State *L) {
-	// describeFunction(L, "scTextureUpdate");
+	describeFunction(L, "scTextureUpdate");
 	int face = lua_tonumber(L, 1);
 	const char *file = getString(L, 2);
 	int visible = lua_tonumber(L, 3);
@@ -139,26 +139,26 @@ int Script::scTextureUpdate(lua_State *L) {
 }
 
 int Script::scInventoryAdd(lua_State *L) {
-	// describeFunction(L, "scInventoryAdd");
+	describeFunction(L, "scInventoryAdd");
 	g_engine->_inventory.add(g_engine->_world.boundItem());
 	return 0;
 }
 
 int Script::scInventoryRemove(lua_State *L) {
-	// describeFunction(L, "scInventoryRemove");
+	describeFunction(L, "scInventoryRemove");
 	g_engine->_inventory.remove(g_engine->_world.boundItem());
 	return 0;
 }
 
 int Script::scFeedback(lua_State *L) {
-	// describeFunction(L, "scFeedback");
+	describeFunction(L, "scFeedback");
 	const char *text = getString(L, 1);
 	g_engine->showFeedback(text);
 	return 0;
 }
 
 int Script::scFeedbackEx(lua_State *L) {
-	// describeFunction(L, "scFeedbackEx");
+	describeFunction(L, "scFeedbackEx");
 	const char *text = getString(L, 1);
 	g_engine->showFeedback(text);
 	warning("scFeedbackEx: audio not implemented");
@@ -166,37 +166,37 @@ int Script::scFeedbackEx(lua_State *L) {
 }
 
 int Script::scFXStop(lua_State *L) {
-	// describeFunction(L, "scFXStop");
+	describeFunction(L, "scFXStop");
 	warning("scFXStop: not implemented");
 	return 0;
 }
 
 int Script::scCutscene(lua_State *L) {
-	// describeFunction(L, "scCutscene");
+	describeFunction(L, "scCutscene");
 	warning("scCutscene: not implemented");
 	return 0;
 }
 
 int Script::scTrackFadeOut(lua_State *L) {
-	// describeFunction(L, "scTrackFadeOut");
+	describeFunction(L, "scTrackFadeOut");
 	warning("scTrackFadeOut: not implemented");
 	return 0;
 }
 
 int Script::scFXSet(lua_State *L) {
-	// describeFunction(L, "scFXSet");
+	describeFunction(L, "scFXSet");
 	warning("scFXSet: not implemented");
 	return 0;
 }
 
 int Script::scFXPlay(lua_State *L) {
-	// describeFunction(L, "scFXPlay");
+	describeFunction(L, "scFXPlay");
 	warning("scFXPlay: not implemented");
 	return 0;
 }
 
 int Script::scFXPlayEx(lua_State *L) {
-	// describeFunction(L, "scFXPlayEx");
+	describeFunction(L, "scFXPlayEx");
 	// const char *channel = getString(L, 1);
 	// const char *file = getString(L, 2);
 	// bool wait = lua_toboolean(L, 3); // blocks until Esc is pressed
@@ -206,14 +206,14 @@ int Script::scFXPlayEx(lua_State *L) {
 }
 
 int Script::scSleep(lua_State *L) {
-	// describeFunction(L, "scSleep");
+	describeFunction(L, "scSleep");
 	int seconds = lua_tonumber(L, 1);
 	g_engine->_script->_thread.sleepFor(seconds);
 	return lua_yield(L, 0);
 }
 
 int Script::scLookAt(lua_State *L) {
-	// describeFunction(L, "scLookAt");
+	describeFunction(L, "scLookAt");
 	int face = lua_tonumber(L, 1);
 	int transition = lua_tonumber(L, 2);
 	switch (transition) {
@@ -230,7 +230,7 @@ int Script::scLookAt(lua_State *L) {
 }
 
 int Script::scSwitch(lua_State *L) {
-	// describeFunction(L, "scSwitch");
+	describeFunction(L, "scSwitch");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
 	g_engine->switchView(kind, name);
@@ -238,7 +238,7 @@ int Script::scSwitch(lua_State *L) {
 }
 
 int Script::scBind(lua_State *L) {
-	// describeFunction(L, "scBind");
+	describeFunction(L, "scBind");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
 	switch (kind) {
@@ -264,7 +264,7 @@ int Script::scBind(lua_State *L) {
 }
 
 int Script::scSetLastVisited(lua_State *L) {
-	// describeFunction(L, "scSetLastVisited");
+	describeFunction(L, "scSetLastVisited");
 	const char *nodeName = getString(L, 1);
 	Room *boundRoom = g_engine->_world.boundRoom();
 	Node *node = g_engine->_world.findNode(boundRoom, nodeName);
@@ -275,17 +275,17 @@ int Script::scSetLastVisited(lua_State *L) {
 }
 
 int Script::scTerminate(lua_State *L) {
-	// describeFunction(L, "scTerminate");
+	describeFunction(L, "scTerminate");
 	return 0;
 }
 
 int Script::scRun(lua_State *L) {
-	// describeFunction(L, "scRun");
+	describeFunction(L, "scRun");
 	return 0;
 }
 
 int Script::scAudio(lua_State *L) {
-	// describeFunction(L, "scAudio");
+	describeFunction(L, "scAudio");
 	int key = lua_tonumber(L, 1);
 	const char *file = getString(L, 2);
 	g_engine->_world.boundZoom()->setAudioFile(key, file);
@@ -293,7 +293,7 @@ int Script::scAudio(lua_State *L) {
 }
 
 int Script::scReaction(lua_State *L) {
-	// describeFunction(L, "scReaction");
+	describeFunction(L, "scReaction");
 	const char *itemName = getString(L, 1);
 	int kind = lua_tonumber(L, 2);
 	const char *arg1 = getString(L, 3);
@@ -306,21 +306,21 @@ int Script::scReaction(lua_State *L) {
 }
 
 int Script::scEnd(lua_State *L) {
-	// describeFunction(L, "scEnd");
+	describeFunction(L, "scEnd");
 	int level = lua_tonumber(L, 1);
 	g_engine->_world.scEnd(level);
 	return 0;
 }
 
 int Script::scDisable(lua_State *L) {
-	// describeFunction(L, "scDisable");
+	describeFunction(L, "scDisable");
 	int key = lua_tonumber(L, 1);
 	g_engine->_script->setEnabled(key, false);
 	return 0;
 }
 
 int Script::scEnable(lua_State *L) {
-	// describeFunction(L, "scEnable");
+	describeFunction(L, "scEnable");
 	int key = lua_tonumber(L, 1);
 	g_engine->_script->setEnabled(key, true);
 	return 0;
@@ -341,7 +341,7 @@ void Script::setEnabled(int key, bool enabled) {
 }
 
 int Script::scOnClick(lua_State *L) {
-	// describeFunction(L, "scOnClick");
+	describeFunction(L, "scOnClick");
 	int kind = lua_tonumber(L, 1);
 	const char *arg1 = getString(L, 2);
 	const char *arg2 = getOptionalString(L, 3);
@@ -351,14 +351,14 @@ int Script::scOnClick(lua_State *L) {
 }
 
 int Script::scOnHover(lua_State *L) {
-	// describeFunction(L, "scOnHover");
+	describeFunction(L, "scOnHover");
 	int cursor = lua_tonumber(L, 1);
 	g_engine->_world.boundObject()->setHoverCursor(cursor);
 	return 0;
 }
 
 int Script::scPlace(lua_State *L) {
-	// describeFunction(L, "scPlace");
+	describeFunction(L, "scPlace");
 	int x = lua_tonumber(L, 1);
 	int y = lua_tonumber(L, 2);
 	int w = lua_tonumber(L, 3);
@@ -369,14 +369,14 @@ int Script::scPlace(lua_State *L) {
 }
 
 int Script::scFootstep(lua_State *L) {
-	// describeFunction(L, "scFootstep");
+	describeFunction(L, "scFootstep");
 	const char *file = getString(L, 1);
 	g_engine->_world.boundNode()->setFootstepFile(file);
 	return 0;
 }
 
 int Script::scTexture(lua_State *L) {
-	// describeFunction(L, "scTexture");
+	describeFunction(L, "scTexture");
 	int face = lua_tonumber(L, 1);
 	const char *file = getString(L, 2);
 	g_engine->_world.scTexture(face, file);
@@ -384,14 +384,14 @@ int Script::scTexture(lua_State *L) {
 }
 
 int Script::scBegin(lua_State *L) {
-	// describeFunction(L, "scBegin");
+	describeFunction(L, "scBegin");
 	int level = lua_tonumber(L, 1);
 	g_engine->_world.scBegin(level);
 	return 0;
 }
 
 int Script::scInventoryReaction(lua_State *L) {
-	// describeFunction(L, "scInventoryReaction");
+	describeFunction(L, "scInventoryReaction");
 	const char *itemName = getString(L, 1);
 	int kind = lua_tonumber(L, 2);
 	const char *arg1 = getString(L, 3);
@@ -404,7 +404,7 @@ int Script::scInventoryReaction(lua_State *L) {
 }
 
 int Script::scJournalSet(lua_State *L) {
-	// describeFunction(L, "scJournalSet");
+	describeFunction(L, "scJournalSet");
 	const char *image = getString(L, 1);
 	const char *font = getString(L, 2);
 	const char *openSound = getString(L, 3);
@@ -415,7 +415,7 @@ int Script::scJournalSet(lua_State *L) {
 }
 
 int Script::scInventorySet(lua_State *L) {
-	// describeFunction(L, "scInventorySet");
+	describeFunction(L, "scInventorySet");
 	const char *icon = getString(L, 1);
 	const char *label = getString(L, 2);
 	const char *failText = getString(L, 3);
@@ -425,7 +425,7 @@ int Script::scInventorySet(lua_State *L) {
 }
 
 int Script::scChoiceAdd(lua_State *L) {
-	// describeFunction(L, "scChoiceAdd");
+	describeFunction(L, "scChoiceAdd");
 	const char *text = getString(L, 1);
 	const char *handler = getString(L, 2);
 	g_engine->_world.boundChoice()->scChoiceAdd(text, handler);
@@ -433,7 +433,7 @@ int Script::scChoiceAdd(lua_State *L) {
 }
 
 int Script::scScriptAdd(lua_State *L) {
-	// describeFunction(L, "scScriptAdd");
+	describeFunction(L, "scScriptAdd");
 	const char *voiceFile = getString(L, 1);
 	const char *text = getString(L, 2);
 	bool hint = lua_toboolean(L, 3);
@@ -442,7 +442,7 @@ int Script::scScriptAdd(lua_State *L) {
 }
 
 int Script::scTrackSet(lua_State *L) {
-	// describeFunction(L, "scTrackSet");
+	describeFunction(L, "scTrackSet");
 	const char *front = getString(L, 1);
 	int loop = lua_tonumber(L, 2);
 	g_engine->_world.boundTrack()->scTrackSet(front, loop);
@@ -450,7 +450,7 @@ int Script::scTrackSet(lua_State *L) {
 }
 
 int Script::scTrackSetEx(lua_State *L) {
-	// describeFunction(L, "scTrackSetEx");
+	describeFunction(L, "scTrackSetEx");
 	int key = lua_tonumber(L, 1);
 	int value = lua_tonumber(L, 2);
 	g_engine->_world.boundTrack()->scTrackSetEx(key, value);
@@ -458,7 +458,7 @@ int Script::scTrackSetEx(lua_State *L) {
 }
 
 int Script::scTrackSet3D(lua_State *L) {
-	// describeFunction(L, "scTrackSet3D");
+	describeFunction(L, "scTrackSet3D");
 	const char *front = getString(L, 1);
 	const char *rearLeft = getString(L, 2);
 	const char *rearRight = getString(L, 3);
@@ -468,7 +468,7 @@ int Script::scTrackSet3D(lua_State *L) {
 }
 
 int Script::scCreate(lua_State *L) {
-	// describeFunction(L, "scCreate");
+	describeFunction(L, "scCreate");
 	int kind = lua_tonumber(L, 1);
 	const char *name = getString(L, 2);
 	g_engine->_world.scCreate(kind, name);
@@ -476,7 +476,7 @@ int Script::scCreate(lua_State *L) {
 }
 
 int Script::scHintsSet(lua_State *L) {
-	// describeFunction(L, "scHintsSet");
+	describeFunction(L, "scHintsSet");
 	int key = lua_tonumber(L, 1);
 	const char *value = getString(L, 2);
 	g_engine->_hints.scHintsSet(key, value);
@@ -484,13 +484,13 @@ int Script::scHintsSet(lua_State *L) {
 }
 
 int Script::scMenuSetSaveFunc(lua_State *L) {
-	// describeFunction(L, "scMenuSetSaveFunc");
+	describeFunction(L, "scMenuSetSaveFunc");
 	g_engine->_menu.scMenuSetSaveFunc();
 	return 0;
 }
 
 int Script::scMenuSetEx(lua_State *L) {
-	// describeFunction(L, "scMenuSetEx");
+	describeFunction(L, "scMenuSetEx");
 	int key = lua_tonumber(L, 1);
 	const char *value = getString(L, 2);
 	g_engine->_menu.scMenuSetEx(key, value);
@@ -498,7 +498,7 @@ int Script::scMenuSetEx(lua_State *L) {
 }
 
 int Script::scMenuSet(lua_State *L) {
-	// describeFunction(L, "scMenuSet");
+	describeFunction(L, "scMenuSet");
 	const char *logoFile = getString(L, 1);
 	const char *backFile = getString(L, 2);
 	const char *newFile = getString(L, 3);
@@ -513,14 +513,14 @@ int Script::scMenuSet(lua_State *L) {
 }
 
 int Script::scFont(lua_State *L) {
-	// describeFunction(L, "scFont");
+	describeFunction(L, "scFont");
 	const char *file = getString(L, 1);
 	g_engine->_font.scFont(file);
 	return 0;
 }
 
 int Script::scCursor(lua_State *L) {
-	// describeFunction(L, "scCursor");
+	describeFunction(L, "scCursor");
 	int key = lua_tonumber(L, 1);
 	const char *value = getString(L, 2);
 	g_engine->_cursor.scCursor(key, value);
@@ -558,7 +558,7 @@ int Script::scGet(lua_State *L) {
 }
 
 int Script::scSet(lua_State *L) {
-	// describeFunction(L, "scSet");
+	describeFunction(L, "scSet");
 	int key = lua_tonumber(L, 1);
 	int type = lua_type(L, 2);
 	if (type == LUA_TSTRING) {
@@ -574,7 +574,7 @@ int Script::scSet(lua_State *L) {
 }
 
 int Script::scInit(lua_State *L) {
-	// describeFunction(L, "scInit");
+	describeFunction(L, "scInit");
 	Res *res = new Res();
 	const Common::String &resFile = g_engine->_settings._resFile;
 	if (!res->open((Common::Path)resFile)) {
