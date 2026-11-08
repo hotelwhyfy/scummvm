@@ -72,6 +72,7 @@ enum SettingsKey {
 	kScTextSpeed = 1017,
 	kScMovSpeed = 1018,
 	kScHints = 1029,
+	kScSky = 1030,
 	kScLanguage = 1038,
 	kScCamSpeed = 1016,
 	kScSkySpeed = 1019,

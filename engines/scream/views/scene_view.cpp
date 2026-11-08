@@ -48,9 +48,9 @@ void SceneView::loadBackdrop(Gfx *gfx) {
 	_whiteTexture = loadSolid(gfx, 255, 255, 255);
 	_rainTexture = loadTexture(gfx, kRainImage);
 	for (uint i = 0; i < kNumFaces; ++i) {
-		_skyTextures[i] = _whiteTexture;
+		_backdropTextures[i] = _whiteTexture;
 	}
-	_skyTextures[kScDown - 1] = _rainTexture;
+	_backdropTextures[kScDown - 1] = _rainTexture;
 }
 
 void SceneView::loadZoom(Gfx *gfx, const Zoom *zoom) {
@@ -77,11 +77,13 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 
 	if (currentNode && !currentZoom) {
 		gfx->setup3D(camera.getHeading(), camera.getPitch(), camera.getFov());
-		gfx->setBlend(kBlendAdditive);
-		gfx->drawCube(_skyTextures, Color(0.9f, 0.9f, 0.9f));
-		gfx->setBlend(kBlendMask);
-		gfx->drawCube(_maskTextures);
-		gfx->setBlend(kBlendMultiply);
+		if (world.getAtmosphere().sky) {
+			gfx->setBlend(kBlendAdditive);
+			gfx->drawCube(_backdropTextures, Color(0.9f, 0.9f, 0.9f));
+			gfx->setBlend(kBlendMask);
+			gfx->drawCube(_maskTextures);
+			gfx->setBlend(kBlendMultiply);
+		}
 		gfx->drawCube(_faceTextures);
 		gfx->setBlend(kBlendNormal);
 	}

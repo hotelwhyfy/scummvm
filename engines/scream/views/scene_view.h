@@ -45,7 +45,7 @@ public:
 private:
 	GLuint _faceTextures[kNumFaces] = {};
 	GLuint _maskTextures[kNumFaces] = {};
-	GLuint _skyTextures[kNumFaces] = {};
+	GLuint _backdropTextures[kNumFaces] = {};
 	GLuint _zoomTexture = 0;
 	GLuint _whiteTexture = 0;
 	GLuint _rainTexture = 0;

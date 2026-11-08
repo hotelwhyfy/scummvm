@@ -26,6 +26,7 @@
 
 #include "scream/constants.h"
 #include "scream/world/action.h"
+#include "scream/world/atmosphere.h"
 #include "scream/world/choice.h"
 #include "scream/world/dialogue.h"
 #include "scream/world/item.h"
@@ -58,6 +59,9 @@ public:
 	Room *getCurrentRoom() const;
 	Zoom *getCurrentZoom() const { return getCurrentRoom()->getTopZoom(); }
 
+	Atmosphere &getAtmosphere() { return _atmosphere; }
+	const Atmosphere &getAtmosphere() const { return _atmosphere; }
+
 	void setBoundRoom(Room *room) { _boundRoom = room; }
 	void setBoundItem(Item *item) { _boundItem = item; }
 	void setBoundObject(Object *object) { _boundObject = object; }
@@ -75,6 +79,8 @@ private:
 	void switchRoom(const Common::String &name);
 	void switchZoom(const Common::String &name);
 	void zoomOut();
+
+	Atmosphere _atmosphere;
 
 	Room *_boundRoom = nullptr;
 	Track *_boundTrack = nullptr;

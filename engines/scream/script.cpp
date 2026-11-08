@@ -334,6 +334,9 @@ void Script::setEnabled(int key, bool enabled) {
 	case kScWait:
 		_waitEnabled = enabled;
 		break;
+	case kScSky:
+		g_engine->_world.getAtmosphere().sky = enabled;
+		break;
 	default:
 		g_engine->_settings.setEnabled(key, enabled);
 		break;
