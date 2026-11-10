@@ -105,7 +105,10 @@ int Script::scUnlock(lua_State *L) {
 
 int Script::scSetAmbience(lua_State *L) {
 	describeFunction(L, "scSetAmbience");
-	warning("scSetAmbience not implemented");
+	int target = lua_tonumber(L, 1);
+	int preset = lua_tonumber(L, 2);
+	bool now = lua_toboolean(L, 3);
+	g_engine->setAmbience(target, preset, now);
 	return 0;
 }
 

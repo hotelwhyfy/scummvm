@@ -140,6 +140,19 @@ enum TransitionKind {
 	kScSmooth = 2,
 };
 
+enum AmbiencePreset {
+	kScDawn = 309,
+	kScMorning = 311,
+	kScDusk = 317,
+	kScStorm = 319,
+};
+
+enum AmbienceTarget {
+	kScSkyColor = 1042,
+	kScCloudColor = 1043,
+	kScScreenColor = 1044,
+};
+
 } // end of namespace Scream
 
 #endif

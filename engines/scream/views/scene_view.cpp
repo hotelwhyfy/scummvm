@@ -30,6 +30,80 @@ namespace Scream {
 
 const static float kZoomViewScale = kScreenWidth / 800.0f; // zooms have a width of 800px stretched to 1024px
 
+struct SkyPreset {
+	int preset;
+	float sky[3];
+	float horizon[3];
+};
+
+static const SkyPreset kSkyPresets[] = {
+	{kScDawn, {1.0f, 0.8f, 0.55f}, {0.8f, 0.05f, 0.05f}},
+	{kScMorning, {0.9f, 0.9f, 0.9f}, {0.55f, 0.65f, 0.8f}},
+	{kScDusk, {0.45f, 0.5f, 0.6f}, {1.0f, 0.0f, 0.0f}},
+	{kScStorm, {0.7f, 0.7f, 0.9f}, {0.15f, 0.15f, 0.8f}},
+};
+
+static const SkyPreset &findSkyPreset(int preset) {
+	for (const SkyPreset &entry : kSkyPresets)
+		if (entry.preset == preset)
+			return entry;
+	warning("findSkyPreset preset not found %d", preset);
+	return kSkyPresets[1]; // morning
+}
+
+static void stepChannel(float &value, float target, bool &arrived) {
+	if (target > value)
+		value += 0.0001f;
+	else if (target < value)
+		value -= 0.0001f;
+	if (fabs(target - value) < 0.001)
+		arrived = true;
+}
+
+void SceneView::updateSkyFade(int target) {
+	if (_skySettled) {
+		const SkyPreset &current = findSkyPreset(_skyPreset);
+		_skyColor = current.sky;
+		_horizonColor = current.horizon;
+	}
+
+	if (_skyPreset == target)
+		return;
+
+	if (_skySettled) {
+		for (uint i = 0; i < ARRAYSIZE(_skyArrived); ++i)
+			_skyArrived[i] = false;
+		_skySettled = false;
+	}
+
+	const SkyPreset &goal = findSkyPreset(target);
+	float *sky = _skyColor.getData();
+	float *horizon = _horizonColor.getData();
+	for (uint i = 0; i < 3; ++i) {
+		stepChannel(sky[i], goal.sky[i], _skyArrived[i]);
+		stepChannel(horizon[i], goal.horizon[i], _skyArrived[i + 3]);
+	}
+
+	bool allArrived = true;
+	for (bool arrived : _skyArrived)
+		allArrived = allArrived && arrived;
+
+	if (allArrived) {
+		_skySettled = true;
+		_skyPreset = target;
+	}
+}
+
+void SceneView::snapAmbience(int target, int preset) {
+	switch (target) {
+	case kScSkyColor:
+		_skyPreset = preset;
+		break;
+	default:
+		warning("SceneView::snapAmbience: target case not implemented %d", target);
+	}
+}
+
 void SceneView::loadNode(Gfx *gfx, const Node *node) {
 	if (!node)
 		error("SceneView::loadNode: node not provided");
@@ -44,16 +118,16 @@ void SceneView::loadNode(Gfx *gfx, const Node *node) {
 	_loadedNode = node;
 }
 
-void SceneView::loadBackdrop(Gfx *gfx) {
+void SceneView::loadSky(Gfx *gfx) {
 	_whiteTexture = loadSolid(gfx, 255, 255, 255);
 	_transparentTexture = loadSolid(gfx, 0, 0, 0, 0);
 	_rainTexture = loadTexture(gfx, kRainImage);
 	_gradientTexture = loadTexture(gfx, kGradientImage);
 	for (uint i = 0; i < kNumFaces; ++i) {
-		_backdropTextures[i] = _whiteTexture;
+		_skyTextures[i] = _whiteTexture;
 		_horizonTextures[i] = _gradientTexture;
 	}
-	_backdropTextures[kScDown - 1] = _rainTexture;
+	_skyTextures[kScDown - 1] = _rainTexture;
 	_horizonTextures[kScUp - 1] = _transparentTexture;
 	_horizonTextures[kScDown - 1] = _whiteTexture;
 }
@@ -76,17 +150,22 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 		loadZoom(gfx, currentZoom);
 
 	if (_whiteTexture == 0)
-		loadBackdrop(gfx);
+		loadSky(gfx);
 
 	gfx->clear();
 
 	if (currentNode && !currentZoom) {
 		gfx->setup3D(camera.getHeading(), camera.getPitch(), camera.getFov());
 		if (world.getAtmosphere().sky) {
+			int target = world.getAtmosphere().skyPreset;
+			updateSkyFade(target);
+			const SkyPreset &goal = findSkyPreset(target);
+			const float *skyColor = (_skyPreset != target) ? _skyColor.getData() : goal.sky;
+			const float *horizonColor = (_skyPreset != target) ? _horizonColor.getData() : goal.horizon;
 			gfx->setBlend(kBlendAdditive);
-			gfx->drawCube(_backdropTextures, Color(0.9f, 0.9f, 0.9f));
+			gfx->drawCube(_skyTextures, skyColor);
 			gfx->setBlend(kBlendNormal);
-			gfx->drawCube(_horizonTextures, Color(0.55f, 0.65f, 0.8f));
+			gfx->drawCube(_horizonTextures, horizonColor);
 			gfx->setBlend(kBlendMask);
 			gfx->drawCube(_maskTextures);
 			gfx->setBlend(kBlendMultiply);

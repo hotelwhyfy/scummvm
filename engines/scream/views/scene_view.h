@@ -26,6 +26,7 @@
 #include "graphics/opengl/system_headers.h"
 
 #include "scream/camera.h"
+#include "scream/gfx.h"
 #include "scream/world/world.h"
 
 namespace Scream {
@@ -41,23 +42,30 @@ public:
 	void freeTextures(Gfx *gfx);
 	Object *findObjectAt(const World &world, const Camera &camera, const Common::Point &mouse) const;
 	static bool isInBand(const Common::Point &mouse);
+	void snapAmbience(int target, int preset);
 
 private:
 	GLuint _faceTextures[kNumFaces] = {};
 	GLuint _maskTextures[kNumFaces] = {};
-	GLuint _backdropTextures[kNumFaces] = {};
+	GLuint _skyTextures[kNumFaces] = {};
 	GLuint _horizonTextures[kNumFaces] = {};
 	GLuint _zoomTexture = 0;
 	GLuint _whiteTexture = 0;
 	GLuint _transparentTexture = 0;
 	GLuint _rainTexture = 0;
 	GLuint _gradientTexture = 0;
+	int _skyPreset = kScMorning;
+	bool _skySettled = true;
+	Color _skyColor;
+	Color _horizonColor;
+	bool _skyArrived[6] = {};
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
 	void loadNode(Gfx *gfx, const Node *node);
 	void loadZoom(Gfx *gfx, const Zoom *zoom);
-	void loadBackdrop(Gfx *gfx);
+	void loadSky(Gfx *gfx);
 	void freeNodeTextures(Gfx *gfx);
+	void updateSkyFade(int target);
 };
 
 } // end of namespace Scream

@@ -223,6 +223,12 @@ void ScreamEngine::reloadScene() {
 	_sceneView.invalidate();
 }
 
+void ScreamEngine::setAmbience(int target, int preset, bool now) {
+	_world.setAmbience(target, preset);
+	if (now)
+		_sceneView.snapAmbience(target, preset);
+}
+
 ScreamEngine::ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc) : Engine(syst),
 																			   _gameDescription(gameDesc), _randomSource("Scream") {
 	g_engine = this;

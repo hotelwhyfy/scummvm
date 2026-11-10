@@ -22,10 +22,15 @@
 #ifndef SCREAM_WORLD_ATMOSPHERE_H
 #define SCREAM_WORLD_ATMOSPHERE_H
 
+#include "scream/constants.h"
+
 namespace Scream {
 
 struct Atmosphere {
 	bool sky = true;
+	int skyPreset = kScMorning;
+	int cloudPreset = kScMorning;
+	int screenPreset = kScMorning;
 };
 
 } // end of namespace Scream

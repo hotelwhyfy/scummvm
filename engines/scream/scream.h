@@ -105,6 +105,7 @@ public:
 	void showFeedback(const Common::String &text);
 	void switchView(int kind, const Common::String &name);
 	void reloadScene();
+	void setAmbience(int target, int preset, bool now);
 
 public:
 	ScreamEngine(OSystem *syst, const ADGameDescription *gameDesc);

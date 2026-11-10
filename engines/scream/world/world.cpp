@@ -99,6 +99,23 @@ Node *World::findNode(const Room *room, const Common::String &name) const {
 	return nullptr;
 }
 
+void World::setAmbience(int target, int preset) {
+	switch (target) {
+	case kScSkyColor:
+		_atmosphere.skyPreset = preset;
+		break;
+	case kScCloudColor:
+		_atmosphere.cloudPreset = preset;
+		break;
+	case kScScreenColor:
+		_atmosphere.screenPreset = preset;
+		break;
+	default:
+		warning("World::setAmbience: unknown target type %d", target);
+		break;
+	}
+}
+
 void World::switchTo(int kind, const Common::String &name) {
 	switch (kind) {
 	case kScRoom:

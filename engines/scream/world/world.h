@@ -65,6 +65,7 @@ public:
 	void setBoundRoom(Room *room) { _boundRoom = room; }
 	void setBoundItem(Item *item) { _boundItem = item; }
 	void setBoundObject(Object *object) { _boundObject = object; }
+	void setAmbience(int target, int preset);
 
 	void switchTo(int kind, const Common::String &name);
 	void scCreate(int kind, const char *name);
