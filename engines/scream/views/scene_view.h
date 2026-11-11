@@ -54,11 +54,18 @@ private:
 	GLuint _transparentTexture = 0;
 	GLuint _rainTexture = 0;
 	GLuint _gradientTexture = 0;
+
 	int _skyPreset = kScMorning;
 	bool _skySettled = true;
 	Color _skyColor;
 	Color _horizonColor;
 	bool _skyArrived[6] = {};
+	int _screenPreset = kScMorning;
+	bool _screenSettled = true;
+	float _screenColor[4] = {};
+	float _screenStep[4] = {};
+	bool _screenArrived[4] = {};
+
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
 	void loadNode(Gfx *gfx, const Node *node);
@@ -66,6 +73,7 @@ private:
 	void loadSky(Gfx *gfx);
 	void freeNodeTextures(Gfx *gfx);
 	void updateSkyFade(int target);
+	void updateScreenFade(int target);
 };
 
 } // end of namespace Scream

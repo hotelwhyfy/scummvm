@@ -26,7 +26,6 @@
 #include "graphics/pixelformat.h"
 #include "graphics/surface.h"
 #include "math/vector3d.h"
-#include "math/vector4d.h"
 
 #include "scream/constants.h"
 

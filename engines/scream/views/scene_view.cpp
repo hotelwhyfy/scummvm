@@ -36,11 +36,23 @@ struct SkyPreset {
 	float horizon[3];
 };
 
+struct ScreenPreset {
+	int preset;
+	float screen[4];
+};
+
 static const SkyPreset kSkyPresets[] = {
 	{kScDawn, {1.0f, 0.8f, 0.55f}, {0.8f, 0.05f, 0.05f}},
 	{kScMorning, {0.9f, 0.9f, 0.9f}, {0.55f, 0.65f, 0.8f}},
 	{kScDusk, {0.45f, 0.5f, 0.6f}, {1.0f, 0.0f, 0.0f}},
 	{kScStorm, {0.7f, 0.7f, 0.9f}, {0.15f, 0.15f, 0.8f}},
+};
+
+static const ScreenPreset kScreenPresets[] = {
+	{kScDawn, {1.0f, 0.55f, 0.55f, 0.025f}},
+	{kScMorning, {1.0f, 1.0f, 1.0f, 0.0f}},
+	{kScDusk, {1.0f, 0.25f, 0.25f, 0.02f}},
+	{kScStorm, {0.0f, 0.0f, 0.15f, 0.15f}},
 };
 
 static const SkyPreset &findSkyPreset(int preset) {
@@ -51,11 +63,19 @@ static const SkyPreset &findSkyPreset(int preset) {
 	return kSkyPresets[1]; // morning
 }
 
-static void stepChannel(float &value, float target, bool &arrived) {
+static const ScreenPreset &findScreenPreset(int preset) {
+	for (const ScreenPreset &entry : kScreenPresets)
+		if (entry.preset == preset)
+			return entry;
+	warning("findScreenPreset preset not found %d", preset);
+	return kScreenPresets[1]; // morning
+}
+
+static void stepChannel(float &value, float target, bool &arrived, float step) {
 	if (target > value)
-		value += 0.0001f;
+		value += step;
 	else if (target < value)
-		value -= 0.0001f;
+		value -= step;
 	if (fabs(target - value) < 0.001)
 		arrived = true;
 }
@@ -79,9 +99,9 @@ void SceneView::updateSkyFade(int target) {
 	const SkyPreset &goal = findSkyPreset(target);
 	float *sky = _skyColor.getData();
 	float *horizon = _horizonColor.getData();
-	for (uint i = 0; i < 3; ++i) {
-		stepChannel(sky[i], goal.sky[i], _skyArrived[i]);
-		stepChannel(horizon[i], goal.horizon[i], _skyArrived[i + 3]);
+	for (uint i = 0; i < ARRAYSIZE(_skyArrived); ++i) {
+		stepChannel(sky[i], goal.sky[i], _skyArrived[i], 0.0001f);
+		stepChannel(horizon[i], goal.horizon[i], _skyArrived[i + 3], 0.0001f);
 	}
 
 	bool allArrived = true;
@@ -94,10 +114,46 @@ void SceneView::updateSkyFade(int target) {
 	}
 }
 
+void SceneView::updateScreenFade(int target) {
+	if (_screenSettled) {
+		const ScreenPreset &current = findScreenPreset(_screenPreset);
+		for (uint i = 0; i < ARRAYSIZE(_screenColor); ++i)
+			_screenColor[i] = current.screen[i];
+	}
+
+	if (_screenPreset == target)
+		return;
+
+	const ScreenPreset &goal = findScreenPreset(target);
+
+	if (_screenSettled) {
+		for (uint i = 0; i < ARRAYSIZE(_screenArrived); ++i) {
+			_screenStep[i] = fabs(goal.screen[i] - _screenColor[i]) * 10.0 * 0.0001;
+			_screenArrived[i] = false;
+		}
+		_screenSettled = false;
+	}
+
+	for (uint i = 0; i < ARRAYSIZE(_screenColor); ++i)
+		stepChannel(_screenColor[i], goal.screen[i], _screenArrived[i], _screenStep[i]);
+
+	bool allArrived = true;
+	for (bool arrived : _screenArrived)
+		allArrived = allArrived && arrived;
+
+	if (allArrived) {
+		_screenSettled = true;
+		_screenPreset = target;
+	}
+}
+
 void SceneView::snapAmbience(int target, int preset) {
 	switch (target) {
 	case kScSkyColor:
 		_skyPreset = preset;
+		break;
+	case kScScreenColor:
+		_screenPreset = preset;
 		break;
 	default:
 		warning("SceneView::snapAmbience: target case not implemented %d", target);
@@ -157,11 +213,11 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 	if (currentNode && !currentZoom) {
 		gfx->setup3D(camera.getHeading(), camera.getPitch(), camera.getFov());
 		if (world.getAtmosphere().sky) {
-			int target = world.getAtmosphere().skyPreset;
-			updateSkyFade(target);
-			const SkyPreset &goal = findSkyPreset(target);
-			const float *skyColor = (_skyPreset != target) ? _skyColor.getData() : goal.sky;
-			const float *horizonColor = (_skyPreset != target) ? _horizonColor.getData() : goal.horizon;
+			int skyTarget = world.getAtmosphere().skyPreset;
+			updateSkyFade(skyTarget);
+			const SkyPreset &skyGoal = findSkyPreset(skyTarget);
+			const float *skyColor = (_skyPreset != skyTarget) ? _skyColor.getData() : skyGoal.sky;
+			const float *horizonColor = (_skyPreset != skyTarget) ? _horizonColor.getData() : skyGoal.horizon;
 			gfx->setBlend(kBlendAdditive);
 			gfx->drawCube(_skyTextures, skyColor);
 			gfx->setBlend(kBlendNormal);
@@ -172,6 +228,11 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 		}
 		gfx->drawCube(_faceTextures);
 		gfx->setBlend(kBlendNormal);
+		int screenTarget = world.getAtmosphere().screenPreset;
+		updateScreenFade(screenTarget);
+		const ScreenPreset &screenGoal = findScreenPreset(screenTarget);
+		const float *screenColor = (_screenPreset != screenTarget) ? _screenColor : screenGoal.screen;
+		gfx->drawCube(_maskTextures, screenColor, screenColor[3]);
 	}
 
 	gfx->setup2D();
