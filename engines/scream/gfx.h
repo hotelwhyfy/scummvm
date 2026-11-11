@@ -26,6 +26,7 @@
 #include "graphics/pixelformat.h"
 #include "graphics/surface.h"
 #include "math/vector3d.h"
+#include "math/vector4d.h"
 
 #include "scream/constants.h"
 
@@ -48,7 +49,7 @@ public:
 	void deleteTexture(GLuint texture);
 	void clear();
 	void setup3D(float heading, float pitch, float fov);
-	void drawCube(const GLuint textures[kNumFaces], const Color &color = Color(1.0f, 1.0f, 1.0f));
+	void drawCube(const GLuint textures[kNumFaces], const Color &color = Color(1.0f, 1.0f, 1.0f), float alpha = 1.0f);
 	void setup2D();
 	void drawTexture2D(GLuint texture, int x, int y, int w, int h,
 					   float u0 = 0.0f, float v0 = 0.0f, float u1 = 1.0f, float v1 = 1.0f,

@@ -185,9 +185,11 @@ void Gfx::setup3D(float heading, float pitch, float fov) {
 	glRotatef(heading, 0.0f, 1.0f, 0.0f);
 }
 
-void Gfx::drawCube(const GLuint textures[kNumFaces], const Color &color) {
+void Gfx::drawCube(const GLuint textures[kNumFaces], const Color &color, float alpha) {
 	glEnable(GL_TEXTURE_2D);
-	glColor3fv(color.getData());
+	
+	const float *rgb = color.getData();
+	glColor4f(rgb[0], rgb[1], rgb[2], alpha);
 
 	for (uint face = 0; face < kNumFaces; ++face) {
 		glBindTexture(GL_TEXTURE_2D, textures[face]);
