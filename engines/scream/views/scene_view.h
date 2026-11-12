@@ -26,6 +26,7 @@
 #include "graphics/opengl/system_headers.h"
 
 #include "scream/camera.h"
+#include "scream/colorfade.h"
 #include "scream/gfx.h"
 #include "scream/world/world.h"
 
@@ -56,15 +57,9 @@ private:
 	GLuint _gradientTexture = 0;
 
 	int _skyPreset = kScMorning;
-	bool _skySettled = true;
-	Color _skyColor;
-	Color _horizonColor;
-	bool _skyArrived[6] = {};
+	ColorFade _skyFade{6, 0.0001f};
 	int _screenPreset = kScMorning;
-	bool _screenSettled = true;
-	float _screenColor[4] = {};
-	float _screenStep[4] = {};
-	bool _screenArrived[4] = {};
+	ColorFade _screenFade{4, 0.0f};
 
 	const Node *_loadedNode = nullptr;
 	const Zoom *_loadedZoom = nullptr;
@@ -72,8 +67,6 @@ private:
 	void loadZoom(Gfx *gfx, const Zoom *zoom);
 	void loadSky(Gfx *gfx);
 	void freeNodeTextures(Gfx *gfx);
-	void updateSkyFade(int target);
-	void updateScreenFade(int target);
 };
 
 } // end of namespace Scream

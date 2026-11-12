@@ -30,121 +30,47 @@ namespace Scream {
 
 const static float kZoomViewScale = kScreenWidth / 800.0f; // zooms have a width of 800px stretched to 1024px
 
-struct SkyPreset {
+typedef const float *(*FindColors)(int preset);
+
+struct AmbienceColors {
 	int preset;
-	float sky[3];
-	float horizon[3];
+	float values[ColorFade::kMaxChannels];
 };
 
-struct ScreenPreset {
-	int preset;
-	float screen[4];
+static const AmbienceColors kSkyPresets[] = { // sky + horizon
+	{kScDawn, {1.0f, 0.8f, 0.55f, 0.8f, 0.05f, 0.05f}},
+	{kScMorning, {0.9f, 0.9f, 0.9f, 0.55f, 0.65f, 0.8f}},
+	{kScDusk, {0.45f, 0.5f, 0.6f, 1.0f, 0.0f, 0.0f}},
+	{kScStorm, {0.7f, 0.7f, 0.9f, 0.15f, 0.15f, 0.8f}},
 };
 
-static const SkyPreset kSkyPresets[] = {
-	{kScDawn, {1.0f, 0.8f, 0.55f}, {0.8f, 0.05f, 0.05f}},
-	{kScMorning, {0.9f, 0.9f, 0.9f}, {0.55f, 0.65f, 0.8f}},
-	{kScDusk, {0.45f, 0.5f, 0.6f}, {1.0f, 0.0f, 0.0f}},
-	{kScStorm, {0.7f, 0.7f, 0.9f}, {0.15f, 0.15f, 0.8f}},
-};
-
-static const ScreenPreset kScreenPresets[] = {
+static const AmbienceColors kScreenPresets[] = { // screen rgba
 	{kScDawn, {1.0f, 0.55f, 0.55f, 0.025f}},
 	{kScMorning, {1.0f, 1.0f, 1.0f, 0.0f}},
 	{kScDusk, {1.0f, 0.25f, 0.25f, 0.02f}},
 	{kScStorm, {0.0f, 0.0f, 0.15f, 0.15f}},
 };
 
-static const SkyPreset &findSkyPreset(int preset) {
-	for (const SkyPreset &entry : kSkyPresets)
+static const float *findSkyColors(int preset) {
+	for (const AmbienceColors &entry : kSkyPresets)
 		if (entry.preset == preset)
-			return entry;
-	warning("findSkyPreset preset not found %d", preset);
-	return kSkyPresets[1]; // morning
+			return entry.values;
+	warning("findSkyColors preset not found %d", preset);
+	return kSkyPresets[1].values; // morning
 }
 
-static const ScreenPreset &findScreenPreset(int preset) {
-	for (const ScreenPreset &entry : kScreenPresets)
+static const float *findScreenColors(int preset) {
+	for (const AmbienceColors &entry : kScreenPresets)
 		if (entry.preset == preset)
-			return entry;
-	warning("findScreenPreset preset not found %d", preset);
-	return kScreenPresets[1]; // morning
+			return entry.values;
+	warning("findScreenColors preset not found %d", preset);
+	return kScreenPresets[1].values; // morning
 }
 
-static void stepChannel(float &value, float target, bool &arrived, float step) {
-	if (target > value)
-		value += step;
-	else if (target < value)
-		value -= step;
-	if (fabs(target - value) < 0.001)
-		arrived = true;
-}
-
-void SceneView::updateSkyFade(int target) {
-	if (_skySettled) {
-		const SkyPreset &current = findSkyPreset(_skyPreset);
-		_skyColor = current.sky;
-		_horizonColor = current.horizon;
-	}
-
-	if (_skyPreset == target)
-		return;
-
-	if (_skySettled) {
-		for (uint i = 0; i < ARRAYSIZE(_skyArrived); ++i)
-			_skyArrived[i] = false;
-		_skySettled = false;
-	}
-
-	const SkyPreset &goal = findSkyPreset(target);
-	float *sky = _skyColor.getData();
-	float *horizon = _horizonColor.getData();
-	for (uint i = 0; i < ARRAYSIZE(_skyArrived); ++i) {
-		stepChannel(sky[i], goal.sky[i], _skyArrived[i], 0.0001f);
-		stepChannel(horizon[i], goal.horizon[i], _skyArrived[i + 3], 0.0001f);
-	}
-
-	bool allArrived = true;
-	for (bool arrived : _skyArrived)
-		allArrived = allArrived && arrived;
-
-	if (allArrived) {
-		_skySettled = true;
-		_skyPreset = target;
-	}
-}
-
-void SceneView::updateScreenFade(int target) {
-	if (_screenSettled) {
-		const ScreenPreset &current = findScreenPreset(_screenPreset);
-		for (uint i = 0; i < ARRAYSIZE(_screenColor); ++i)
-			_screenColor[i] = current.screen[i];
-	}
-
-	if (_screenPreset == target)
-		return;
-
-	const ScreenPreset &goal = findScreenPreset(target);
-
-	if (_screenSettled) {
-		for (uint i = 0; i < ARRAYSIZE(_screenArrived); ++i) {
-			_screenStep[i] = fabs(goal.screen[i] - _screenColor[i]) * 10.0 * 0.0001;
-			_screenArrived[i] = false;
-		}
-		_screenSettled = false;
-	}
-
-	for (uint i = 0; i < ARRAYSIZE(_screenColor); ++i)
-		stepChannel(_screenColor[i], goal.screen[i], _screenArrived[i], _screenStep[i]);
-
-	bool allArrived = true;
-	for (bool arrived : _screenArrived)
-		allArrived = allArrived && arrived;
-
-	if (allArrived) {
-		_screenSettled = true;
-		_screenPreset = target;
-	}
+static const float *updateAmbience(ColorFade &fade, int &preset, int target, FindColors find) {
+	if (preset != target && fade.update(find(preset), find(target)))
+		preset = target;
+	return (preset != target) ? fade.getValues() : find(target);
 }
 
 void SceneView::snapAmbience(int target, int preset) {
@@ -213,26 +139,20 @@ void SceneView::draw(Gfx *gfx, World &world, const Camera &camera) {
 	if (currentNode && !currentZoom) {
 		gfx->setup3D(camera.getHeading(), camera.getPitch(), camera.getFov());
 		if (world.getAtmosphere().sky) {
-			int skyTarget = world.getAtmosphere().skyPreset;
-			updateSkyFade(skyTarget);
-			const SkyPreset &skyGoal = findSkyPreset(skyTarget);
-			const float *skyColor = (_skyPreset != skyTarget) ? _skyColor.getData() : skyGoal.sky;
-			const float *horizonColor = (_skyPreset != skyTarget) ? _horizonColor.getData() : skyGoal.horizon;
+			const float *sky = updateAmbience(_skyFade, _skyPreset, world.getAtmosphere().skyPreset, findSkyColors);
 			gfx->setBlend(kBlendAdditive);
-			gfx->drawCube(_skyTextures, skyColor);
+			gfx->drawCube(_skyTextures, sky);
 			gfx->setBlend(kBlendNormal);
-			gfx->drawCube(_horizonTextures, horizonColor);
+			gfx->drawCube(_horizonTextures, sky + 3);
 			gfx->setBlend(kBlendMask);
 			gfx->drawCube(_maskTextures);
 			gfx->setBlend(kBlendMultiply);
 		}
 		gfx->drawCube(_faceTextures);
 		gfx->setBlend(kBlendNormal);
-		int screenTarget = world.getAtmosphere().screenPreset;
-		updateScreenFade(screenTarget);
-		const ScreenPreset &screenGoal = findScreenPreset(screenTarget);
-		const float *screenColor = (_screenPreset != screenTarget) ? _screenColor : screenGoal.screen;
-		gfx->drawCube(_maskTextures, screenColor, screenColor[3]);
+
+		const float *screen = updateAmbience(_screenFade, _screenPreset, world.getAtmosphere().screenPreset, findScreenColors);
+		gfx->drawCube(_maskTextures, screen, screen[3]);
 	}
 
 	gfx->setup2D();

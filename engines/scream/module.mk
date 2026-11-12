@@ -19,6 +19,7 @@ MODULE_OBJS = \
 	feedback.o \
 	inventory.o \
 	crossfade.o \
+	colorfade.o \
 	world/world.o \
 	world/track.o \
 	world/dialogue.o \
